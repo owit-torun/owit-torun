@@ -86,8 +86,17 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-3 mt-4 md:mt-0">
-                <button onclick="promptEmployeeLogin()" class="flex items-center gap-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-lg font-bold transition-colors shadow-sm cursor-pointer print-hide text-sm border border-indigo-100" aria-label="Zaloguj do Panelu">
-                    <i data-lucide="lock" class="w-4 h-4 text-indigo-500"></i> <span class="hidden md:inline">Panel Pracownika</span><span class="md:hidden">Pracownik</span>
+                <button onclick="promptEmployeeLogin()"
+                    class="flex items-center gap-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-lg font-bold transition-colors shadow-sm cursor-pointer print-hide text-sm border border-indigo-100"
+                    aria-label="Zaloguj do Panelu">
+                    <i data-lucide="lock" class="w-4 h-4 text-indigo-500"></i> <span class="hidden md:inline"
+                        id="loginLabel">Panel Pracownika</span><span class="md:hidden"
+                        id="loginLabelMobile">Pracownik</span>
+                </button>
+                <button id="addGearBtn" onclick="openAddGearModal()"
+                    class="hidden items-center gap-2 bg-purple-600 text-white hover:bg-purple-700 px-4 py-2 rounded-lg font-bold transition-colors shadow-sm cursor-pointer print-hide text-sm">
+                    <i data-lucide="package-plus" class="w-4 h-4"></i> <span class="hidden md:inline">Dodaj
+                        sprzęt</span>
                 </button>
                 <button onclick="printSelected()"
                     class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-medium transition-colors shadow-sm cursor-pointer"
@@ -159,6 +168,120 @@
         </div>
     </div>
 
+    <!-- MODAL LOGOWANIA -->
+    <div id="loginModal"
+        class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4 print:hidden backdrop-blur-sm">
+        <div
+            class="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-indigo-50/50">
+                <h3 class="text-xl font-bold flex items-center gap-2 text-indigo-800"><i data-lucide="shield"
+                        class="text-indigo-600"></i> Logowanie do panelu</h3>
+                <button type="button" onclick="closeLoginModal()"
+                    class="text-gray-400 hover:text-gray-600 cursor-pointer p-1 transition-colors"><i
+                        data-lucide="x"></i></button>
+            </div>
+            <div class="p-6 bg-white">
+                <form id="loginForm" class="space-y-4" onsubmit="submitLogin(event)">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-600 uppercase tracking-wide">E-mail</label>
+                        <input type="email" id="loginEmail"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
+                            placeholder="owit@owit.pl" required>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-600 uppercase tracking-wide">Hasło</label>
+                        <input type="password" id="loginPassword"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
+                            required>
+                    </div>
+                    <div class="pt-2">
+                        <button type="submit" id="submitLoginBtn"
+                            class="w-full px-6 py-2 rounded-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md transition-colors flex items-center justify-center cursor-pointer">Zaloguj
+                            się</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DO DODAWANIA SPRZĘTU -->
+    <div id="addGearModal"
+        class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 print:hidden backdrop-blur-sm">
+        <div
+            class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-xl font-bold flex items-center gap-2 text-gray-800"><i data-lucide="package-plus"
+                        class="text-purple-600"></i> Dodaj Własny Sprzęt</h3>
+                <button onclick="closeAddGearModal()"
+                    class="text-gray-400 hover:text-gray-600 cursor-pointer p-1 transition-colors"><i
+                        data-lucide="x"></i></button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-grow bg-white">
+                <form id="addGearForm" class="space-y-5" onsubmit="submitNewGear(event)">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-gray-600 uppercase tracking-wide">Dział (Z
+                                listy)</label>
+                            <select id="modalDept" onchange="updateModalCategories()"
+                                class="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-sm text-sm"
+                                required>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-gray-600 uppercase tracking-wide">Kategoria</label>
+                            <select id="modalCat"
+                                class="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-sm text-sm"
+                                required>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-600 uppercase tracking-wide">Nazwa Sprzętu</label>
+                        <input type="text" id="modalName"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-sm"
+                            placeholder="np. Klawiatura brajlowska" required>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-600 uppercase tracking-wide">Opis Szczegółowy</label>
+                        <textarea id="modalDesc"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-sm"
+                            rows="3" placeholder="Informacje dla klienta..." required></textarea>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-600 uppercase tracking-wide">Cechy / Tagi (oddzielone
+                            przecinkami)</label>
+                        <input type="text" id="modalFeatures"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-sm"
+                            placeholder="np. Kontrast, Łatwa obsługa, Bezprzewodowa" required>
+                    </div>
+
+                    <div class="space-y-1 pt-2 border-t border-gray-100">
+                        <label class="text-xs font-bold text-gray-600 uppercase tracking-wide">Zdjęcie Sprzętu (.jpg /
+                            .png)</label>
+                        <div class="flex items-center gap-3">
+                            <input type="file" id="modalImage" accept="image/*"
+                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 transition-all border border-gray-200 rounded-lg shadow-sm cursor-pointer">
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1">Opcjonalne. Plik zostanie zapisany w bazie i połączony
+                            z produktem.</p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-3">
+                <button type="button" onclick="closeAddGearModal()"
+                    class="px-5 py-2 rounded-lg font-semibold text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer">Anuluj</button>
+                <button type="submit" form="addGearForm" id="submitGearBtn"
+                    class="px-6 py-2 rounded-lg font-bold text-white bg-purple-600 hover:bg-purple-700 shadow-md transition-colors flex items-center justify-center min-w-[140px] cursor-pointer">Zapisz
+                    do bazy</button>
+            </div>
+        </div>
+    </div>
+
     <!-- KONTENER NA KATALOG -->
     <div id="catalog-container" class="max-w-7xl mx-auto space-y-24 print:space-y-0 print:mt-0">
         <!-- Tutaj JavaScript wygeneruje zawartość -->
@@ -191,10 +314,22 @@
         let isAdminMode = false;
         let currentUserEmail = null;
 
+        let customCatalogList = [];
+        let combinedCatalogData = [];
+
         // POBIERANIE DANYCH Z BAZY NA ŻYWO
         database.ref('inventory').on('value', (snapshot) => {
             inventoryData = snapshot.val() || {};
             // Jeśli DOM jest już załadowany, przerysuj
+            if (document.getElementById('catalog-container')) {
+                renderCatalog();
+            }
+        });
+
+        // POBIERANIE NOWYCH SPRZĘTÓW Z BAZY
+        database.ref('custom_catalog').on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            customCatalogList = Object.values(data);
             if (document.getElementById('catalog-container')) {
                 renderCatalog();
             }
@@ -205,10 +340,17 @@
             if (user) {
                 isEmployeeMode = true;
                 currentUserEmail = user.email;
+                document.getElementById('loginLabel').innerText = "Wyloguj (" + user.email + ")";
+                document.getElementById('loginLabelMobile').innerText = "Wyloguj";
+
                 if (user.email.includes('admin')) {
                     isAdminMode = true;
+                    document.getElementById('addGearBtn').classList.remove('hidden');
+                    document.getElementById('addGearBtn').classList.add('flex');
                 } else {
                     isAdminMode = false;
+                    document.getElementById('addGearBtn').classList.add('hidden');
+                    document.getElementById('addGearBtn').classList.remove('flex');
                 }
                 if (document.getElementById('catalog-container')) {
                     renderCatalog();
@@ -217,6 +359,10 @@
                 isEmployeeMode = false;
                 isAdminMode = false;
                 currentUserEmail = null;
+                document.getElementById('loginLabel').innerText = "Panel Pracownika";
+                document.getElementById('loginLabelMobile').innerText = "Pracownik";
+                document.getElementById('addGearBtn').classList.add('hidden');
+                document.getElementById('addGearBtn').classList.remove('flex');
                 if (document.getElementById('catalog-container')) {
                     renderCatalog();
                 }
@@ -231,15 +377,136 @@
                 }
                 return;
             }
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('loginModal').classList.add('flex');
+            setTimeout(() => document.getElementById('loginEmail').focus(), 100);
+        }
 
-            const email = prompt("Logowanie bezpieczne do Katalogu\\n\\nPodaj e-mail (np. pracownik@owit.pl):");
-            if (!email) return;
-            const password = prompt("Podaj hasło dostępowe dla " + email + ":");
-            if (!password) return;
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('loginModal').classList.remove('flex');
+            document.getElementById('loginForm').reset();
+        }
+
+        function submitLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitLoginBtn');
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin mr-2"></i> Logowanie...';
+            btn.disabled = true;
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
 
             auth.signInWithEmailAndPassword(email, password)
-                .then(() => alert("Pomyślnie zweryfikowano autoryzację!"))
-                .catch(error => alert("Błąd (" + error.code + "): Niepoprawny e-mail lub hasło."));
+                .then(() => {
+                    closeLoginModal();
+                })
+                .catch(error => alert("Niepoprawny e-mail lub hasło."))
+                .finally(() => {
+                    btn.innerHTML = 'Zaloguj się';
+                    btn.disabled = false;
+                    lucide.createIcons();
+                });
+        }
+
+        function openAddGearModal() {
+            if (combinedCatalogData.length === 0) combinedCatalogData = JSON.parse(JSON.stringify(catalogData));
+            const deptSelect = document.getElementById('modalDept');
+            deptSelect.innerHTML = combinedCatalogData.map((d, i) => `<option value="${i}">${d.departmentTitle}</option>`).join('');
+            updateModalCategories();
+            document.getElementById('addGearModal').classList.remove('hidden');
+        }
+
+        function updateModalCategories() {
+            if (combinedCatalogData.length === 0) combinedCatalogData = JSON.parse(JSON.stringify(catalogData));
+            const deptIdx = document.getElementById('modalDept').value;
+            const catSelect = document.getElementById('modalCat');
+            if (combinedCatalogData[deptIdx]) {
+                const dept = combinedCatalogData[deptIdx];
+                catSelect.innerHTML = dept.categories.map((c, i) => `<option value="${i}">${c.category}</option>`).join('');
+            }
+        }
+
+        function closeAddGearModal() {
+            document.getElementById('addGearModal').classList.add('hidden');
+            document.getElementById('addGearForm').reset();
+        }
+
+        async function submitNewGear(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitGearBtn');
+            btn.innerHTML = 'Zapisywanie...';
+            btn.disabled = true;
+
+            try {
+                const name = document.getElementById('modalName').value;
+                const desc = document.getElementById('modalDesc').value;
+                const featuresStr = document.getElementById('modalFeatures').value;
+                const features = featuresStr.split(',').map(f => f.trim()).filter(f => f);
+                const deptIdx = document.getElementById('modalDept').value;
+                const catIdx = document.getElementById('modalCat').value;
+
+                const fileInput = document.getElementById('modalImage');
+                let imageUrl = '';
+
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    imageUrl = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const img = new Image();
+                            img.onload = function () {
+                                const canvas = document.createElement('canvas');
+                                let width = img.width;
+                                let height = img.height;
+                                const maxDim = 800; // Zabezpieczenie przed zapchaniem bazy (max 800px)
+
+                                if (width > height) {
+                                    if (width > maxDim) {
+                                        height = Math.round(height * (maxDim / width));
+                                        width = maxDim;
+                                    }
+                                } else {
+                                    if (height > maxDim) {
+                                        width = Math.round(width * (maxDim / height));
+                                        height = maxDim;
+                                    }
+                                }
+                                canvas.width = width;
+                                canvas.height = height;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, width, height);
+                                // Kompresja do JPEG 70% jakości (zwykle plik waży wtedy zaledwie 30-50KB)
+                                resolve(canvas.toDataURL('image/jpeg', 0.7));
+                            }
+                            img.src = e.target.result;
+                        }
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                const newItem = {
+                    departmentIdx: deptIdx,
+                    categoryIdx: catIdx,
+                    name: name,
+                    desc: desc,
+                    features: features,
+                    imageUrl: imageUrl,
+                    createdAt: Date.now()
+                };
+
+                const dbKey = getDbKey(name);
+                await database.ref('custom_catalog/' + dbKey).set(newItem);
+
+                closeAddGearModal();
+                alert("Sukces! Nowy sprzęt został dodany do katalogu.");
+            } catch (error) {
+                console.error(error);
+                alert("Wystąpił błąd przy tworzeniu sprzętu: " + error.message);
+            } finally {
+                btn.innerHTML = 'Zapisz do bazy';
+                btn.disabled = false;
+            }
         }
 
         function getDbKey(name) {
@@ -262,7 +529,7 @@
         }
 
         function removeRental(dbKey, index) {
-            if(confirm("Czy na pewno chcesz usunąć to wypożyczenie (sprzęt wrócił)?")) {
+            if (confirm("Czy na pewno chcesz usunąć to wypożyczenie (sprzęt wrócił)?")) {
                 const rentals = inventoryData[dbKey].rentals || [];
                 rentals.splice(index, 1);
                 database.ref(`inventory/${dbKey}/rentals`).set(rentals).catch(e => alert("Błąd: " + e.message));
@@ -283,10 +550,19 @@
         }
 
         function removeQueue(dbKey, index) {
-            if(confirm("Czy usunąć tę osobę z kolejki?")) {
+            if (confirm("Czy usunąć tę osobę z kolejki?")) {
                 const q = inventoryData[dbKey].queueArr || [];
                 q.splice(index, 1);
                 database.ref(`inventory/${dbKey}/queueArr`).set(q).catch(e => alert("Błąd: " + e.message));
+            }
+        }
+
+        function hideGear(dbKey) {
+            if (confirm("UWAGA OSTATECZNA: Czy na pewno chcesz trwale usunąć ten przedmiot z katalogu dla wszystkich użytkowników?")) {
+                // Ukrywamy globalnie w bazie stałych plików
+                database.ref('inventory/' + dbKey + '/hidden').set(true).catch(e => alert("Błąd: " + e.message));
+                // Usuwamy również obiekt jeśli był w ogóle dodany do chmury customowych plików
+                database.ref('custom_catalog/' + dbKey).remove().catch(e => console.log("Nie był w custom, ok."));
             }
         }
 
@@ -296,24 +572,27 @@
             const itemTotal = invData.total || 1;
             const rentals = invData.rentals || [];
             const availableCount = Math.max(0, parseInt(itemTotal) - rentals.length);
-            
+
             let html = '';
-            
+
             if (isEmployeeMode) {
                 html += `<div class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm print-hide cursor-default" onclick="event.stopPropagation()">`;
-                
+
                 // Sekcja Administratora: Zmiana ilości całkowitej
                 if (isAdminMode) {
                     html += `
                     <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-200">
                         <span class="font-bold text-red-700"><i data-lucide="shield-check" class="w-4 h-4 inline-block -mt-1 mr-1"></i>Baza całkowita (Admin):</span>
-                        <input type="number" min="1" value="${itemTotal}" onchange="updateInventory('${dbKey}', 'total', parseInt(this.value))" class="w-16 px-2 py-1 border rounded text-center border-red-300 bg-red-50 text-red-900 font-bold">
+                        <div class="flex items-center gap-2">
+                            <input type="number" min="1" value="${itemTotal}" onchange="updateInventory('${dbKey}', 'total', parseInt(this.value))" class="w-16 px-2 py-1 border rounded text-center border-red-300 bg-red-50 text-red-900 font-bold">
+                            <button onclick="hideGear('${dbKey}')" title="Usuń z katalogu" class="bg-red-600 hover:bg-red-700 text-white font-bold p-1.5 rounded shadow-sm transition-colors cursor-pointer"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
                     </div>`;
                 }
 
                 // Lista wypożyczeń
                 html += `<div class="mb-3"><label class="text-[11px] font-bold text-gray-500 uppercase">Aktualne wypożyczenia (${rentals.length} / ${itemTotal}):</label>`;
-                
+
                 if (rentals.length === 0) {
                     html += `<div class="text-xs text-green-600 mt-1 italic">Sprzęt nie jest aktualnie wypożyczony.</div>`;
                 }
@@ -332,7 +611,7 @@
                 } else {
                     html += `<div class="mt-2 text-[11px] bg-red-100 text-red-700 text-center font-bold px-2 py-1 rounded">Wszystkie sztuki wypożyczone!</div>`;
                 }
-                
+
                 html += `</div>`; // Koniec sekcji wypożyczeń
 
                 // Sekcja kolejki
@@ -340,7 +619,7 @@
                 html += `
                     <div class="flex flex-col mt-3 pt-3 border-t border-gray-200">
                         <label class="text-[11px] font-bold text-gray-500 uppercase mb-2">Lista oczekujących (${queueArr.length}):</label>`;
-                
+
                 if (queueArr.length === 0) {
                     html += `<div class="text-xs text-gray-400 italic mb-2">Brak osób w kolejce.</div>`;
                 }
@@ -375,7 +654,7 @@
                     const dates = rentals.map(r => r.date).filter(d => d).sort();
                     const nearestReturn = dates.length > 0 ? dates[0] : "Brak daty";
                     const queueArr = invData.queueArr || [];
-                    
+
                     let queueTag = '';
                     if (queueArr.length > 0) {
                         queueTag = `<div class="mt-2 text-[11px] bg-yellow-100 text-yellow-800 text-center font-bold p-1 rounded-md border border-yellow-200">W kolejce oczekuje: ${queueArr.length} os.</div>`;
@@ -781,7 +1060,22 @@
             const container = document.getElementById('catalog-container');
             let htmlContent = '';
 
-            let processedData = catalogData.map((department, deptIdx) => {
+            // Scalanie danych statycznych z dynamicznymi z bazy
+            combinedCatalogData = JSON.parse(JSON.stringify(catalogData));
+            customCatalogList.forEach(item => {
+                const dIdx = parseInt(item.departmentIdx);
+                const cIdx = parseInt(item.categoryIdx);
+                if (combinedCatalogData[dIdx] && combinedCatalogData[dIdx].categories[cIdx]) {
+                    combinedCatalogData[dIdx].categories[cIdx].items.push({
+                        name: item.name,
+                        desc: item.desc,
+                        features: item.features || [],
+                        imageUrl: item.imageUrl || ''
+                    });
+                }
+            });
+
+            let processedData = combinedCatalogData.map((department, deptIdx) => {
                 if (currentFilter !== 'all' && deptIdx.toString() !== currentFilter) {
                     return null;
                 }
@@ -792,6 +1086,10 @@
                     }
 
                     let filteredItems = category.items.filter(item => {
+                        // Filtrowanie usuniętych z panelu sprzętów 
+                        const dbKey = getDbKey(item.name);
+                        if (inventoryData[dbKey] && inventoryData[dbKey].hidden === true) return false;
+
                         const searchStr = currentSearchQuery.toLowerCase();
                         if (!searchStr) return true;
 
