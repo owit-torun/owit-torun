@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Sprzętu OWiT</title>
+    <title>Katalog Sprzętu OWiT Toruń</title>
     <!-- Pobranie stylów Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Pobranie ikon Lucide -->
@@ -97,10 +97,14 @@
             </div>
         </div>
 
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <div>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-6">
+            <div class="flex-grow">
                 <h1 class="text-3xl font-bold text-gray-900">Katalog Sprzętu OWiT</h1>
                 <p class="text-gray-500 mt-2">Kompletne zestawienie wyposażenia i sprzętu asystującego</p>
+            </div>
+            <!-- Logotypy (strona i PFRON) -->
+            <div class="flex-shrink-0 bg-white rounded-lg p-2">
+                <img src="images/logotypy.png" alt="Logotypy projektu i PFRON" class="h-16 md:h-20 object-contain mix-blend-multiply" onerror="this.style.display='none'">
             </div>
         </div>
 
@@ -435,7 +439,8 @@
             printContainer.className = 'hidden print:block w-full text-black';
 
             let html = `
-                <div class="mb-10 text-center border-b-2 border-gray-800 pb-4">
+                <div class="mb-10 text-center border-b-2 border-gray-800 pb-6 flex flex-col items-center gap-6">
+                    <img src="images/logotypy.png" alt="Logotypy projektu" class="h-20 object-contain mx-auto" onerror="this.outerHTML=''">
                     <h1 class="text-3xl font-bold uppercase tracking-wider">${title}</h1>
                 </div>
                 <div class="grid grid-cols-1 gap-12">
@@ -639,24 +644,24 @@
                             `<li class="text-[11px] uppercase tracking-wider font-semibold bg-gray-50 text-gray-600 px-2 py-1 rounded border border-gray-200">${f}</li>`
                         ).join('');
 
-                        const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(item.name + ' sprzęt')}`;
+                        const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(item.name)}`;
 
                         htmlContent += `
-                            <div class="product-card relative ${selectedClass} rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col avoid-break print:shadow-none print:border-gray-300 transition-all hover:shadow-md hover:border-blue-300 cursor-pointer group" onclick="if(event.target.type !== 'checkbox') window.open('${searchUrl}', '_blank')" title="Szukaj w Google: ${item.name}">
+                            <div class="product-card relative ${selectedClass} rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col avoid-break print:shadow-none print:border-gray-300 transition-all hover:shadow-md hover:border-blue-300 group">
                                 <!-- Checkbox do zaznaczania do druku -->
                                 <div class="absolute top-3 right-3 z-10 print-hide" onclick="event.stopPropagation()">
                                     <input type="checkbox" onchange="togglePrintSelection('${item.name.replace(/'/g, "\\'")}')" class="print-checkbox w-6 h-6 cursor-pointer rounded border-gray-300 shadow-sm transition-all" ${checkedAttr} aria-label="Zaznacz do druku">
                                 </div>
                                 <!-- Miejsce na zdjęcie -->
-                                <div class="aspect-[4/3] bg-white border-b border-gray-200 flex flex-col items-center justify-center text-gray-400 relative overflow-hidden group-hover:opacity-90 transition-opacity">
+                                <div class="aspect-[4/3] bg-white border-b border-gray-200 flex flex-col items-center justify-center text-gray-400 relative overflow-hidden group-hover:opacity-90 transition-opacity cursor-pointer" onclick="togglePrintSelection('${item.name.replace(/'/g, "\\'")}')" title="Zaznacz/Odznacz do druku">
                                     ${imageArea}
                                 </div>
 
                                 <!-- Informacje o produkcie -->
-                                <div class="p-5 flex flex-col flex-grow bg-white group-hover:bg-blue-50/30 transition-colors">
-                                    <div class="flex items-start justify-between mb-2">
-                                        <h3 class="text-lg font-bold text-gray-900 leading-tight pr-6 group-hover:text-blue-700 transition-colors">${item.name}</h3>
-                                        <i data-lucide="external-link" class="w-4 h-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity mt-1 flex-shrink-0 print-hide"></i>
+                                <div class="p-5 flex flex-col flex-grow bg-white transition-colors">
+                                    <div class="flex items-start justify-between mb-2 cursor-pointer group/title" onclick="window.open('${searchUrl}', '_blank')" title="Szukaj w Google: ${item.name}">
+                                        <h3 class="text-lg font-bold text-gray-900 leading-tight pr-6 group-hover/title:text-blue-700 transition-colors inline-block w-full">${item.name}</h3>
+                                        <i data-lucide="external-link" class="w-4 h-4 text-blue-400 opacity-0 group-hover/title:opacity-100 transition-opacity mt-1 flex-shrink-0 print-hide"></i>
                                     </div>
                                     <p class="text-sm text-gray-600 mb-4 flex-grow">${item.desc}</p>
                                     
