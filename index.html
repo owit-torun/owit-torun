@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Sprzętu OWiT</title>
+    <!-- Pobranie stylów Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Pobranie ikon Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* Dodatkowe poprawki ułatwiające estetyczny wydruk */
+        @media print {
+            body { background-color: white !important; }
+            .print-hide { display: none !important; }
+            .page-break { page-break-before: always; }
+            .avoid-break { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-800 font-sans p-4 md:p-8">
+
+    <!-- NAGŁÓWEK (Ukrywany w druku) -->
+    <div class="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-gray-100 print-hide">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Katalog Sprzętu OWiT</h1>
+            <p class="text-gray-500 mt-2">Kompletne zestawienie wyposażenia i sprzętu asystującego</p>
+        </div>
+        <button onclick="window.print()" class="mt-4 md:mt-0 flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-sm cursor-pointer">
+            <i data-lucide="printer" class="w-5 h-5"></i>
+            Drukuj / Zapisz jako PDF
+        </button>
+    </div>
+
+    <!-- KONTENER NA KATALOG -->
+    <div id="catalog-container" class="max-w-7xl mx-auto space-y-24">
+        <!-- Tutaj JavaScript wygeneruje zawartość -->
+    </div>
+
+    <!-- STOPKA -->
+    <div class="max-w-7xl mx-auto mt-16 pt-8 border-t border-gray-200 text-center text-gray-400 text-sm print:mt-10">
+        <p>Wygenerowano automatycznie • OWiT - System Katalogowy</p>
+    </div>
+
+    <!-- BAZA DANYCH I SKRYPT GENERUJĄCY -->
+    <script>
+        const catalogData = [
+            // DZIAŁ 1: Technologie Uniwersalne
+            {
+                departmentTitle: "🌐 Technologie Uniwersalne i Integracja Sensoryczna",
+                departmentDesc: "Sprzęt ogólnoużytkowy, komputery, urządzenia wielofunkcyjne, oprogramowanie biurowe oraz wyposażenie sal doświadczania świata.",
+                categories: [
+                    {
+                        category: "Komputery i laptopy",
+                        icon: "monitor",
+                        items: [
+                            { 
+                                name: "Microsoft Surface Go 3", 
+                                desc: "Kompaktowy i lekki tablet z funkcją laptopa (2w1). Posiada intuicyjny ekran dotykowy, idealny do mobilnej pracy i notowania.", 
+                                features: ["Ekran dotykowy", "Wysoka mobilność", "System Windows"],
+                                imageUrl: "images/microsoft-surface-go-3.jpg" 
+                            },
+                            { name: "Microsoft Surface Pro 11", desc: "Nowoczesny tablet z funkcją laptopa wspierany przez asystenta AI (Copilot+). Zapewnia ogromną wydajność i inteligentne funkcje ułatwienia dostępu.", features: ["Asystent AI Copilot", "Wysoka wydajność", "Klawiatura odłączana"], imageUrl: "images/microsoft-surface-pro-11.jpg" },
+                            { name: "Lenovo V15-ADA", desc: "Solidny i niezawodny laptop biurowy. Oferuje wygodną klawiaturę i matowy ekran 15,6 cala, który zapobiega męczeniu się wzroku.", features: ["Matryca antyodblaskowa", "Klawiatura numeryczna", "Trwała obudowa"], imageUrl: "images/lenovo-v15-ada.webp" },
+                            { name: "Laptop HP", desc: "Uniwersalny komputer przenośny do zastosowań ogólnych. Zapewnia stabilną pracę w aplikacjach biurowych i edukacyjnych.", features: ["Wszechstronność", "Kamera internetowa", "Złącza USB/HDMI"], imageUrl: "images/laptop-hp.jpg" },
+                            { name: "Apple MacBook Pro", desc: "Profesjonalny laptop z potężnym procesorem. Oferuje wbudowane, rewolucyjne funkcje ułatwień dostępu Apple (m.in. VoiceOver, Zoom).", features: ["System macOS", "VoiceOver", "Wysoki kontrast ekranu"], imageUrl: "images/apple-macbook-pro.jpg" },
+                            { name: "MacBook Pro 16 M2 Pro", desc: "Potężna stacja robocza z ogromnym, 16-calowym ekranem Liquid Retina XDR. Duża przestrzeń robocza znacząco ułatwia pracę osobom słabowidzącym.", features: ["Duży ekran 16\"", "Procesor M2 Pro", "Wybitna bateria"], imageUrl: "images/macbook-pro-16-m2-pro.jpg" },
+                            { name: "Apple MacBook Air 15", desc: "Lekki i smukły laptop, łączący mobilność z dużym, 15-calowym ekranem, ułatwiającym czytanie i nawigację po systemie.", features: ["Smukła konstrukcja", "Ekran 15 cali", "Brak wentylatorów"], imageUrl: "images/apple-macbook-air-15.jpg" }
+                        ]
+                    },
+                    {
+                        category: "Tablety",
+                        icon: "tablet",
+                        items: [
+                            { name: "Ipad Apple 10,2 / Pro", desc: "Wszechstronny tablet oferujący bogate funkcje dostępności i wsparcie dla aplikacji wspomagających komunikację alternatywną (AAC).", features: ["Obsługa Apple Pencil", "System iPadOS", "Ułatwienia dostępu"], imageUrl: "images/ipad-apple-102-pro.jpg" },
+                            { name: "Apple iPad Pro 11\"", desc: "Zaawansowany tablet z płynnym ekranem ProMotion. Doskonały do precyzyjnej pracy, terapii interaktywnych oraz komunikacji.", features: ["Ekran 120Hz", "Skaner LiDAR", "Wydajność klasy PC"], imageUrl: "" },
+                            { name: "Lenovo Tablet K10", desc: "Wytrzymały tablet z systemem Android. Dobrze sprawdza się w zastosowaniach edukacyjnych i jako urządzenie do przeglądania treści.", features: ["System Android", "Pojemna bateria", "Solidna konstrukcja"], imageUrl: "images/lenovo-tablet-k10.jpg" }
+                        ]
+                    },
+                    {
+                        category: "Telefony",
+                        icon: "smartphone",
+                        items: [
+                            { name: "Alcatel 20.19", desc: "Klasyczny telefon GSM z dużą, fizyczną klawiaturą. Zaprojektowany z myślą o seniorach i osobach słabowidzących. Posiada przycisk SOS.", features: ["Duże klawisze", "Przycisk SOS", "Baza ładująca"], imageUrl: "https://a.allegroimg.com/s1024/0c19f2/1b0e01d947fd82aae1efce70d862" },
+                            { name: "Hammer Iron 3 Silver", desc: "Wzmocniony smartfon o podwyższonej odporności na wstrząsy, pył i wodę. Idealny do trudnych warunków.", features: ["Wodoodporność IP68", "Odporność na upadki", "Mocna bateria"], imageUrl: "images/hammer-iron-3-silver.jpg" },
+                            { name: "iPhone 17 Pro", desc: "Najnowocześniejszy smartfon z asystentem AI i skanerem LiDAR, który pozwala na mapowanie otoczenia i nawigację dla osób niewidomych.", features: ["Skaner LiDAR", "VoiceOver", "Wysoka wydajność"], imageUrl: "images/iphone-17-pro.webp" }
+                        ]
+                    },
+                    {
+                        category: "Urządzenia biurowe",
+                        icon: "printer",
+                        items: [
+                            { name: "Brother MFC-J2330DW", desc: "Wydajne urządzenie wielofunkcyjne drukujące w formacie A3. Posiada automatyczny podajnik dokumentów (ADF) i ekran dotykowy.", features: ["Druk A3", "Skaner z ADF", "Łączność Wi-Fi"], imageUrl: "images/brother-mfc-j2330dw.png" },
+                            { name: "Brother DCP-T720DW", desc: "Ekonomiczne urządzenie z systemem stałego zasilania atramentem. Zapewnia tanie drukowanie materiałów terapeutycznych.", features: ["Tani druk", "Druk dwustronny", "Łatwa obsługa"], imageUrl: "images/brother-dcp-t720dw.jpg" }
+                        ]
+                    },
+                    {
+                        category: "Oprogramowanie i edukacja",
+                        icon: "box",
+                        items: [
+                            { name: "Office 2021", desc: "Klasyczny pakiet biurowy, wzbogacony o funkcje dostępności, takie jak Czytnik Immersyjny ułatwiający czytanie.", features: ["Czytnik Immersyjny", "Edytor tekstu", "Arkusz kalkulacyjny"], imageUrl: "images/office-2021.jpg" },
+                            { name: "Dr Neuronowski", desc: "Specjalistyczne oprogramowanie terapeutyczne, składające się z gier wspierających pamięć, uwagę i funkcje poznawcze.", features: ["Terapia poznawcza", "Gry rehabilitacyjne", "Moduł specjalisty"], imageUrl: "images/dr-neuronowski.png" }
+                        ]
+                    },
+                    {
+                        category: "Akcesoria i sprzęt sensoryczny",
+                        icon: "headphones",
+                        items: [
+                            { name: "Aftershokz OpenMove", desc: "Słuchawki z przewodnictwem kostnym. Nie zasłaniają uszu, pozwalając na swobodne słuchanie dźwięków otoczenia podczas nawigacji.", features: ["Przewodnictwo kostne", "Bezpieczeństwo", "Bluetooth"], imageUrl: "images/aftershokz-openmove.jpg" },
+                            { name: "ClassVR Premium VRP64/4", desc: "Zestaw 4 sztuk okularów VR do edukacji. Pozwala na immersyjne doświadczanie przestrzeni i wirtualne wycieczki.", features: ["Wirtualna Rzeczywistość", "Zarządzanie zdalne", "Edukacja"], imageUrl: "images/classvr-premium-vrp644.png" },
+                            { name: "SHX reflektor UV LED", desc: "Elementy systemu Sal Doświadczania Świata. Emitują światło pobudzające zmysł wzroku, kompatybilne z systemem SHX.", features: ["Światło UV/LED", "Integracja sensoryczna", "Zarządzanie zdalne"], imageUrl: "images/shx-reflektor-uv-led.jpg" },
+                            { name: "Kula świetlna SHX", desc: "Interaktywny obiekt zmieniający kolory w reakcji na bodźce. Doskonałe narzędzie do relaksacji i stymulacji wzrokowej.", features: ["Reakcja na dźwięk", "Terapia Snoezelen", "Atrakcyjna wizualnie"], imageUrl: "images/kula-świetlna-shx.jpg" },
+                            { name: "Kącik z ultrafioletem SHX", desc: "Przestrzeń stymulacyjna wykorzystująca światło UV do podświetlania fluorescencyjnych elementów. Stymuluje koncentrację.", features: ["Stymulacja wzrokowa", "Elementy świecące", "Wydzielona strefa"], imageUrl: "images/kącik-z-ultrafioletem-shx.jpg" },
+                            { name: "SHX Compact (iPad)", desc: "Centralny system zarządzania Salą Doświadczania Świata z iPada. Koordynuje światło, dźwięk i wibracje.", features: ["Zarządzanie Salą", "Tablet w zestawie", "Intuicyjny interfejs"], imageUrl: "images/shx-compact-ipad.jpg" },
+                            { name: "Kącik Luminea", desc: "System wibrująco-akustyczny. Dźwięk przetwarzany jest na delikatne wibracje, stymulując czucie głębokie (propriocepcję).", features: ["Muzykoterapia", "Stymulacja głęboka", "Relaksacja"], imageUrl: "images/kącik-luminea.jpg" }
+                        ]
+                    }
+                ]
+            },
+            
+            // DZIAŁ 2: Sprzęt Tyflologiczny
+            {
+                departmentTitle: "👁️ Wsparcie Widzenia i Czytania (Sprzęt Tyflologiczny)",
+                departmentDesc: "Powiększalniki, monitory i drukarki brajlowskie, oprogramowanie udźwiękawiające i powiększające oraz lupy.",
+                categories: [
+                    {
+                        category: "Monitory i klawiatury brajlowskie",
+                        icon: "keyboard",
+                        items: [
+                            { name: "Focus 40 Blue", desc: "40-znakowy monitor brajlowski. Wytrzymała konstrukcja, łączność Bluetooth i płynna integracja z czytnikami ekranu (np. JAWS).", features: ["40 znaków", "Bluetooth", "Płynna nawigacja"], imageUrl: "images/focus-40-blue.jpg" },
+                            { name: "Brailliant BI20x", desc: "Kompaktowy, 20-znakowy monitor brajlowski. Idealny do podróży, z wbudowanymi aplikacjami do notatek i czytania bez użycia komputera.", features: ["20 znaków", "Mobilność", "Aplikacje offline"], imageUrl: "images/brailliant-bi20x.jpg" },
+                            { name: "Brailliant BI40x", desc: "40-znakowy, ergonomiczny monitor brajlowski. Zapewnia wygodę czytania długich tekstów oraz łączność z wieloma urządzeniami naraz.", features: ["40 znaków", "Ergonomia", "Wielozadaniowość"], imageUrl: "images/brailliant-bi40x.jpg" },
+                            { name: "BraillePen 14", desc: "Niezwykle poręczny, 14-znakowy notatnik i monitor. Pozwala na bezwzrokowe pisanie oraz płynną obsługę smartfonów przez Bluetooth.", features: ["14 znaków", "Kieszonkowy", "Klawiatura Perkins"], imageUrl: "images/braillepen-14.jpg" },
+                            { name: "Mountbatten Tutor", desc: "Elektroniczna maszyna brajlowska z informacją głosową. Niezastąpione narzędzie edukacyjne do wprowadzania w świat alfabetu Braille'a.", features: ["Edukacja", "Udźwiękowienie", "Druk wypukły"], imageUrl: "images/mountbatten-tutor.jpg" },
+                            { name: "Basic D V5", desc: "Niezawodna i niezwykle szybka drukarka brajlowska. Oferuje dwustronny wydruk na papierze ciągłym (składanka), idealna dla szkół.", features: ["Druk dwustronny", "Wysoka wydajność", "Papier ciągły"], imageUrl: "images/basic-d-v5.jpeg" }
+                        ]
+                    },
+                    {
+                        category: "Powiększalniki i lupy",
+                        icon: "zoom-in",
+                        items: [
+                            { name: "Luna 6", desc: "Kieszonkowy powiększalnik wideo z jasnym 6-calowym ekranem. Posiada wbudowaną rączkę i doskonały kontrast do czytania w podróży.", features: ["Ekran 6 cali", "Wygodny uchwyt", "Wysoki kontrast"], imageUrl: "images/luna-6.png" },
+                            { name: "Powiększalnik Spider", desc: "Elastyczny i przenośny system powiększający oparty na złączach wideo. Pozwala na łatwe podłączenie do zewnętrznego monitora lub tabletu.", features: ["Wszechstronność", "Kompaktowy", "Wyjście wideo"], imageUrl: "images/powiększalnik-spider.jpg" },
+                            { name: "Prodigi Connect 12 z kamerą", desc: "Multimedialny powiększalnik (tablet 12 cali) z dodatkową, zewnętrzną kamerą do dali. Sprawdza się na wykładach i w szkołach.", features: ["Ekran 12 cali", "Kamera do dali", "Funkcje Smart"], imageUrl: "images/prodigi-connect-12-z-kamerą.jpg" },
+                            { name: "Da Vinci HD 24 Pro", desc: "Wielofunkcyjny, stacjonarny powiększalnik z dużym 24-calowym ekranem i pełnym wsparciem OCR (odczytywanie zeskanowanego tekstu na głos).", features: ["Ekran 24 cale", "Czytanie OCR", "Kamera 3-w-1"], imageUrl: "images/da-vinci-hd-24-pro.jpg" },
+                            { name: "Ruby 7HD", desc: "7-calowy powiększalnik z unikalną obrotową kamerą PivotCam, ułatwiającą wygodne czytanie, pisanie i oglądanie obiektów oddalonych.", features: ["Ekran 7 cali", "Kamera PivotCam", "Zapis zdjęć"], imageUrl: "images/ruby-7hd.webp" },
+                            { name: "Ruby HD", desc: "Bardzo mała, kieszonkowa lupa elektroniczna (4.3 cala) z wbudowanym oświetleniem LED. Mieści się w każdej torebce lub kieszeni.", features: ["Ekran 4.3 cala", "Oświetlenie LED", "Ultralekka"], imageUrl: "images/ruby-hd.jpg" },
+                            { name: "Ruby XL HD", desc: "5-calowy powiększalnik wyposażony w ergonomiczną, rozkładaną rączkę, ułatwiającą płynne przesuwanie po czytanym tekście.", features: ["Ekran 5 cali", "Rozkładana rączka", "Ergonomiczny kąt"], imageUrl: "images/ruby-xl-hd.jpg" },
+                            { name: "Mano Edu Lite", desc: "Przenośny, łatwy w obsłudze powiększalnik edukacyjny. Świetnie sprawdza się zarówno na zajęciach szkolnych, jak i do czytania w domu.", features: ["Edukacyjny", "Prosta obsługa", "Duży ekran"], imageUrl: "images/mano-edu-lite.png" }
+                        ]
+                    },
+                    {
+                        category: "Oprogramowanie i sprzęt odczytujący",
+                        icon: "book-open",
+                        items: [
+                            { name: "SuperNova Magnifier & Reader", desc: "Kompleksowe oprogramowanie dla systemu Windows. Łączy potężne narzędzie do powiększania ekranu z pełnoprawnym czytnikiem (mową).", features: ["Powiększenie", "Czytnik ekranu", "Wsparcie Windows"], imageUrl: "images/supernova-magnifier-reader.jpeg" },
+                            { name: "ZoomText Magnifier and Reader", desc: "Popularny program dostosowujący środowisko pracy (kolory, wskaźniki, powiększenie) i odczytujący na głos dokumenty, maile oraz strony www.", features: ["Ustawienia kontrastu", "Lektor syntezatora", "Śledzenie kursora"], imageUrl: "images/zoomtext-magnifier-and-reader.jpg" },
+                            { name: "One Step Reader", desc: "Aplikacja natychmiastowo rozpoznająca tekst (OCR) z użyciem kamery. Błyskawicznie czyta na głos menu, rachunki i dokumenty.", features: ["Szybki OCR", "Mobilność", "Rozpoznawanie znaków"], imageUrl: "images/one-step-reader.jpg" },
+                            { name: "Clear Reader+", desc: "Samodzielne, przenośne urządzenie lektorskie. Wystarczy podłożyć kartkę – sprzęt błyskawicznie ją zeskanuje i przeczyta wyraźnym głosem.", features: ["Maszyna lektorska", "Brak potrzeby PC", "Wbudowany głośnik"], imageUrl: "images/clear-reader.jpg" },
+                            { name: "Euler Science", desc: "Oprogramowanie tyfloinformatyczne ułatwiające dostęp do złożonych tekstów naukowych, edycji dokumentów i wzorów matematycznych.", features: ["Matematyka", "Teksty naukowe", "Dostępność edukacyjna"], imageUrl: "https://www.eulerscience.com/assets/Euler-Science-Logo-Short.png" }
+                        ]
+                    },
+                    {
+                        category: "Klawiatury powiększone",
+                        icon: "keyboard",
+                        items: [
+                            { name: "Klawiatura ASTRA czarna", desc: "Pełnowymiarowa klawiatura o ultrawysokim kontraście z wielkimi, białymi znakami na czarnych klawiszach. Zapobiega zmęczeniu oczu.", features: ["Duży druk", "Wysoki kontrast", "Złącze USB"], imageUrl: "images/klawiatura-astra-czarna.jpg" },
+                            { name: "EZ-See", desc: "Klawiatura stworzona z myślą o osobach słabowidzących. Posiada wyraźne, powiększone czcionki w jaskrawych, łatwych do zauważenia kolorach.", features: ["Jaskrawe kolory", "Powiększone litery", "Ergonomiczna"], imageUrl: "images/ez-see.png" }
+                        ]
+                    },
+                    {
+                        category: "Asystenci osobiści i nawigacja",
+                        icon: "navigation",
+                        items: [
+                            { name: "Smart Vision 2", desc: "W pełni udźwiękowiony smartfon z Androidem. Wyposażony w fizyczną klawiaturę numeryczną, stworzony specjalnie do bezwzrokowej obsługi.", features: ["Fizyczna klawiatura", "Udźwiękowienie", "Funkcje smartfona"], imageUrl: "https://smartvisionsummit.com/data/topics/843b04eed7.jpg" },
+                            { name: "Victor Stream", desc: "Kompaktowy odtwarzacz cyfrowych książek (Daisy), podcastów i muzyki. Oferuje dotykowe przyciski idealne dla osób niewidomych.", features: ["Książki Daisy", "Odtwarzacz mediów", "Dyktafon"], imageUrl: "images/victor-stream.jpg" },
+                            { name: "Milestone 112 Ace", desc: "Dyktafon i podręczny asystent głosowy wielkości karty kredytowej. Rewelacyjny do szybkiego nagrywania własnych notatek głosowych.", features: ["Kieszonkowy", "Wysoka jakość nagrań", "Prosta obsługa"], imageUrl: "images/milestone-112-ace.jpg" },
+                            { name: "Sunu Band", desc: "Inteligentna opaska wykorzystująca sonar i wibracje do echolokacji. Ułatwia bezkolizyjne poruszanie się, wykrywając przeszkody na wys. głowy.", features: ["Echolokacja", "Informacja wibracyjna", "Dyskretna obudowa"], imageUrl: "images/sunu-band.png" },
+                            { name: "Sonda Ray", desc: "Urządzenie wspomagające (rodzaj elektronicznej laski) wyposażone w ultradźwięki. Alarmuje dźwiękiem lub wibracją o wykryciu przeszkody.", features: ["Nawigacja", "Czujnik ultradźwiękowy", "Bezpieczeństwo"], imageUrl: "https://www.njuskalo.hr/image-xlsize/brodska-elektrika/sonda-raymarine-slika-187748415.jpg" },
+                            { name: "Czytak 4", desc: "Najpopularniejszy w Polsce, bardzo intuicyjny cyfrowy odtwarzacz książek mówionych dla osób niewidomych z polskim menu głosowym.", features: ["Książki mówione", "Klawiatura z wypustkami", "Polski asystent"], imageUrl: "images/czytak-4.jpg" },
+                            { name: "Hark Reader", desc: "Eleganckie, zintegrowane urządzenie lektorskie w formie ramienia. Błyskawicznie skanuje i czyta na głos wszystko, co pod nim umieścisz.", features: ["Wbudowana kamera", "Urządzenie lektorskie", "Czysty dźwięk"], imageUrl: "images/hark-reader.jpg" },
+                            { name: "OrCam MyEye 2.0", desc: "Rewolucyjne urządzenie AI doczepiane do okularów. Słuchając poleceń, samo czyta teksty, rozpoznaje twarze i nominały banknotów.", features: ["Sztuczna inteligencja", "Czytanie tekstów", "Rozpoznawanie twarzy"], imageUrl: "images/orcam-myeye-20.png" },
+                            { name: "Słuchawki do OrCam", desc: "Dedykowane słuchawki bezprzewodowe pozwalające na dyskretne korzystanie ze sprzętu OrCam w miejscach publicznych bez przeszkadzania innym.", features: ["Dyskrecja", "Bluetooth / Kostne", "Idealne sparowanie"], imageUrl: "images/słuchawki-do-orcam.png" }
+                        ]
+                    }
+                ]
+            },
+            
+            // DZIAŁ 3: Sprzęt Surdologiczny
+            {
+                departmentTitle: "👂 Wsparcie Słuchu i Odbioru Dźwięku (Sprzęt Surdologiczny)",
+                departmentDesc: "Systemy FM, pętle indukcyjne, specjalistyczne słuchawki i mikrofony.",
+                categories: [
+                    {
+                        category: "Systemy wspomagające słyszenie",
+                        icon: "volume-2",
+                        items: [
+                            { name: "TV Thomson HQ HED4508", desc: "Specjalistyczne słuchawki do telewizora dla osób niedosłyszących. Oferują wzmocnienie dialogów oraz niezależną regulację głośności dla lewego i prawego ucha.", features: ["Wzmocnienie mowy", "Regulacja balansu", "Wysoka głośność"], imageUrl: "images/tv-thomson-hq-hed4508.jpg" },
+                            { name: "Roger Clip-on Mic", desc: "Bezprzewodowy, dyskretny mikrofon kierunkowy przypinany do ubrania. Znacząco poprawia rozumienie mowy w hałasie i na odległość, współpracując z aparatami słuchowymi.", features: ["Mikrofon kierunkowy", "Redukcja hałasu", "Lekki i dyskretny"], imageUrl: "images/roger-clip-on-mic.webp" },
+                            { name: "Roger Neckloop 03", desc: "Uniwersalny odbiornik w formie wygodnej pętli naszyjnej. Kompatybilny z każdym aparatem słuchowym lub implantem wyposażonym w tzw. cewkę T (Telecewkę).", features: ["Pętla naszyjna", "Kompatybilność cewki T", "Uniwersalność"], imageUrl: "images/roger-neckloop-03.jpg" },
+                            { name: "Phonak Roger Neckloop", desc: "Zaawansowana pętla indukcyjna współpracująca z systemem cyfrowych mikrofonów bezprzewodowych Phonak Roger. Zapewnia krystalicznie czysty dźwięk prosto do ucha.", features: ["System cyfrowy Roger", "Czysty dźwięk", "Wbudowany akumulator"], imageUrl: "images/phonak-roger-neckloop.webp" },
+                            { name: "Edumic - mikrofon zdalny", desc: "Edukacyjny mikrofon zdalny dla nauczycieli. Transmituje głos prosto do aparatów słuchowych ucznia, minimalizując negatywny wpływ hałasu i pogłosu w klasie.", features: ["Środowisko szkolne", "Złącze Jack 3.5mm", "Pokonywanie dystansu"], imageUrl: "images/edumic-mikrofon-zdalny.jpg" }
+                        ]
+                    }
+                ]
+            },
+
+            // DZIAŁ 4: Wsparcie Motoryki, Ergonomii i Komunikacji Alternatywnej (AAC)
+            {
+                departmentTitle: "🦾 Wsparcie Motoryki, Ergonomii i Komunikacji Alternatywnej (AAC)",
+                departmentDesc: "Eye-trackery, specjalistyczne klawiatury, przyciski adaptacyjne, oprogramowanie komunikacyjne oraz sprzęt ortopedyczno-medyczny.",
+                categories: [
+                    {
+                        category: "Sterowanie wzrokiem (Eye-tracking)",
+                        icon: "eye",
+                        items: [
+                            { name: "PCEye / PCEye 5", desc: "Kompaktowy eyetracker zamieniający ruch gałek ocznych w ruch kursora myszy. Pozwala na niezależną obsługę komputera wyłącznie za pomocą wzroku.", features: ["Wysoka precyzja", "Obsługa wzrokiem", "Kompaktowy"], imageUrl: "images/pceye-pceye-5.jpg" },
+                            { name: "Mocowanie do PCEye", desc: "Specjalistyczny uchwyt montażowy, pozwalający na stabilne zamocowanie eyetrackera do monitorów i laptopów.", features: ["Stabilność", "Bezpieczny montaż", "Regulacja kąta"], imageUrl: "images/mocowanie-do-pceye.png" },
+                            { name: "Eye tracker do iPad", desc: "Dedykowana nakładka z kamerą śledzącą wzrok do systemu iOS. Przekształca iPada w zaawansowane narzędzie komunikacji.", features: ["Wsparcie iOS", "Kamera śledząca", "Dedykowane do iPada"], imageUrl: "images/eye-tracker-do-ipad.jpg" },
+                            { name: "IntelliGaze System IG30NT", desc: "Zaawansowany, medyczny system śledzenia wzroku. Cechuje się dużą tolerancją na niekontrolowane ruchy głowy (np. przy MPD).", features: ["Medyczna precyzja", "Tolerancja na ruch", "System zaawansowany"], imageUrl: "images/intelligaze-system-ig30nt.png" },
+                            { name: "Eyefeel / Eyelearn", desc: "Oprogramowanie (również 3-stanowiskowe) z grami i ćwiczeniami do nauki obsługi komputera za pomocą wzroku.", features: ["Gry terapeutyczne", "Nauka sterowania", "Trening wzroku"], imageUrl: "images/eyefeel-eyelearn.png" },
+                            { name: "Inclusive Eye Gaze / Look to Learn", desc: "Zestawy interaktywnych programów motywujących do nauki skupiania wzroku, celowania i wybierania elementów na ekranie.", features: ["Interaktywne gry", "Motywacja", "Nauka celowania"], imageUrl: "images/inclusive-eye-gaze-look-to-learn.jpg" }
+                        ]
+                    },
+                    {
+                        category: "Oprogramowanie do komunikacji alternatywnej (AAC)",
+                        icon: "message-circle",
+                        items: [
+                            { name: "Grid 3 / Grid for iPad / Windows", desc: "Wieloplatformowe oprogramowanie AAC oferujące plansze symboliczne i tekstowe z inteligentnym przewidywaniem słów.", features: ["Wieloplatformowość", "Plansze symboliczne", "Przewidywanie słów"], imageUrl: "images/grid-3-grid-for-ipad-windows.jpg" },
+                            { name: "Mówik 2.0 / Tablet Samsung+Mówik", desc: "Polskie oprogramowanie z syntezatorem mowy i bazą symboli. Podstawowe narzędzie komunikacji pacjentów w Polsce.", features: ["Polski syntezator", "Baza symboli", "Odmiana gramatyczna"], imageUrl: "images/mówik-20-tablet-samsungmówik.jpg" },
+                            { name: "SnapScene", desc: "Aplikacja komunikacyjna oparta na interaktywnych zdjęciach (scenach) z życia codziennego. Po kliknięciu w obszar odtwarzany jest komunikat.", features: ["Komunikacja wizualna", "Zdjęcia interaktywne", "Szybka edycja"], imageUrl: "images/snapscene.png" },
+                            { name: "Boardmaker 7 / Speaking Dynamically Pro", desc: "Globalny standard do tworzenia materiałów edukacyjnych z bazą symboli PCS. Służy do drukowania plansz i tworzenia gier.", features: ["Symbole PCS", "Materiały do druku", "Gry interaktywne"], imageUrl: "images/boardmaker-7-speaking-dynamically-pro.jpg" },
+                            { name: "SymWord / SymWriter", desc: "Edytory tekstu wspomagane symbolami. Automatycznie ilustrują wpisywane słowa, wspomagając naukę pisania i czytania.", features: ["Edytor z symbolami", "Wsparcie czytania", "Baza PCS"], imageUrl: "images/symword-symwriter.jpg" },
+                            { name: "Clicker 6", desc: "Program wspierający rozwój czytania i pisania. Umożliwia tworzenie multimedialnych książek i budowanie zdań z siatek słów.", features: ["Multimedialne książki", "Budowa zdań", "Rozwój pisania"], imageUrl: "images/clicker-6.webp" }
+                        ]
+                    },
+                    {
+                        category: "Switche i urządzenia adaptacyjne",
+                        icon: "gamepad-2",
+                        items: [
+                            { name: "Switche Cosmo (Excel, Explore)", desc: "Wielofunkcyjne, świecące i wytrzymałe przyciski Bluetooth. Służą do obsługi komputera i interaktywnej terapii motorycznej.", features: ["Bluetooth", "Terapia interaktywna", "Wielofunkcyjność"], imageUrl: "images/switche-cosmo-excel-explore.jpg" },
+                            { name: "SimplyWorks 125 & Receive:2", desc: "Bezprzewodowe przyciski (switch) w jaskrawych kolorach z odbiornikiem. Pozwalają na zdalną obsługę myszy i zabawek.", features: ["Bezprzewodowe", "Duży rozmiar", "Zdalna obsługa"], imageUrl: "images/simplyworks-125-receive2.jpg" },
+                            { name: "Przycisk Big Switch Twist", desc: "Duży, przewodowy przycisk z odkręcaną pokrywą, pod którą można umieścić własny symbol lub zdjęcie akcji.", features: ["Odkręcana pokrywa", "Duża powierzchnia", "Miejsce na symbol"], imageUrl: "images/przycisk-big-switch-twist.jpg" },
+                            { name: "Mysz adaptowana - interfejs", desc: "Moduł umożliwiający podłączenie kilku standardowych switchy, symulujących kliknięcia myszy lub klawiatury.", features: ["Symulacja myszy", "Podłączanie switchy", "Interfejs USB"], imageUrl: "images/mysz-adaptowana-interfejs.jpg" },
+                            { name: "Bigtrack Wireless", desc: "Bezprzewodowa mysz typu trackball z dużą kulką. Umożliwia sterowanie dłonią, łokciem lub stopą dla osób z problemami motorycznymi.", features: ["Duży trackball", "Bezprzewodowa", "Precyzyjne sterowanie"], imageUrl: "https://anditec.pt/wp-content/uploads/2020/09/bluetooth-receiver.jpg" },
+                            { name: "Adaptacyjny kontroler Xbox", desc: "Przełomowy hub (rozdzielacz) z gniazdami Jack do podłączania zewnętrznych przycisków i joysticków, tworzący spersonalizowany pad.", features: ["Spersonalizowany pad", "Wiele gniazd", "Obsługa PC/Xbox"], imageUrl: "images/adaptacyjny-kontroler-xbox.jpg" },
+                            { name: "Head Pointer", desc: "Lekki kask z wskaźnikiem (pałąkiem). Pozwala osobom kontrolującym jedynie ruchy głowy na naciskanie klawiszy czy ekranu.", features: ["Wskaźnik na głowę", "Lekka konstrukcja", "Alternatywny dostęp"], imageUrl: "images/head-pointer.jpg" }
+                        ]
+                    },
+                    {
+                        category: "Specjalistyczne klawiatury",
+                        icon: "keyboard",
+                        items: [
+                            { name: "Klawiatura orbiTouch", desc: "Bezkawiszowa klawiatura z dwoma ślizgającymi się grzybkami do wprowadzania znaków. Idealna dla osób z artretyzmem lub po amputacjach.", features: ["Bezkawiszowa", "Obsługa dłońmi", "Ergonomiczna"], imageUrl: "images/klawiatura-orbitouch.jpg" },
+                            { name: "Klawiatura Clevy z ramką", desc: "Edukacyjna klawiatura o powiększonych klawiszach i żywych kolorach. Metalowa ramka zapobiega jednoczesnemu wciśnięciu wielu klawiszy.", features: ["Powiększone klawisze", "Kolorowe sekcje", "Ramka zabezpieczająca"], imageUrl: "images/klawiatura-clevy-z-ramką.webp" },
+                            { name: "Klawiatury Maltron", desc: "Profilowane klawiatury ergonomiczne. Wersje Single Handed do pisania jedną dłonią oraz Head/Mouthstick do pisania ustami.", features: ["Pisanie jedną dłonią", "Obsługa ustami", "Ergonomiczna misa"], imageUrl: "images/klawiatury-maltron.jpg" }
+                        ]
+                    },
+                    {
+                        category: "Ergonomia i pozycjonowanie",
+                        icon: "armchair",
+                        items: [
+                            { name: "Podpórka pod ramię Ergorest", desc: "Przegubowe podparcie ramienia montowane do biurka. Płynnie odciąża mięśnie karku i ułatwia precyzyjne operowanie myszką.", features: ["Odciążenie ramienia", "Płynny ruch", "Montaż do biurka"], imageUrl: "images/podpórka-pod-ramię-ergorest.jpeg" },
+                            { name: "Podstawka / Podpórka / Podnóżek Fellowes", desc: "Zestaw akcesoriów ergonomicznych: podstawka unosząca ekran, podparcie lędźwiowe z pianką oraz podnóżek poprawiający krążenie.", features: ["Poprawa postawy", "Pianka memory", "Ergonomia biurowa"], imageUrl: "images/podstawka-podpórka-podnóżek-fellowes.jpg" },
+                            { name: "ModularHouse (pojedyncze/podwójne)", desc: "Modułowe systemy meblowe pozwalające na ergonomiczne dopasowanie przestrzeni dla osób poruszających się na wózkach inwalidzkich.", features: ["Modułowość", "Dostępność dla wózków", "Przestrzeń terapeutyczna"], imageUrl: "images/modularhouse-pojedynczepodwójne.jpg" }
+                        ]
+                    },
+                    {
+                        category: "Sprzęt rehabilitacyjny i medyczny",
+                        icon: "activity",
+                        items: [
+                            { name: "Smart Drive", desc: "Lekki napęd wspomagający do wózków aktywnych. Ułatwia pokonywanie wzniesień i dystansów bez nadmiernego męczenia rąk.", features: ["Napęd elektryczny", "Sterowanie opaską", "Lekka konstrukcja"], imageUrl: "images/smart-drive.jpg" },
+                            { name: "Podnośnik LeviCare", desc: "Hydrauliczny podnośnik transportowy zapewniający bezpieczne i komfortowe przenoszenie pacjenta (np. z łóżka na wózek).", features: ["Hydrauliczny podnośnik", "Bezpieczny transfer", "Wygodne zawiesia"], imageUrl: "https://sklep.levicare.pl/195-product_main_2x/podnosnik-jezdny-levicare-j160-mini.jpg" },
+                            { name: "Przystawka skuterowa", desc: "Elektryczna przystawka doczepiana z przodu wózka inwalidzkiego. Przekształca wózek w szybki i zwinny skuter (elektryczny napęd, kierownica).", features: ["Szybki montaż", "Napęd elektryczny", "Zwiększona mobilność"], imageUrl: "images/przystawka-skuterowa.jpg" },
+                            { name: "Pionizer Grillo", desc: "Elektryczny pionizer pomagający w przyjmowaniu i utrzymywaniu pozycji stojącej, wspierający rehabilitację i układ krążenia.", features: ["Elektryczna pionizacja", "Bezpieczeństwo postawy", "Wsparcie rehabilitacji"], imageUrl: "images/pionizer-grillo.jpg" },
+                            { name: "Koncentratory tlenu (Stacjonarny / Przenośny)", desc: "Medyczne urządzenia dostarczające skoncentrowany tlen. Dostępne w wersji domowej o dużej wydajności oraz przenośnej (bateryjnej) do użycia w podróży.", features: ["Tlenoterapia", "Zasilanie bateryjne", "Wysoka wydajność"], imageUrl: "images/koncentratory-tlenu-stacjonarny-przenośny.jpg" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // LOGIKA GENEROWANIA HTML
+        const container = document.getElementById('catalog-container');
+        let htmlContent = '';
+
+        catalogData.forEach((department, deptIdx) => {
+            // Rozdział zaczyna się od nowej strony w druku (z wyjątkiem pierwszego)
+            const pageBreakClass = deptIdx === 0 ? '' : 'page-break';
+            
+            htmlContent += `
+                <div class="${pageBreakClass}">
+                    <!-- Tytuł Działu -->
+                    <div class="text-center md:text-left mb-12 bg-green-800 text-white p-8 rounded-2xl print:bg-transparent print:text-black print:p-0 print:border-b-4 print:border-green-800 print:rounded-none print-hide-bg">
+                        <h1 class="text-3xl md:text-4xl font-bold mb-4">${department.departmentTitle}</h1>
+                        <p class="text-green-100 print:text-gray-600 text-lg">${department.departmentDesc}</p>
+                    </div>
+
+                    <div class="space-y-16">
+            `;
+
+            department.categories.forEach(section => {
+                htmlContent += `
+                    <div class="avoid-break">
+                        <!-- Tytuł Kategorii -->
+                        <div class="flex items-center gap-3 mb-6 border-b-2 border-green-100 pb-3">
+                            <div class="p-2 bg-green-100 text-green-700 rounded-lg print:bg-transparent print:p-0">
+                                <i data-lucide="${section.icon}" class="w-6 h-6"></i>
+                            </div>
+                            <h2 class="text-2xl font-semibold text-gray-800">${section.category}</h2>
+                        </div>
+
+                        <!-- Siatka Produktów -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                `;
+
+                section.items.forEach(item => {
+                    let imageArea = '';
+                    if (item.imageUrl) {
+                        imageArea = `<img src="${item.imageUrl}" alt="${item.name}" class="w-full h-full object-contain bg-white p-2" />`;
+                    } else {
+                        imageArea = `
+                            <i data-lucide="zap" class="w-8 h-8 mb-2 opacity-20"></i>
+                            <span class="text-sm font-medium text-center p-4">[Zdjęcie: ${item.name}]</span>
+                            <div class="absolute inset-0 bg-green-50/90 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity print-hide">
+                                <p class="text-sm text-green-700 font-medium px-4 text-center">Dodaj link w parametrze imageUrl.</p>
+                            </div>
+                        `;
+                    }
+
+                    let featuresHtml = item.features.map(f => 
+                        `<li class="text-[11px] uppercase tracking-wider font-semibold bg-gray-50 text-gray-600 px-2 py-1 rounded border border-gray-200">${f}</li>`
+                    ).join('');
+
+                    htmlContent += `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col avoid-break print:shadow-none print:border-gray-300">
+                            <!-- Miejsce na zdjęcie -->
+                            <div class="aspect-[4/3] bg-gray-100 border-b border-gray-200 flex flex-col items-center justify-center text-gray-400 relative overflow-hidden">
+                                ${imageArea}
+                            </div>
+
+                            <!-- Informacje o produkcie -->
+                            <div class="p-5 flex flex-col flex-grow">
+                                <h3 class="text-lg font-bold text-gray-900 mb-2 leading-tight">${item.name}</h3>
+                                <p class="text-sm text-gray-600 mb-4 flex-grow">${item.desc}</p>
+                                
+                                <div class="mt-auto pt-4 border-t border-gray-100">
+                                    <ul class="flex flex-wrap gap-2">
+                                        ${featuresHtml}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                htmlContent += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            htmlContent += `
+                    </div>
+                </div>
+            `;
+        });
+
+        // Wstaw wygenerowany kod do kontenera
+        container.innerHTML = htmlContent;
+
+        // Aktywuj ikony
+        lucide.createIcons();
+    </script>
+</body>
+</html>
