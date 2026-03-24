@@ -144,9 +144,9 @@
                 <select id="sortSelect"
                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none bg-white font-medium text-gray-700 cursor-pointer"
                     aria-label="Sortowanie">
-                    <option value="default">Domyślne sortowanie</option>
-                    <option value="name_asc">Nazwa (A-Z)</option>
+                    <option value="name_asc" selected>Nazwa (A-Z)</option>
                     <option value="name_desc">Nazwa (Z-A)</option>
+                    <option value="default">Kolejność oryginalna</option>
                 </select>
             </div>
         </div>
@@ -404,7 +404,7 @@
         let currentSearchQuery = '';
         let currentFilter = 'all';
         let currentCategoryFilter = 'all';
-        let currentSort = 'default';
+        let currentSort = 'name_asc';
         let selectedItems = new Set();
         let currentFontSize = 16;
 
