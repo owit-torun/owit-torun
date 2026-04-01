@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deklaracja Dostępności – OWiT Toruń</title>
+    <meta name="description" content="Deklaracja dostępności strony internetowej OWiT Toruń – informacje o poziomie zgodności z WCAG 2.1, dostępnych ułatwieniach oraz sposobie zgłaszania problemów z dostępnością.">
+    <link rel="canonical" href="https://owit-torun.pl/dostepnosc.html">
+    <link rel="icon" href="images/logo owit.png" type="image/png">
+    <link rel="apple-touch-icon" href="images/logo owit.png">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://owit-torun.pl/dostepnosc.html">
+    <meta property="og:title" content="Deklaracja Dostępności – OWiT Toruń">
+    <meta property="og:description" content="Deklaracja dostępności strony OWiT Toruń – zgodność z WCAG 2.1, dostępne ułatwienia i kontakt w sprawie problemów z dostępnością.">
+    <meta property="og:image" content="https://owit-torun.pl/images/dofinansowanie.png">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:site_name" content="OWiT Toruń">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Deklaracja Dostępności – OWiT Toruń">
+    <meta name="twitter:description" content="Deklaracja dostępności strony OWiT Toruń – zgodność z WCAG 2.1, dostępne ułatwienia i kontakt w sprawie problemów z dostępnością.">
+    <meta name="twitter:image" content="https://owit-torun.pl/images/dofinansowanie.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Strona główna", "item": "https://owit-torun.pl/" },
+        { "@type": "ListItem", "position": 2, "name": "Deklaracja dostępności", "item": "https://owit-torun.pl/dostepnosc.html" }
+      ]
+    }
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { green: {
+                50:'#edf9ee',100:'#d1f2d4',200:'#a3e5a9',300:'#6fd278',
+                400:'#45a94d',500:'#45a94d',600:'#389140',700:'#2b7333',800:'#1f5526',900:'#13381a'
+            }}}}
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        html { scroll-behavior: smooth; font-family: 'Lexend', sans-serif; }
+        :focus-visible { outline: 3px solid #2b7333 !important; outline-offset: 3px !important; border-radius: 4px; }
+        #a11y-toggle-btn:focus-visible, #scroll-top-btn:focus-visible { outline-color: #ffffff !important; }
+        .skip-link { position: absolute; left: -9999px; top: 1rem; background: #1f5526; color: #fff; padding: .5rem 1.25rem; border-radius: 0 0 .5rem .5rem; font-weight: 700; font-size: 1rem; z-index: 9999; text-decoration: none; transition: left .2s; }
+        .skip-link:focus { left: 0; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #45a94d, #2b7333); z-index: 9999; transition: width .1s linear; }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -3px; left: 0; right: 0; height: 2px; background: #45a94d; transform: scaleX(0); transition: transform .2s ease; border-radius: 9999px; }
+        .nav-link:hover::after { transform: scaleX(1); }
+        .content-section h2 { font-size: 1.1rem; font-weight: 700; color: #1f5526; margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid #d1f2d4; display: flex; align-items: center; gap: .5rem; }
+        .content-section p { font-size: .9375rem; color: #374151; line-height: 1.75; margin-bottom: .75rem; }
+        .content-section ul { list-style: none; padding: 0; margin: .5rem 0 1rem 0; }
+        .content-section ul li { display: flex; gap: .5rem; align-items: flex-start; padding: .35rem 0; font-size: .9rem; color: #374151; }
+        .content-section ul li::before { content: '✓'; color: #2b7333; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+        .badge { display: inline-flex; align-items: center; gap: .35rem; font-size: .75rem; font-weight: 700; padding: .25rem .75rem; border-radius: 9999px; }
+        body.a11y-high-contrast { background: #000 !important; color: #fff !important; }
+        body.a11y-high-contrast a { color: #ff0 !important; }
+        body.a11y-font-lg { font-size: 1.125rem !important; }
+        body.a11y-spacing * { letter-spacing: .05em !important; line-height: 1.9 !important; }
+        body.a11y-dyslexic, body.a11y-dyslexic * { font-family: 'Lexend', sans-serif !important; }
+        body.a11y-stop-motion *, body.a11y-stop-motion *::before, body.a11y-stop-motion *::after { animation: none !important; transition: none !important; }
+        /* ========= TRYB CIEMNY ========= */
+        body.dark-mode { background-color: #111827; color: #f3f4f6; }
+        body.dark-mode #navbar > div { background-color: rgba(17,24,39,0.97) !important; border-color: #374151 !important; box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important; }
+        body.dark-mode .bg-white { background-color: #1f2937 !important; }
+        body.dark-mode .bg-gray-50 { background-color: #111827 !important; }
+        body.dark-mode .bg-gray-100 { background-color: #374151 !important; }
+        body.dark-mode .text-gray-900 { color: #f9fafb !important; }
+        body.dark-mode .text-gray-800 { color: #f3f4f6 !important; }
+        body.dark-mode .text-gray-700 { color: #e5e7eb !important; }
+        body.dark-mode .text-gray-600 { color: #9ca3af !important; }
+        body.dark-mode .text-gray-500 { color: #6b7280 !important; }
+        body.dark-mode .border-gray-100 { border-color: #374151 !important; }
+        body.dark-mode .border-gray-200 { border-color: #4b5563 !important; }
+        body.dark-mode .border-gray-300 { border-color: #6b7280 !important; }
+        body.dark-mode .border-b { border-color: #374151 !important; }
+        body.dark-mode input[type="search"],body.dark-mode input[type="text"],body.dark-mode input[type="email"],body.dark-mode input[type="password"],body.dark-mode select,body.dark-mode textarea { background-color: #374151 !important; color: #f3f4f6 !important; border-color: #6b7280 !important; }
+        body.dark-mode input::placeholder { color: #9ca3af !important; }
+        body.dark-mode select option { background-color: #374151; color: #f3f4f6; }
+        body.dark-mode .bg-green-50 { background-color: #052e16 !important; }
+        body.dark-mode .bg-green-100 { background-color: #14532d !important; }
+        body.dark-mode .text-green-700 { color: #4ade80 !important; }
+        body.dark-mode .text-green-800 { color: #86efac !important; }
+        body.dark-mode .border-green-100 { border-color: #14532d !important; }
+        body.dark-mode .border-green-200 { border-color: #166534 !important; }
+        body.dark-mode .bg-red-50 { background-color: #450a0a !important; }
+        body.dark-mode .text-red-700 { color: #fca5a5 !important; }
+        body.dark-mode .hover\:bg-gray-50:hover { background-color: #374151 !important; }
+        body.dark-mode .hover\:bg-green-50:hover { background-color: #052e16 !important; }
+        body.dark-mode #a11y-panel { background-color: #1f2937 !important; border-color: #374151 !important; }
+        body.dark-mode .a11y-row:hover { background-color: #374151 !important; }
+        body.dark-mode .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.4) !important; }
+        body.dark-mode .shadow-lg { box-shadow: 0 10px 15px rgba(0,0,0,0.6) !important; }
+        body.a11y-grayscale > :not(#a11y-widget):not(#scroll-progress):not(header) { filter: grayscale(100%); }
+        body.a11y-grayscale #navbar { filter: grayscale(100%); }
+        .a11y-badge { font-size: .65rem; font-weight: 700; padding: .15rem .45rem; border-radius: 9999px; margin-left: auto; }
+        .a11y-badge.on { background:#dcfce7; color:#15803d; }
+        .a11y-badge.off { background:#f3f4f6; color:#6b7280; }
+        @keyframes widgetPulse { 0%{box-shadow:0 4px 22px rgba(0,0,0,.2),0 0 0 0 rgba(69,169,77,.5)} 60%{box-shadow:0 4px 22px rgba(0,0,0,.2),0 0 0 14px rgba(69,169,77,0)} 100%{box-shadow:0 4px 22px rgba(0,0,0,.2),0 0 0 0 rgba(69,169,77,0)} }
+        #a11y-toggle-btn { animation: widgetPulse 1.5s ease 2.5s 3; }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased">
+<script>(function(){if(localStorage.getItem('dark-mode')==='true'){document.body.style.transition='none';document.body.classList.add('dark-mode');requestAnimationFrame(function(){document.body.style.transition='';});}})();</script>
+
+    <a href="#main" class="skip-link">Przejdź do treści głównej</a>
+    <div id="scroll-progress" style="width:0%" aria-hidden="true"></div>
+
+    <!-- NAWIGACJA -->
+    <header>
+    <nav id="navbar" class="fixed top-3 left-0 right-0 z-50 px-4" aria-label="Nawigacja główna">
+        <div class="max-w-7xl mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 px-5 py-3 flex items-center justify-between gap-4">
+            <div class="flex-shrink-0 flex items-center gap-4">
+                <a href="index.html" aria-label="OWiT Toruń – strona główna">
+                    <img src="images/logo owit.png" alt="OWiT Toruń" class="h-16 md:h-20 object-contain" onerror="this.style.display='none'">
+                </a>
+                <img src="images/logo pfron.png" alt="PFRON – Państwowy Fundusz Rehabilitacji Osób Niepełnosprawnych" class="h-16 md:h-20 object-contain" onerror="this.style.display='none'">
+            </div>
+            <ul class="hidden lg:flex items-center gap-7 flex-1 justify-center" role="list">
+                <li><a href="index.html#o-nas"       class="nav-link text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">O nas</a></li>
+                <li><a href="index.html#uslugi"      class="nav-link text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">Usługi</a></li>
+                <li><a href="katalog.html"           class="nav-link text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">Katalog sprzętu</a></li>
+                <li><a href="index.html#zespol"      class="nav-link text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">Zespół</a></li>
+                <li><a href="faq.html"               class="nav-link text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">FAQ</a></li>
+                <li><a href="index.html#do-pobrania" class="nav-link text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">Do pobrania</a></li>
+                <li><a href="regulamin.html"         class="nav-link text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">Regulamin</a></li>
+                <li><a href="index.html#kontakt"     class="nav-link text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">Kontakt</a></li>
+            </ul>
+            <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden p-2.5 rounded-xl hover:bg-gray-100 transition-colors" aria-label="Otwórz menu mobilne" aria-expanded="false" aria-controls="mob-menu">
+                <i data-lucide="menu" class="w-5 h-5 text-gray-700"></i>
+            </button>
+        </div>
+        <div id="mob-menu" class="hidden lg:hidden mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <ul class="p-3 space-y-1" role="list">
+                <li><a href="index.html#o-nas"       onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="info" class="w-4 h-4"></i>O nas</a></li>
+                <li><a href="index.html#uslugi"      onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="sparkles" class="w-4 h-4"></i>Usługi</a></li>
+                <li><a href="katalog.html"           onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="package" class="w-4 h-4"></i>Katalog sprzętu</a></li>
+                <li><a href="index.html#zespol"      onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="users" class="w-4 h-4"></i>Zespół</a></li>
+                <li><a href="faq.html"               onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="help-circle" class="w-4 h-4"></i>FAQ</a></li>
+                <li><a href="index.html#do-pobrania" onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="download" class="w-4 h-4"></i>Do pobrania</a></li>
+                <li><a href="regulamin.html"         onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="scroll-text" class="w-4 h-4"></i>Regulamin</a></li>
+                <li><a href="index.html#kontakt"     onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="phone" class="w-4 h-4"></i>Kontakt</a></li>
+            </ul>
+        </div>
+    </nav>
+    </header>
+
+    <!-- MAIN -->
+    <main id="main" class="pt-36 pb-24 px-4">
+        <div class="max-w-4xl mx-auto">
+
+            <!-- Breadcrumb -->
+            <nav aria-label="Ścieżka nawigacji" class="mb-8">
+                <ol class="flex items-center gap-2 text-sm text-gray-600">
+                    <li><a href="index.html" class="hover:text-green-700 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-3.5 h-3.5"></i>Strona główna</a></li>
+                    <li aria-hidden="true"><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i></li>
+                    <li class="text-gray-900 font-medium" aria-current="page">Deklaracja dostępności</li>
+                </ol>
+            </nav>
+
+            <!-- Header -->
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 md:p-10 mb-8">
+                <div class="flex items-start gap-6">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="accessibility" class="w-8 h-8 text-green-700"></i>
+                    </div>
+                    <div>
+                        <p class="text-green-700 text-xs font-bold uppercase tracking-widest mb-2">OWiT Toruń</p>
+                        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Deklaracja dostępności</h1>
+                        <p class="text-gray-600 leading-relaxed">
+                            Ośrodek Wsparcia i Testów w Toruniu zobowiązuje się zapewniać dostępność swojej strony internetowej zgodnie z ustawą z dnia 4 kwietnia 2019 r. o dostępności cyfrowej stron internetowych i aplikacji mobilnych podmiotów publicznych.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="badge bg-green-100 text-green-700"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i>WCAG 2.1</span>
+                            <span class="badge bg-blue-100 text-blue-700"><i data-lucide="calendar" class="w-3.5 h-3.5"></i>Aktualizacja: marzec 2026</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Treść -->
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 md:p-10 space-y-10">
+
+                <div class="content-section">
+                    <h2><i data-lucide="globe" class="w-5 h-5"></i>Dane podmiotu</h2>
+                    <p>Niniejsza deklaracja dostępności dotyczy strony internetowej <strong>OWiT Toruń – Ośrodka Wsparcia i Testów</strong> prowadzonej pod adresem <a href="https://owit-torun.pl" class="text-green-700 underline hover:text-green-800">owit-torun.pl</a>.</p>
+                    <p><strong>Podmiot prowadzący:</strong> Zespół Szkół Nr 26 w Toruniu, ul. Juliana Fałata 88/90, 87-100 Toruń<br>
+                    <strong>Finansowanie:</strong> PFRON – Państwowy Fundusz Rehabilitacji Osób Niepełnosprawnych<br>
+                    <strong>Kontakt:</strong> <a href="mailto:owit.torun@gmail.com" class="text-green-700 underline">owit.torun@gmail.com</a>, tel. <a href="tel:+48697677027" class="text-green-700 underline">+48 697 677 027</a></p>
+                </div>
+
+                <div class="content-section">
+                    <h2><i data-lucide="shield-check" class="w-5 h-5"></i>Status zgodności z WCAG 2.1</h2>
+                    <p>Strona jest <strong>w pełni zgodna</strong> ze standardem WCAG 2.1 na poziomie AA.</p>
+                </div>
+
+                <div class="content-section">
+                    <h2><i data-lucide="check-circle" class="w-5 h-5"></i>Dostępne ułatwienia na stronie</h2>
+                    <ul>
+                        <li>Widget ułatwień dostępu z trybem wysokiego kontrastu (żółty tekst na czarnym tle)</li>
+                        <li>Regulacja rozmiaru czcionki (powiększanie i pomniejszanie tekstu)</li>
+                        <li>Czcionka przyjazna osobom z dysleksją (Lexend)</li>
+                        <li>Zwiększone odstępy między literami i wierszami</li>
+                        <li>Wyłączenie animacji (dla osób wrażliwych na ruch)</li>
+                        <li>Tryb skali szarości (dla osób z zaburzeniami widzenia barw)</li>
+                        <li>Linki do przechodzenia do treści głównej (skip links)</li>
+                        <li>Prawidłowe etykiety ARIA na wszystkich interaktywnych elementach</li>
+                        <li>Semantyczna struktura HTML z nagłówkami, sekcjami i landmarkami</li>
+                        <li>Tekst alternatywny dla wszystkich grafik</li>
+                        <li>Widoczny fokus klawiatury (zielona obwódka na elementach)</li>
+                        <li>Możliwość obsługi strony wyłącznie klawiaturą</li>
+                        <li>Atrybut <code>lang="pl"</code> poprawnie ustawiony</li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h2><i data-lucide="alert-triangle" class="w-5 h-5"></i>Znane ograniczenia dostępności</h2>
+                    <p>Pomimo naszych starań, część treści może nie spełniać wszystkich kryteriów WCAG 2.1:</p>
+                    <ul>
+                        <li>Katalog sprzętu generowany jest dynamicznie przez JavaScript – może wymagać środowiska JS do pełnego działania</li>
+                        <li>Część dokumentów PDF może nie być w pełni dostępna dla czytników ekranu</li>
+                        <li>Treści osadzone z zewnętrznych serwisów (np. mapa Google) mogą nie spełniać wszystkich wymagań dostępności</li>
+                    </ul>
+                    <p>Pracujemy nad usunięciem powyższych ograniczeń w kolejnych aktualizacjach strony.</p>
+                </div>
+
+                <div class="content-section">
+                    <h2><i data-lucide="message-circle" class="w-5 h-5"></i>Jak zgłosić problem z dostępnością?</h2>
+                    <p>Jeżeli napotkasz trudności w korzystaniu ze strony, skontaktuj się z nami:</p>
+                    <div class="bg-green-50 rounded-2xl p-5 mt-3 space-y-2">
+                        <p class="flex items-center gap-2 text-sm"><i data-lucide="mail" class="w-4 h-4 text-green-700"></i><a href="mailto:owit.torun@gmail.com" class="text-green-700 font-semibold underline hover:text-green-800">owit.torun@gmail.com</a></p>
+                        <p class="flex items-center gap-2 text-sm"><i data-lucide="phone" class="w-4 h-4 text-green-700"></i><a href="tel:+48697677027" class="text-green-700 font-semibold underline hover:text-green-800">+48 697 677 027</a></p>
+                        <p class="text-xs text-gray-600 mt-2">Staramy się odpowiedzieć na zgłoszenia w ciągu 3 dni roboczych.</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h2><i data-lucide="scale" class="w-5 h-5"></i>Postępowanie odwoławcze</h2>
+                    <p>W przypadku braku odpowiedzi lub niesatysfakcjonującej odpowiedzi na zgłoszenie, można skontaktować się z <strong>Rzecznikiem Praw Obywatelskich</strong> (<a href="https://www.rpo.gov.pl" target="_blank" rel="noopener noreferrer" class="text-green-700 underline">www.rpo.gov.pl<span class="sr-only"> (otwiera w nowej karcie)</span></a>) lub złożyć skargę do Ministerstwa Cyfryzacji.</p>
+                </div>
+
+                <div class="content-section">
+                    <h2><i data-lucide="map-pin" class="w-5 h-5"></i>Dostępność architektoniczna</h2>
+                    <p>Siedziba OWiT Toruń znajduje się przy <strong>ul. Juliana Fałata 88/90, 87-100 Toruń</strong> (w budynku Zespołu Szkół Nr 26).</p>
+                    <ul>
+                        <li>Budynek posiada wejście przystosowane dla osób poruszających się na wózkach inwalidzkich</li>
+                        <li>W pobliżu dostępne są miejsca parkingowe</li>
+                        <li>W razie wątpliwości dotyczących dostępności architektonicznej prosimy o kontakt telefoniczny przed wizytą</li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h2><i data-lucide="calendar" class="w-5 h-5"></i>Data sporządzenia i aktualizacji deklaracji</h2>
+                    <p>Deklaracja dostępności została sporządzona: <strong>27 marca 2026 r.</strong><br>
+                    Deklaracja zostanie poddana przeglądowi: <strong>marzec 2027 r.</strong></p>
+                </div>
+
+            </div>
+
+            <!-- CTA -->
+            <div class="mt-8 flex flex-wrap gap-4 justify-center">
+                <a href="index.html" class="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50 text-gray-700 hover:text-green-700 font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>Wróć na stronę główną
+                </a>
+                <a href="index.html#kontakt" class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
+                    <i data-lucide="phone" class="w-4 h-4"></i>Skontaktuj się z nami
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- STOPKA -->
+    <footer class="bg-green-900 text-white pt-16 pb-10 px-4" role="contentinfo">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-10 mb-12">
+                <div>
+                    <div class="flex items-center gap-4 mb-5">
+                        <img src="images/logo owit.png" alt="OWiT Toruń" class="h-14 object-contain brightness-0 invert" onerror="this.style.display='none'">
+                        <img src="images/logo pfron.png" alt="PFRON" class="h-14 object-contain brightness-0 invert" onerror="this.style.display='none'">
+                    </div>
+                    <p class="text-green-300 text-sm leading-relaxed">Ośrodek Wsparcia i Testów w&nbsp;Toruniu. Wspieramy osoby z&nbsp;niepełnosprawnościami poprzez nowoczesne technologie asystujące.</p>
+                    <div class="flex items-center gap-3 mt-5">
+                        <a href="https://www.facebook.com/owit.torun" target="_blank" rel="noopener noreferrer" class="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors" aria-label="Facebook OWiT Toruń (otwiera w nowej karcie)">
+                            <img src="images/facebook.png" alt="Facebook" class="w-6 h-6 object-contain">
+                        </a>
+                    </div>
+                </div>
+                <nav aria-label="Nawigacja w stopce">
+                    <p class="font-bold text-green-200 mb-5 uppercase text-xs tracking-widest">Nawigacja</p>
+                    <ul class="space-y-2.5">
+                        <li><a href="index.html"              class="text-green-300 hover:text-white transition-colors text-sm flex items-center gap-2"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>Strona główna</a></li>
+                        <li><a href="katalog.html"            class="text-green-300 hover:text-white transition-colors text-sm flex items-center gap-2"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>Katalog sprzętu</a></li>
+                        <li><a href="faq.html"                class="text-green-300 hover:text-white transition-colors text-sm flex items-center gap-2"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>FAQ</a></li>
+                        <li><a href="jak-wypozyczac.html"     class="text-green-300 hover:text-white transition-colors text-sm flex items-center gap-2"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>Jak wypożyczyć sprzęt</a></li>
+                        <li><a href="technologie-asystujace.html" class="text-green-300 hover:text-white transition-colors text-sm flex items-center gap-2"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>Technologie asystujące</a></li>
+                        <li><a href="regulamin.html"          class="text-green-300 hover:text-white transition-colors text-sm flex items-center gap-2"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>Regulamin</a></li>
+                        <li><a href="dostepnosc.html"         class="text-green-300 hover:text-white transition-colors text-sm flex items-center gap-2"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>Dostępność</a></li>
+                        <li><a href="index.html#kontakt"      class="text-green-300 hover:text-white transition-colors text-sm flex items-center gap-2"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>Kontakt</a></li>
+                    </ul>
+                </nav>
+                <div>
+                    <p class="font-bold text-green-200 mb-5 uppercase text-xs tracking-widest">Kontakt</p>
+                    <ul class="space-y-3.5">
+                        <li class="flex items-center gap-3 text-green-300 text-sm"><i data-lucide="phone" class="w-4 h-4 flex-shrink-0 text-green-400"></i><a href="tel:+48697677027" class="hover:text-white transition-colors">+48 697 677 027</a></li>
+                        <li class="flex items-center gap-3 text-green-300 text-sm"><i data-lucide="mail" class="w-4 h-4 flex-shrink-0 text-green-400"></i><a href="mailto:owit.torun@gmail.com" class="hover:text-white transition-colors">owit.torun@gmail.com</a></li>
+                        <li class="flex items-start gap-3 text-green-300 text-sm"><i data-lucide="map-pin" class="w-4 h-4 flex-shrink-0 mt-0.5 text-green-400"></i><span>ul. Juliana Fałata 88/90<br>87-100 Toruń</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-green-800 pt-8 flex justify-center text-sm text-green-300">
+                <p>© 2026 OWiT Toruń – Ośrodek Wsparcia i Testów</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- WIDGET UŁATWIEŃ -->
+    <div id="a11y-widget" class="fixed bottom-6 left-6 z-50">
+        <div id="a11y-panel" class="hidden mb-3 bg-white rounded-2xl shadow-2xl border border-gray-100 w-72 overflow-hidden" role="dialog" aria-modal="true" aria-label="Panel ułatwień dostępu" tabindex="-1">
+            <div class="px-4 pt-4 pb-3 border-b border-gray-100 flex items-center justify-between">
+                <p class="text-xs font-bold text-gray-600 uppercase tracking-wider">Ułatwienia dostępu</p>
+                <button onclick="toggleA11yPanel()" class="text-gray-500 hover:text-gray-700 p-1 rounded transition-colors" aria-label="Zamknij panel"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-2 space-y-0.5">
+                <button onclick="toggleHighContrast()" id="a11y-contrast" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left" aria-pressed="false"><span class="w-9 h-9 rounded-xl bg-gray-900 flex items-center justify-center flex-shrink-0"><i data-lucide="eye" class="w-5 h-5 text-yellow-400"></i></span><div class="flex-grow min-w-0"><p class="text-sm font-semibold text-gray-800">Wysoki kontrast</p><p class="text-[11px] text-gray-600">Żółty tekst na czarnym tle</p></div><span class="a11y-badge off">WYŁ</span></button>
+                <div class="flex items-center gap-3 px-3 py-2.5"><span class="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0"><i data-lucide="type" class="w-5 h-5 text-green-700"></i></span><div class="flex-grow min-w-0"><p class="text-sm font-semibold text-gray-800">Rozmiar tekstu</p><p class="text-[11px] text-gray-600" id="font-size-label">Domyślny (16px)</p></div><div class="flex items-center gap-1 flex-shrink-0"><button onclick="changeFontSize(-1)" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 font-bold text-base transition-colors flex items-center justify-center" aria-label="Zmniejsz tekst">−</button><button onclick="changeFontSize(1)" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 font-bold text-base transition-colors flex items-center justify-center" aria-label="Powiększ tekst">+</button></div></div>
+                <button onclick="toggleDyslexicFont()" id="a11y-dyslexic" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left" aria-pressed="false"><span class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="book-open" class="w-5 h-5 text-blue-600"></i></span><div class="flex-grow min-w-0"><p class="text-sm font-semibold text-gray-800">Czcionka dla dysleksji</p><p class="text-[11px] text-gray-600">Lexend – ułatwia czytanie</p></div><span class="a11y-badge off">WYŁ</span></button>
+                <button onclick="toggleSpacing()" id="a11y-spacing" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left" aria-pressed="false"><span class="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0"><i data-lucide="align-justify" class="w-5 h-5 text-violet-600"></i></span><div class="flex-grow min-w-0"><p class="text-sm font-semibold text-gray-800">Zwiększony odstęp</p><p class="text-[11px] text-gray-600">Szersza interlinia i litery</p></div><span class="a11y-badge off">WYŁ</span></button>
+                <button onclick="toggleStopAnimations()" id="a11y-motion" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left" aria-pressed="false"><span class="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0"><i data-lucide="zap-off" class="w-5 h-5 text-orange-500"></i></span><div class="flex-grow min-w-0"><p class="text-sm font-semibold text-gray-800">Zatrzymaj animacje</p><p class="text-[11px] text-gray-600">Dla wrażliwości na ruch</p></div><span class="a11y-badge off">WYŁ</span></button>
+                <!-- Tryb ciemny -->
+                <button onclick="toggleDarkMode()" id="a11y-dark-mode"
+                    class="a11y-row w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                    aria-pressed="false">
+                    <span class="w-9 h-9 rounded-xl bg-slate-200 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="moon" class="w-5 h-5 text-slate-700"></i>
+                    </span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-sm font-semibold text-gray-800">Tryb ciemny</p>
+                        <p class="text-[11px] text-gray-600">Ciemne tło, mniej zmęczenia oczu</p>
+                    </div>
+                    <span class="a11y-badge off">WYŁ</span>
+                </button>
+                <button onclick="toggleGrayscale()" id="a11y-grayscale" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left" aria-pressed="false"><span class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0"><i data-lucide="contrast" class="w-5 h-5 text-gray-600"></i></span><div class="flex-grow min-w-0"><p class="text-sm font-semibold text-gray-800">Skala szarości</p><p class="text-[11px] text-gray-600">Pomoc przy ślepocie barw</p></div><span class="a11y-badge off">WYŁ</span></button>
+            </div>
+            <div class="px-4 pb-4 pt-2 border-t border-gray-50"><button onclick="resetA11y()" class="w-full text-xs text-gray-600 hover:text-red-500 transition-colors py-1 flex items-center justify-center gap-1.5"><i data-lucide="rotate-ccw" class="w-3 h-3"></i>Przywróć ustawienia domyślne</button></div>
+        </div>
+        <button id="a11y-toggle-btn" onclick="toggleA11yPanel()" class="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-3 rounded-full shadow-xl transition-all font-semibold text-sm" aria-label="Otwórz panel ułatwień dostępu" aria-expanded="false" aria-controls="a11y-panel">
+            <i data-lucide="accessibility" class="w-5 h-5"></i><span>Ułatwienia</span>
+        </button>
+    </div>
+
+    <button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="hidden fixed bottom-6 right-6 z-50 w-12 h-12 bg-green-700 hover:bg-green-800 text-white rounded-full shadow-lg items-center justify-center transition-all" aria-label="Wróć na górę strony"><i data-lucide="arrow-up" class="w-5 h-5"></i></button>
+
+    <script>
+        lucide.createIcons();
+        window.addEventListener('scroll', () => {
+            const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+            const prog = document.getElementById('scroll-progress');
+            prog.style.width = Math.min(pct,100)+'%';
+            prog.setAttribute('aria-valuenow', Math.round(Math.min(pct,100)));
+            const btn = document.getElementById('scroll-top-btn');
+            if(btn){if(window.scrollY>400)btn.classList.replace('hidden','flex');else btn.classList.replace('flex','hidden');}
+        }, {passive:true});
+        function toggleMobileMenu(){const m=document.getElementById('mob-menu'),b=document.getElementById('mobile-menu-btn'),o=!m.classList.contains('hidden');m.classList.toggle('hidden',o);b.setAttribute('aria-expanded',String(!o));}
+        window.addEventListener('resize',()=>{if(window.innerWidth>=1024){const m=document.getElementById('mob-menu'),b=document.getElementById('mobile-menu-btn');if(m)m.classList.add('hidden');if(b)b.setAttribute('aria-expanded','false');}});
+        document.addEventListener('keydown',function(e){if(e.key==='Escape'){const mob=document.getElementById('mob-menu');if(mob&&!mob.classList.contains('hidden')){toggleMobileMenu();}const panel=document.getElementById('a11y-panel');if(panel&&!panel.classList.contains('hidden')){toggleA11yPanel();}}});
+        let a11yPanelOpen=false,currentFontSize=16;
+        function toggleA11yPanel(){a11yPanelOpen=!a11yPanelOpen;const p=document.getElementById('a11y-panel'),b=document.getElementById('a11y-toggle-btn');p.classList.toggle('hidden',!a11yPanelOpen);b.setAttribute('aria-expanded',String(a11yPanelOpen));if(a11yPanelOpen){const f=p.querySelector('button,[tabindex="0"]');if(f)f.focus();}}(function(){var p=document.getElementById("a11y-panel");if(!p)return;p.addEventListener("keydown",function(e){if(!a11yPanelOpen)return;var fs=Array.from(p.querySelectorAll("button,[tabindex=\"0\"]")).filter(function(x){return!x.disabled;});if(!fs.length)return;if(e.key==="Tab"){if(e.shiftKey){if(document.activeElement===fs[0]){e.preventDefault();fs[fs.length-1].focus();}}else{if(document.activeElement===fs[fs.length-1]){e.preventDefault();fs[0].focus();}}}});})();
+        function setA11yBadge(id,active){const b=document.getElementById(id),badge=b?b.querySelector('.a11y-badge'):null;if(badge){badge.textContent=active?'WŁ':'WYŁ';badge.classList.toggle('on',active);badge.classList.toggle('off',!active);}if(b)b.setAttribute('aria-pressed',active);}
+        function announce(msg){const a=document.getElementById('a11y-announcer');if(a)a.textContent=msg;}
+        function toggleHighContrast(){const on=document.body.classList.toggle('a11y-high-contrast');localStorage.setItem('owit-contrast',on);setA11yBadge('a11y-contrast',on);announce(on?'Wysoki kontrast włączony':'Wysoki kontrast wyłączony');}
+        function changeFontSize(step){currentFontSize=Math.min(28,Math.max(12,currentFontSize+step*2));document.documentElement.style.fontSize=currentFontSize+'px';const l=document.getElementById('font-size-label');if(l)l.textContent=currentFontSize===16?'Domyślny (16px)':currentFontSize+'px';localStorage.setItem('owit-fontsize-px',currentFontSize);announce('Rozmiar tekstu: '+currentFontSize+'%');}
+        function resetA11y(){['a11y-high-contrast','a11y-dyslexic','a11y-spacing','a11y-stop-motion','a11y-grayscale','dark-mode'].forEach(c=>document.body.classList.remove(c));['a11y-contrast','a11y-dyslexic','a11y-spacing','a11y-motion','a11y-grayscale','a11y-dark-mode'].forEach(id=>setA11yBadge(id,false));currentFontSize=16;document.documentElement.style.fontSize='16px';const l=document.getElementById('font-size-label');if(l)l.textContent='Domyślny (16px)';['owit-contrast','owit-fontsize','owit-fontsize-px','owit-dyslexic','owit-spacing','owit-motion','owit-grayscale','dark-mode'].forEach(k=>localStorage.removeItem(k));}
+        function toggleDyslexicFont(){const on=document.body.classList.toggle('a11y-dyslexic');localStorage.setItem('owit-dyslexic',on);setA11yBadge('a11y-dyslexic',on);announce(on?'Czcionka dla dysleksji włączona':'Czcionka dla dysleksji wyłączona');}
+        function toggleSpacing(){const on=document.body.classList.toggle('a11y-spacing');localStorage.setItem('owit-spacing',on);setA11yBadge('a11y-spacing',on);announce(on?'Zwiększony odstęp włączony':'Zwiększony odstęp wyłączony');}
+        function toggleStopAnimations(){const on=document.body.classList.toggle('a11y-stop-motion');localStorage.setItem('owit-motion',on);setA11yBadge('a11y-motion',on);announce(on?'Animacje zatrzymane':'Animacje włączone');}
+        function toggleDarkMode() {
+            const on = document.body.classList.toggle('dark-mode');
+            setA11yBadge('a11y-dark-mode', on);
+            document.getElementById('a11y-dark-mode')?.setAttribute('aria-pressed', on);
+            localStorage.setItem('dark-mode', on);
+            updateA11yCount();
+        }
+
+        function toggleGrayscale(){const on=document.body.classList.toggle('a11y-grayscale');localStorage.setItem('owit-grayscale',on);setA11yBadge('a11y-grayscale',on);announce(on?'Skala szarości włączona':'Skala szarości wyłączona');}
+        (function(){if(localStorage.getItem('owit-contrast')==='true')toggleHighContrast();const fsPx=parseInt(localStorage.getItem('owit-fontsize-px')||'16');if(fsPx!==16){currentFontSize=fsPx;document.documentElement.style.fontSize=fsPx+'px';const l=document.getElementById('font-size-label');if(l)l.textContent=fsPx+'px';}if(localStorage.getItem('owit-dyslexic')==='true')toggleDyslexicFont();if(localStorage.getItem('owit-spacing')==='true')toggleSpacing();if(localStorage.getItem('owit-motion')==='true')toggleStopAnimations();if(localStorage.getItem('owit-grayscale')==='true')toggleGrayscale();if(localStorage.getItem('dark-mode')==='true'){document.body.classList.add('dark-mode');setA11yBadge('a11y-dark-mode',true);}})();
+    </script>
+</body>
+</html>

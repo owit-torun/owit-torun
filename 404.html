@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona nie znaleziona (404) – OWiT Toruń</title>
+    <meta name="description" content="Nie znaleziono strony. Wróć do strony głównej OWiT Toruń lub skorzystaj z nawigacji.">
+    <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="https://owit-torun.pl/">
+    <link rel="icon" href="images/logo owit.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        body { font-family: 'Lexend', sans-serif; background: #f9fafb; }
+        .skip-link { position: absolute; left: -9999px; top: 1rem; background: #1f5526; color: #fff; padding: .5rem 1.25rem; border-radius: 0 0 .5rem .5rem; font-weight: 700; font-size: 1rem; z-index: 9999; text-decoration: none; transition: left .2s; }
+        .skip-link:focus { left: 0; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <a href="#main" class="skip-link">Przejdź do treści głównej</a>
+
+    <!-- NAWIGACJA -->
+    <header>
+    <nav class="fixed top-3 left-0 right-0 z-50 px-4" aria-label="Nawigacja główna">
+        <div class="max-w-7xl mx-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 px-5 py-3 flex items-center justify-between gap-4">
+            <div class="flex-shrink-0 flex items-center gap-4">
+                <a href="index.html" aria-label="OWiT Toruń – strona główna">
+                    <img src="images/logo owit.png" alt="OWiT Toruń" class="h-14 md:h-16 object-contain" onerror="this.style.display='none'">
+                </a>
+                <img src="images/logo pfron.png" alt="PFRON" class="h-14 md:h-16 object-contain" onerror="this.style.display='none'">
+            </div>
+            <ul class="hidden lg:flex items-center gap-7 flex-1 justify-center" role="list">
+                <li><a href="index.html#o-nas"    class="text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">O nas</a></li>
+                <li><a href="katalog.html"        class="text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">Katalog sprzętu</a></li>
+                <li><a href="faq.html"            class="text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">FAQ</a></li>
+                <li><a href="jak-wypozyczac.html" class="text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">Jak wypożyczyć</a></li>
+                <li><a href="regulamin.html"      class="text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">Regulamin</a></li>
+                <li><a href="index.html#kontakt"  class="text-gray-700 hover:text-green-700 font-semibold text-base transition-colors">Kontakt</a></li>
+            </ul>
+        </div>
+    </nav>
+    </header>
+
+    <!-- MAIN -->
+    <main id="main" class="flex-1 flex items-center justify-center pt-32 pb-24 px-4">
+        <div class="max-w-lg mx-auto text-center">
+            <div class="w-24 h-24 bg-green-100 rounded-3xl flex items-center justify-center mx-auto mb-8">
+                <i data-lucide="file-question" class="w-12 h-12 text-green-700" aria-hidden="true"></i>
+            </div>
+            <p class="text-green-700 text-xs font-bold uppercase tracking-widest mb-3">Błąd 404</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Strona nie istnieje</h1>
+            <p class="text-gray-600 text-lg leading-relaxed mb-10">
+                Szukana strona mogła zostać przeniesiona, usunięta lub wpisano błędny adres URL.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="index.html"
+                   class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
+                    <i data-lucide="home" class="w-4 h-4" aria-hidden="true"></i>
+                    Strona główna
+                </a>
+                <a href="katalog.html"
+                   class="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50 text-gray-700 hover:text-green-700 font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
+                    <i data-lucide="package" class="w-4 h-4" aria-hidden="true"></i>
+                    Katalog sprzętu
+                </a>
+                <a href="faq.html"
+                   class="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50 text-gray-700 hover:text-green-700 font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
+                    <i data-lucide="help-circle" class="w-4 h-4" aria-hidden="true"></i>
+                    FAQ
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- STOPKA -->
+    <footer class="bg-gray-900 text-white py-10 px-4 mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-gray-400 text-sm">© 2026 OWiT Toruń. Wszelkie prawa zastrzeżone.</p>
+            <nav aria-label="Nawigacja w stopce">
+                <ul class="flex flex-wrap gap-4 text-sm">
+                    <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">Strona główna</a></li>
+                    <li><a href="katalog.html" class="text-gray-400 hover:text-white transition-colors">Katalog</a></li>
+                    <li><a href="faq.html" class="text-gray-400 hover:text-white transition-colors">FAQ</a></li>
+                    <li><a href="regulamin.html" class="text-gray-400 hover:text-white transition-colors">Regulamin</a></li>
+                    <li><a href="dostepnosc.html" class="text-gray-400 hover:text-white transition-colors">Dostępność</a></li>
+                </ul>
+            </nav>
+        </div>
+    </footer>
+
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    </script>
+</body>
+</html>
