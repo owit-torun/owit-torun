@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://owit-torun.pl/sitemap.xml
