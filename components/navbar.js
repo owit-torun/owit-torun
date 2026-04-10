@@ -50,11 +50,12 @@
           <li class="relative group">
             <button
               class="nav-link flex items-center gap-1 text-gray-700 hover:text-green-700 font-semibold text-base transition-colors focus:outline-none"
-              aria-expanded="false" aria-haspopup="true" aria-controls="baza-wiedzy-menu">
+              aria-expanded="false" aria-haspopup="true" aria-controls="baza-wiedzy-menu"
+              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();const exp=this.getAttribute('aria-expanded')==='true';this.setAttribute('aria-expanded',String(!exp));this.closest('li').classList.toggle('dropdown-open',!exp);}">
               Baza wiedzy <i data-lucide="chevron-down" class="w-4 h-4 group-hover:rotate-180 transition-transform duration-200"></i>
             </button>
             <div id="baza-wiedzy-menu"
-              class="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 p-2 z-50">
+              class="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 group-focus-within:translate-y-0 p-2 z-50">
               <div class="absolute -top-4 left-0 right-0 h-4"></div>
               <a href="regulamin.html" class="block px-4 py-2.5 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="scroll-text" class="w-4 h-4 inline-block mr-2 -mt-0.5"></i>Regulamin</a>
               <a href="${pre + '#do-pobrania'}" class="block px-4 py-2.5 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="download" class="w-4 h-4 inline-block mr-2 -mt-0.5"></i>Do pobrania</a>
@@ -85,7 +86,7 @@
           ${mobileLink('faq.html', 'help-circle', 'FAQ')}
           ${mobileLink('jak-wypozyczac.html', 'clipboard-list', 'Jak wypożyczyć')}
           ${mobileLink('technologie-asystujace.html', 'cpu', 'Technologie asystujące')}
-          <li><p class="px-4 py-2 mt-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Baza wiedzy / Do pobrania</p></li>
+          <li role="presentation"><span class="block px-4 py-2 mt-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Baza wiedzy / Do pobrania</span></li>
           ${mobileLink('regulamin.html', 'scroll-text', 'Regulamin')}
           <li><a href="${pre + '#do-pobrania'}" onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="download" class="w-4 h-4"></i>Do pobrania</a></li>
           ${mobileLink('przydatne-linki.html', 'link', 'Przydatne linki')}
