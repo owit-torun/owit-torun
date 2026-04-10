@@ -1613,6 +1613,7 @@
         let isEmployeeMode = false;
         let isAdminMode = false;
         let currentUserEmail = null;
+        let currentUserName = null;
         let editingGearKey = null;
         let editingGearImageUrl = '';
 
@@ -1659,7 +1660,8 @@
             if (user) {
                 isEmployeeMode = true;
                 currentUserEmail = user.email;
-                document.getElementById('loginLabel').innerText = "Wyloguj (" + user.email + ")";
+                currentUserName = user.displayName || user.email.split('@')[0];
+                document.getElementById('loginLabel').innerText = "Wyloguj (" + (user.displayName || user.email) + ")";
                 document.getElementById('loginLabelMobile').innerText = "Wyloguj";
 
                 if (user.email.includes('admin')) {
@@ -1679,6 +1681,7 @@
                 isEmployeeMode = false;
                 isAdminMode = false;
                 currentUserEmail = null;
+                currentUserName = null;
                 document.getElementById('loginLabel').innerText = "Panel Pracownika";
                 document.getElementById('loginLabelMobile').innerText = "Pracownik";
                 document.getElementById('addGearBtn').classList.add('hidden');
@@ -1930,7 +1933,7 @@
         function addRental(dbKey) {
             const inv = inventoryData[dbKey] || { rentals: [] };
             const rentals = inv.rentals || [];
-            rentals.push({ name: '', date: '' });
+            rentals.push({ name: currentUserName || '', date: '', addedBy: currentUserEmail });
             database.ref('inventory/' + dbKey + '/rentals').set(rentals).catch(e => alert("Błąd: " + e.message));
         }
 
@@ -1949,9 +1952,7 @@
         function addQueue(dbKey) {
             const inv = inventoryData[dbKey] || { queueArr: [] };
             const q = inv.queueArr || [];
-            // Użycie dzisiejszej daty jako domyślnej
-            const today = new Date().toISOString().split('T')[0];
-            q.push({ name: '', date: today });
+            q.push({ name: currentUserName || '', addedBy: currentUserEmail });
             database.ref('inventory/' + dbKey + '/queueArr').set(q).catch(e => alert("Błąd: " + e.message));
         }
 
@@ -2009,11 +2010,18 @@
                 }
 
                 rentals.forEach((r, idx) => {
+                    const canDelete = isAdminMode || !r.addedBy || r.addedBy === currentUserEmail;
+                    const deleteBtn = canDelete
+                        ? `<button onclick="removeRental('${dbKey}', ${idx})" title="Usuń wpis wypożyczenia" aria-label="Usuń wpis wypożyczenia" class="text-white bg-red-400 font-bold px-2 py-1 text-xs hover:bg-red-500 rounded ml-1 transition-colors">✕</button>`
+                        : `<span title="Wpis dodany przez innego pracownika" class="text-gray-300 font-bold px-2 py-1 text-xs rounded ml-1 cursor-not-allowed select-none">✕</span>`;
                     html += `
                     <div class="flex gap-1 items-center mt-2 bg-white p-1 rounded border border-gray-200 shadow-sm">
                         <input type="text" placeholder="Imię/PUP" value="${r.name || ''}" onchange="updateRental('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – wypożyczenie ${idx + 1}" class="w-1/2 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none">
-                        <input type="date" value="${r.date || ''}" onchange="updateRental('${dbKey}', ${idx}, 'date', this.value)" aria-label="Data zwrotu – wypożyczenie ${idx + 1}" class="w-1/3 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono">
-                        <button onclick="removeRental('${dbKey}', ${idx})" title="Usuń wpis wypożyczenia" aria-label="Usuń wpis wypożyczenia" class="text-white bg-red-400 font-bold px-2 py-1 text-xs hover:bg-red-500 rounded ml-1 transition-colors">✕</button>
+                        <div class="flex flex-col w-1/3">
+                            <span class="text-[9px] text-gray-400 leading-tight px-1">Plan. data zwrotu</span>
+                            <input type="date" value="${r.date || ''}" onchange="updateRental('${dbKey}', ${idx}, 'date', this.value)" aria-label="Planowana data zwrotu – wypożyczenie ${idx + 1}" class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono">
+                        </div>
+                        ${deleteBtn}
                     </div>`;
                 });
 
@@ -2036,12 +2044,15 @@
                 }
 
                 queueArr.forEach((q, idx) => {
+                    const canDeleteQ = isAdminMode || !q.addedBy || q.addedBy === currentUserEmail;
+                    const deleteBtnQ = canDeleteQ
+                        ? `<button onclick="removeQueue('${dbKey}', ${idx})" title="Usuń osobę z kolejki" aria-label="Usuń osobę z kolejki" class="text-gray-400 font-bold px-2 py-1 text-xs hover:text-red-500 hover:bg-red-100 rounded ml-1 transition-colors">✕</button>`
+                        : `<span title="Wpis dodany przez innego pracownika" class="text-gray-300 font-bold px-2 py-1 text-xs rounded ml-1 cursor-not-allowed select-none">✕</span>`;
                     html += `
                     <div class="flex gap-1 items-center mb-2 bg-yellow-50 p-1 rounded border border-yellow-200 shadow-sm">
                         <span class="text-[10px] font-bold text-yellow-700 px-1 w-4 text-center">${idx + 1}.</span>
-                        <input type="text" placeholder="Imię/PUP" value="${q.name || ''}" onchange="updateQueue('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – kolejka pozycja ${idx + 1}" class="w-1/2 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-medium">
-                        <input type="date" value="${q.date || ''}" onchange="updateQueue('${dbKey}', ${idx}, 'date', this.value)" aria-label="Data dodania do kolejki – pozycja ${idx + 1}" class="w-1/3 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono">
-                        <button onclick="removeQueue('${dbKey}', ${idx})" title="Usuń osobę z kolejki" aria-label="Usuń osobę z kolejki" class="text-gray-400 font-bold px-2 py-1 text-xs hover:text-red-500 hover:bg-red-100 rounded ml-1 transition-colors">✕</button>
+                        <input type="text" placeholder="Imię/PUP" value="${q.name || ''}" onchange="updateQueue('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – kolejka pozycja ${idx + 1}" class="flex-1 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-medium">
+                        ${deleteBtnQ}
                     </div>`;
                 });
 
@@ -2802,9 +2813,11 @@
                         const searchStr = currentSearchQuery.toLowerCase();
                         if (!searchStr) return true;
 
+                        const itemTypeLabel = (ITEM_TYPE_LABELS[item.name] || '').toLowerCase();
                         return item.name.toLowerCase().includes(searchStr) ||
                             item.desc.toLowerCase().includes(searchStr) ||
-                            item.features.some(f => f.toLowerCase().includes(searchStr));
+                            item.features.some(f => f.toLowerCase().includes(searchStr)) ||
+                            itemTypeLabel.includes(searchStr);
                     });
 
                     if (currentSort === 'name_asc') {
