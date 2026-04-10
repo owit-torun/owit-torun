@@ -1976,6 +1976,7 @@
                             const next = queue[0];
                             const equipmentName = getItemName(dbKey);
                             console.log('Wysyłam powiadomienie Teams do:', next.addedBy, '| sprzęt:', equipmentName);
+                            console.log('teamsMappingData:', JSON.stringify(teamsMappingData));
                             fetch('https://default6acc3580ff0c402d86c486580a5708.de.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/97d2690cdf5e4bb6bd6a1594f569e1f1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=axas-RmIlndTRXv1qHVDnZGUbf_Klj8CFX7Wq68HO8g', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
