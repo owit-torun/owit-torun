@@ -1947,11 +1947,38 @@
             database.ref(`inventory/${dbKey}/rentals/${index}`).update({ [field]: value }).catch(e => alert("Błąd: " + e.message));
         }
 
+        function getItemName(dbKey) {
+            const customItem = customCatalogList.find(i => getDbKey(i.name) === dbKey);
+            if (customItem) return customItem.name;
+            for (const dept of catalogData) {
+                for (const cat of dept.categories) {
+                    const found = cat.items.find(i => getDbKey(i.name) === dbKey);
+                    if (found) return found.name;
+                }
+            }
+            return dbKey;
+        }
+
         function removeRental(dbKey, index) {
             if (confirm("Czy na pewno chcesz usunąć to wypożyczenie (sprzęt wrócił)?")) {
                 const rentals = inventoryData[dbKey].rentals || [];
                 rentals.splice(index, 1);
-                database.ref(`inventory/${dbKey}/rentals`).set(rentals).catch(e => alert("Błąd: " + e.message));
+                database.ref(`inventory/${dbKey}/rentals`).set(rentals)
+                    .then(() => {
+                        const queue = (inventoryData[dbKey].queueArr || []).filter(Boolean);
+                        if (queue.length > 0) {
+                            const next = queue[0];
+                            const equipmentName = getItemName(dbKey);
+                            fetch('https://default6acc3580ff0c402d86c486580a5708.de.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/97d2690cdf5e4bb6bd6a1594f569e1f1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=axas-RmIlndTRXv1qHVDnZGUbf_Klj8CFX7Wq68HO8g', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    text: `🔔 **${next.name}** — sprzęt który zarezerwowałeś/aś jest dostępny:\n**${equipmentName}**\nZaloguj się do katalogu i zarejestruj wypożyczenie.`
+                                })
+                            }).catch(e => console.warn('Powiadomienie Teams nieudane:', e));
+                        }
+                    })
+                    .catch(e => alert("Błąd: " + e.message));
             }
         }
 
