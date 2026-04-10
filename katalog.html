@@ -1969,13 +1969,28 @@
                         if (queue.length > 0) {
                             const next = queue[0];
                             const equipmentName = getItemName(dbKey);
+                            console.log('Wysyłam powiadomienie Teams do:', next.addedBy, '| sprzęt:', equipmentName);
                             fetch('https://default6acc3580ff0c402d86c486580a5708.de.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/97d2690cdf5e4bb6bd6a1594f569e1f1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=axas-RmIlndTRXv1qHVDnZGUbf_Klj8CFX7Wq68HO8g', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
-                                    text: `🔔 **${next.name}** — sprzęt który zarezerwowałeś/aś jest dostępny:\n**${equipmentName}**\nZaloguj się do katalogu i zarejestruj wypożyczenie.`
+                                    type: "message",
+                                    attachments: [{
+                                        contentType: "application/vnd.microsoft.card.adaptive",
+                                        content: {
+                                            $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+                                            type: "AdaptiveCard",
+                                            version: "1.2",
+                                            body: [
+                                                { type: "TextBlock", size: "Medium", weight: "Bolder", text: "🔔 Sprzęt dostępny w katalogu!" },
+                                                { type: "TextBlock", wrap: true, text: `**${next.name}** — sprzęt który zarezerwowałeś/aś jest już dostępny:\n\n**${equipmentName}**\n\nZaloguj się do katalogu i zarejestruj wypożyczenie.` }
+                                            ]
+                                        }
+                                    }]
                                 })
-                            }).catch(e => console.warn('Powiadomienie Teams nieudane:', e));
+                            })
+                            .then(r => console.log('Teams odpowiedź HTTP:', r.status))
+                            .catch(e => console.warn('Powiadomienie Teams nieudane:', e));
                         }
                     })
                     .catch(e => alert("Błąd: " + e.message));
