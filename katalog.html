@@ -18,7 +18,7 @@
         content="Katalog Sprzętu Wspomagającego – Powiększalniki, AAC, Sprzęt Tyflologiczny | OWiT Toruń">
     <meta property="og:description"
         content="Ponad 80 urządzeń wspomagających do bezpłatnego wypożyczenia: powiększalniki, notatniki brajlowskie, urządzenia AAC, eye-tracking, sprzęt surdologiczny.">
-    <meta property="og:image" content="https://owit-torun.github.io/owit-torun/images/ui/og-banner.png">
+    <meta property="og:image" content="https://owit-torun.pl/images/ui/og-banner.png">
     <meta property="og:locale" content="pl_PL">
     <meta property="og:site_name" content="OWiT Toruń">
 
@@ -27,7 +27,7 @@
     <meta name="twitter:title" content="Katalog Sprzętu Wspomagającego | OWiT Toruń">
     <meta name="twitter:description"
         content="Ponad 80 urządzeń wspomagających do bezpłatnego wypożyczenia w Toruniu: powiększalniki, AAC, sprzęt tyflologiczny i surdologiczny.">
-    <meta name="twitter:image" content="https://owit-torun.github.io/owit-torun/images/ui/og-banner.png">
+    <meta name="twitter:image" content="https://owit-torun.pl/images/ui/og-banner.png">
 
     <!-- JSON-LD: ItemList kategorii katalogu -->
     <script type="application/ld+json">
@@ -1660,7 +1660,7 @@
             if (user) {
                 isEmployeeMode = true;
                 currentUserEmail = user.email;
-                currentUserName = user.displayName || user.email.split('@')[0];
+                currentUserName = (user.displayName || user.email.split('@')[0]).replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).trim();
                 document.getElementById('loginLabel').innerText = "Wyloguj (" + (user.displayName || user.email) + ")";
                 document.getElementById('loginLabelMobile').innerText = "Wyloguj";
 
