@@ -1616,6 +1616,7 @@
         ];
 
         let inventoryData = {};
+        let teamsMappingData = {};
         let isEmployeeMode = false;
         let isAdminMode = false;
         let currentUserEmail = null;
@@ -1646,6 +1647,11 @@
             } else if (_customReady && document.getElementById('catalog-container')) {
                 renderCatalog(); // live update: odśwież od razu
             }
+        });
+
+        // POBIERANIE MAPOWANIA TEAMS
+        database.ref('teamsMapping').on('value', (snapshot) => {
+            teamsMappingData = snapshot.val() || {};
         });
 
         // POBIERANIE NOWYCH SPRZĘTÓW Z BAZY
@@ -1973,21 +1979,30 @@
                             fetch('https://default6acc3580ff0c402d86c486580a5708.de.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/97d2690cdf5e4bb6bd6a1594f569e1f1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=axas-RmIlndTRXv1qHVDnZGUbf_Klj8CFX7Wq68HO8g', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    type: "message",
-                                    attachments: [{
-                                        contentType: "application/vnd.microsoft.card.adaptive",
-                                        content: {
-                                            $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-                                            type: "AdaptiveCard",
-                                            version: "1.2",
-                                            body: [
-                                                { type: "TextBlock", size: "Medium", weight: "Bolder", text: "🔔 Sprzęt dostępny w katalogu!" },
-                                                { type: "TextBlock", wrap: true, text: `**${next.name}** — sprzęt który zarezerwowałeś/aś jest już dostępny:\n\n**${equipmentName}**\n\nZaloguj się do katalogu i zarejestruj wypożyczenie.` }
-                                            ]
-                                        }
-                                    }]
-                                })
+                                body: (() => {
+                                    const emailKey = (next.addedBy || '').replace(/[@.]/g, '_');
+                                    const teamsUser = teamsMappingData[emailKey];
+                                    const mentionText = teamsUser ? `<at>${teamsUser.teamsName}</at>` : `**${next.name}**`;
+                                    const card = {
+                                        $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+                                        type: "AdaptiveCard",
+                                        version: "1.2",
+                                        body: [
+                                            { type: "TextBlock", size: "Medium", weight: "Bolder", text: "🔔 Sprzęt dostępny w katalogu!" },
+                                            { type: "TextBlock", wrap: true, text: `${mentionText} — sprzęt który zarezerwowałeś/aś jest już dostępny:\n\n**${equipmentName}**\n\nZaloguj się do katalogu i zarejestruj wypożyczenie.` }
+                                        ]
+                                    };
+                                    if (teamsUser) {
+                                        card.msteams = {
+                                            entities: [{
+                                                type: "mention",
+                                                text: `<at>${teamsUser.teamsName}</at>`,
+                                                mentioned: { id: teamsUser.teamsId, name: teamsUser.teamsName }
+                                            }]
+                                        };
+                                    }
+                                    return JSON.stringify({ type: "message", attachments: [{ contentType: "application/vnd.microsoft.card.adaptive", content: card }] });
+                                })()
                             })
                             .then(r => console.log('Teams odpowiedź HTTP:', r.status))
                             .catch(e => console.warn('Powiadomienie Teams nieudane:', e));
