@@ -10,6 +10,8 @@
     <link rel="canonical" href="https://owit-torun.pl/katalog.html">
     <link rel="icon" href="images/ui/logo owit.png" type="image/png">
     <link rel="apple-touch-icon" href="images/ui/logo owit.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2b7333">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -98,7 +100,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Pobranie ikon Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Czcionka dla dysleksji (Lexend) -->
+<!-- Czcionka dla dysleksji (Lexend) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -2064,24 +2066,35 @@
                     </div>`;
                 }
 
-                // Lista wypożyczeń
-                html += `<div class="mb-3"><label class="text-[11px] font-bold text-gray-600 uppercase">Aktualne wypożyczenia (${rentals.length} / ${itemTotal}):</label>`;
+                // Lista wypożyczeń – sortowanie po dacie planowanego zwrotu (brak daty na końcu)
+                const sortedRentals = rentals
+                    .map((r, origIdx) => ({ ...r, _origIdx: origIdx }))
+                    .sort((a, b) => {
+                        if (a.date && b.date) return a.date.localeCompare(b.date);
+                        if (a.date) return -1;
+                        if (b.date) return 1;
+                        return 0;
+                    });
+
+                const rentalCountLabel = isAdminMode ? `${rentals.length} / ${itemTotal}` : `${rentals.length}`;
+                html += `<div class="mb-3"><label class="text-[11px] font-bold text-gray-600 uppercase">Aktualne wypożyczenia (${rentalCountLabel}):</label>`;
 
                 if (rentals.length === 0) {
                     html += `<div class="text-xs text-green-600 mt-1 italic">Sprzęt nie jest aktualnie wypożyczony.</div>`;
                 }
 
-                rentals.forEach((r, idx) => {
+                sortedRentals.forEach((r, displayIdx) => {
+                    const idx = r._origIdx;
                     const canDelete = isAdminMode || !r.addedBy || r.addedBy === currentUserEmail;
                     const deleteBtn = canDelete
                         ? `<button onclick="removeRental('${dbKey}', ${idx})" title="Usuń wpis wypożyczenia" aria-label="Usuń wpis wypożyczenia" class="text-white bg-red-400 font-bold px-2 py-1 text-xs hover:bg-red-500 rounded ml-1 transition-colors">✕</button>`
                         : `<span title="Wpis dodany przez innego pracownika" class="text-gray-300 font-bold px-2 py-1 text-xs rounded ml-1 cursor-not-allowed select-none">✕</span>`;
                     html += `
                     <div class="flex gap-1 items-center mt-2 bg-white p-1 rounded border border-gray-200 shadow-sm">
-                        <input type="text" placeholder="Imię/PUP" value="${r.name || ''}" onchange="updateRental('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – wypożyczenie ${idx + 1}" class="w-1/2 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none">
+                        <input type="text" placeholder="Imię/PUP" value="${r.name || ''}" onchange="updateRental('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – wypożyczenie ${displayIdx + 1}" class="w-1/2 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none">
                         <div class="flex flex-col w-1/3">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Plan. data zwrotu</span>
-                            <input type="date" value="${r.date || ''}" onchange="updateRental('${dbKey}', ${idx}, 'date', this.value)" aria-label="Planowana data zwrotu – wypożyczenie ${idx + 1}" class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono">
+                            <input type="date" value="${r.date || ''}" onchange="updateRental('${dbKey}', ${idx}, 'date', this.value)" aria-label="Planowana data zwrotu – wypożyczenie ${displayIdx + 1}" class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono">
                         </div>
                         ${deleteBtn}
                     </div>`;
@@ -2726,7 +2739,7 @@
                 html += `
                     <div class="flex flex-row gap-8 border-2 border-gray-800 rounded-2xl p-6" style="page-break-inside: avoid; height: 38vh;">
                         <div class="w-2/5 h-full flex items-center justify-center p-4">
-                            ${item.imageUrl ? `<img loading="lazy" src="${item.imageUrl}" alt="${item.name || 'Zdjęcie produktu'}" class="max-w-full max-h-full object-contain" />` : '<span class="text-gray-400">Brak zdjęcia</span>'}
+                            ${item.imageUrl ? `<img loading="eager" src="${item.imageUrl}" alt="${item.name || 'Zdjęcie produktu'}" class="max-w-full max-h-full object-contain" />` : '<span class="text-gray-400">Brak zdjęcia</span>'}
                         </div>
                         <div class="w-3/5 flex flex-col justify-start">
                             <h3 class="text-2xl font-extrabold mb-3">${item.name}</h3>
@@ -2741,6 +2754,18 @@
 
             html += `</div>`;
             printContainer.innerHTML = html;
+        }
+
+        function waitForImages(container) {
+            const imgs = Array.from(container.querySelectorAll('img'));
+            if (imgs.length === 0) return Promise.resolve();
+            return Promise.all(imgs.map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                });
+            }));
         }
 
         function printSelected() {
@@ -2759,7 +2784,7 @@
             });
 
             generatePrintView(selectedProducts, "Wybrane Sprzęty - OWiT Toruń");
-            window.print();
+            waitForImages(document.getElementById('print-area')).then(() => window.print());
         }
 
         function printAll() {
@@ -2769,11 +2794,12 @@
                     allItems.push(...cat.items);
                 });
             });
+            customCatalogList.forEach(item => allItems.push(item));
             generatePrintView(allItems, "Pełny Katalog Sprzętu OWiT Toruń");
-            window.print();
+            waitForImages(document.getElementById('print-area')).then(() => window.print());
         }
 
-        // Dodanie przycisku powrotu na górę do body
+// Dodanie przycisku powrotu na górę do body
         document.body.insertAdjacentHTML('beforeend', `
             <button id="scrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-6 bg-green-700 hover:bg-green-800 text-white p-3 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 print-hide z-50" aria-label="Wróć na górę strony">
                 <i data-lucide="arrow-up" class="w-6 h-6"></i>
@@ -3308,6 +3334,11 @@
     </script>
     <script src="components/navbar.js"></script>
     <script src="components/footer.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+    </script>
 </body>
 
 </html>

@@ -1,0 +1,28 @@
+{
+  "name": "Katalog OWiT Toruń",
+  "short_name": "OWiT Katalog",
+  "description": "Katalog sprzętu wspomagającego do bezpłatnego wypożyczenia – OWiT Toruń",
+  "start_url": "/katalog.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#2b7333",
+  "lang": "pl",
+  "icons": [
+    {
+      "src": "images/ui/logo owit.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/ui/logo owit.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": []
+}

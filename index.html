@@ -10,6 +10,8 @@
     <link rel="canonical" href="https://owit-torun.pl/">
     <link rel="icon" href="images/ui/logo owit.png" type="image/png">
     <link rel="apple-touch-icon" href="images/ui/logo owit.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2b7333">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -2581,6 +2583,11 @@
     </script>
     <script src="components/navbar.js"></script>
     <script src="components/footer.js"></script>
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/sw.js").catch(() => {});
+        }
+    </script>
 </body>
 
 </html>
