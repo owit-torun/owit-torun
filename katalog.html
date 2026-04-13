@@ -2076,8 +2076,7 @@
                         return 0;
                     });
 
-                const rentalCountLabel = isAdminMode ? `${rentals.length} / ${itemTotal}` : `${rentals.length}`;
-                html += `<div class="mb-3"><label class="text-[11px] font-bold text-gray-600 uppercase">Aktualne wypożyczenia (${rentalCountLabel}):</label>`;
+                html += `<div class="mb-3"><label class="text-[11px] font-bold text-gray-600 uppercase">Aktualne wypożyczenia (${rentals.length} / ${itemTotal}):</label>`;
 
                 if (rentals.length === 0) {
                     html += `<div class="text-xs text-green-600 mt-1 italic">Sprzęt nie jest aktualnie wypożyczony.</div>`;
