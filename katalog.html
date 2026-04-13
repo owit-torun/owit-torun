@@ -100,7 +100,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Pobranie ikon Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
-<!-- Czcionka dla dysleksji (Lexend) -->
+    <!-- Czcionka dla dysleksji (Lexend) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -1502,7 +1502,7 @@
             'Lenovo K10': 'tablet',
             // Telefony
             'Alcatel 20.19': 'telefon',
-            'Hammer Iron 3 Silver': 'smartfon',
+            'Hammer Iron 3': 'smartfon',
             'iPhone 17 Pro': 'smartfon',
             'Apple Watch 11': 'smartwatch',
             // Urządzenia biurowe
@@ -1526,7 +1526,7 @@
             'Basic D V5': 'drukarka brajlowska',
             // Powiększalniki i lupy
             'Luna 6': 'lupa',
-            'Powiększalnik Spider': 'powiększalnik',
+            'Spider 3': 'powiększalnik',
             'Prodigi Connect 12': 'powiększalnik',
             'Da Vinci HD 24 Pro': 'powiększalnik',
             'Ruby 7HD': 'lupa',
@@ -1544,7 +1544,7 @@
             'EZ-See': 'klawiatura',
             // Asystenci i nawigacja
             'Smart Vision 2': 'smartfon',
-            'Victor Stream Reader': 'odtwarzacz',
+            'Victor Reader Stream': 'odtwarzacz',
             'Milestone 112 Ace': 'dyktafon',
             'Sunu Band': 'opaska',
             'Sonda Ray': 'elektroniczna laska',
@@ -1558,10 +1558,10 @@
             'Phonak Roger Neckloop': 'pętla indukcyjna',
             'Edumic - mikrofon zdalny': 'mikrofon',
             // Eye-tracking
-            'PCEye': 'eye-tracker',
+            'Tobii Dynavox PCEye 5': 'eye-tracker',
             'Mocowanie do PCEye': 'akcesorium',
-            'Eye tracker do iPad': 'eye-tracker',
-            'IntelliGaze System IG30NT': 'eye-tracker',
+            'Eyetuitive': 'eye-tracker',
+            'IntelliGaze IG30': 'eye-tracker',
             'Inclusive Eye Gaze Choosing and Learning': 'oprogramowanie',
             'Inclusive Eye Gaze Exploring and Playing': 'oprogramowanie',
             'Inclusive Eye Gaze Attention and Looking': 'oprogramowanie',
@@ -1580,13 +1580,13 @@
             'Cosmo Explore': 'switch',
             'Cosmo Excel': 'switch',
             'SimplyWorks 125': 'switch',
-            'Przycisk Big Switch Twist': 'przycisk',
+            'Big Switch Twist': 'przycisk',
             'Mysz adaptowana - interfejs': 'interfejs',
             'Bigtrack Wireless': 'mysz trackball',
             'Adaptacyjny kontroler Xbox': 'kontroler',
             'Head Pointer': 'wskaźnik głowowy',
             // Specjalistyczne klawiatury
-            'Klawiatura orbiTouch': 'klawiatura',
+            'OrbiTouch': 'klawiatura',
             'Klawiatura Clevy z ramką': 'klawiatura',
             'Klawiatura Maltron Single Handed Prawa': 'klawiatura',
             'Klawiatura Maltron Single Handed Lewa': 'klawiatura',
@@ -1600,12 +1600,12 @@
             'Modularhose single': 'uchwyt',
             'Modularhose double': 'uchwyt',
             // Rehabilitacja
-            'Smart Drive': 'napęd wózka',
+            'Smart Drive MX2+': 'napęd wózka',
             'Podnośnik LeviCare': 'podnośnik',
-            'Przystawka skuterowa': 'przystawka',
-            'Pionizer Grillo': 'pionizer',
-            'Koncentrator tlenu (stacjonarny)': 'koncentrator',
-            'Koncentrator tlenu (przenośny)': 'koncentrator',
+            'Rehasense Eco Assist': 'przystawka',
+            'Pionizator Grillo': 'pionizator',
+            'DeVilbiss 525KS': 'koncentrator',
+            'Inogen Rove 6': 'koncentrator',
         };
 
         // Paleta kolorów per dział – wszystkie w rodzinie zieleni OWiT
@@ -2005,8 +2005,8 @@
                                     return JSON.stringify({ type: "message", attachments: [{ contentType: "application/vnd.microsoft.card.adaptive", content: card }] });
                                 })()
                             })
-                            .then(r => console.log('Teams odpowiedź HTTP:', r.status))
-                            .catch(e => console.warn('Powiadomienie Teams nieudane:', e));
+                                .then(r => console.log('Teams odpowiedź HTTP:', r.status))
+                                .catch(e => console.warn('Powiadomienie Teams nieudane:', e));
                         }
                     })
                     .catch(e => alert("Błąd: " + e.message));
@@ -2219,7 +2219,7 @@
                         icon: "smartphone",
                         items: [
                             { name: "Alcatel 20.19", desc: "Klasyczny telefon GSM z dużą, fizyczną klawiaturą. Zaprojektowany z myślą o seniorach i osobach słabowidzących. Posiada przycisk SOS.", features: ["Dla seniora", "Obsługa bezwzrokowa", "Mobilne / Przenośne"], imageUrl: "images/devices/alcatel-20-19.jpg" },
-                            { name: "Hammer Iron 3 Silver", desc: "Wzmocniony smartfon o podwyższonej odporności na wstrząsy, pył i wodę. Idealny do trudnych warunków.", features: ["Mobilne / Przenośne", "Środowisko Android"], imageUrl: "images/devices/hammer-iron-3-silver.jpg" },
+                            { name: "Hammer Iron 3", desc: "Wzmocniony smartfon o podwyższonej odporności na wstrząsy, pył i wodę. Idealny do trudnych warunków.", features: ["Mobilne / Przenośne", "Środowisko Android"], imageUrl: "images/devices/hammer-iron-3-silver.jpg" },
                             { name: "iPhone 17 Pro", desc: "Najnowocześniejszy smartfon z asystentem AI i skanerem LiDAR, który pozwala na mapowanie otoczenia i nawigację dla osób niewidomych.", features: ["Syntezator mowy (TTS)", "Mobilne / Przenośne", "Środowisko Apple (iOS/macOS)"], imageUrl: "images/devices/iphone-17-pro.jpg" },
                             { name: "Apple Watch 11", desc: "Inteligentny zegarek oferujący zaawansowane funkcje monitorowania zdrowia, bezpieczeństwa oraz ułatwienia dostępu dla osób z niepełnosprawnościami.", features: ["Mobilne / Przenośne", "Środowisko Apple (iOS/macOS)", "Wsparcie słuchu"], imageUrl: "images/devices/apple-watch-11.jpg" }
                         ]
@@ -2276,7 +2276,7 @@
                         icon: "zoom-in",
                         items: [
                             { name: "Luna 6", desc: "Kieszonkowy powiększalnik wideo z jasnym 6-calowym ekranem. Posiada wbudowaną rączkę i doskonały kontrast do czytania w podróży.", features: ["Powiększenie ekranu", "Mobilne / Przenośne", "Wysoki kontrast"], imageUrl: "images/devices/luna-6.jpg" },
-                            { name: "Powiększalnik Spider", desc: "Elastyczny i przenośny system powiększający oparty na złączach wideo. Pozwala na łatwe podłączenie do zewnętrznego monitora lub tabletu.", features: ["Powiększenie ekranu", "Mobilne / Przenośne"], imageUrl: "images/devices/powiekszalnik-spider.jpg" },
+                            { name: "Spider 3", desc: "Elastyczny i przenośny system powiększający oparty na złączach wideo. Pozwala na łatwe podłączenie do zewnętrznego monitora lub tabletu.", features: ["Powiększenie ekranu", "Mobilne / Przenośne"], imageUrl: "images/devices/powiekszalnik-spider.jpg" },
                             { name: "Prodigi Connect 12", desc: "Multimedialny powiększalnik (tablet 12 cali) z dodatkową, zewnętrzną kamerą do dali. Sprawdza się na wykładach i w szkołach.", features: ["Powiększenie ekranu", "Rozpoznawanie tekstu (OCR)", "Edukacja i Terapia"], imageUrl: "images/devices/prodigi-connect-12-z-kamera.jpg" },
                             { name: "Da Vinci HD 24 Pro", desc: "Wielofunkcyjny, stacjonarny powiększalnik z dużym 24-calowym ekranem i pełnym wsparciem OCR (odczytywanie zeskanowanego tekstu na głos).", features: ["Powiększenie ekranu", "Rozpoznawanie tekstu (OCR)", "Stacjonarne"], imageUrl: "images/devices/da-vinci-hd-24-pro.jpg" },
                             { name: "Ruby 7HD", desc: "7-calowy powiększalnik z unikalną obrotową kamerą PivotCam, ułatwiającą wygodne czytanie, pisanie i oglądanie obiektów oddalonych.", features: ["Powiększenie ekranu", "Mobilne / Przenośne"], imageUrl: "images/devices/ruby-7hd.jpg" },
@@ -2309,7 +2309,7 @@
                         icon: "navigation",
                         items: [
                             { name: "Smart Vision 2", desc: "W pełni udźwiękowiony smartfon z Androidem. Wyposażony w fizyczną klawiaturę numeryczną, stworzony specjalnie do bezwzrokowej obsługi.", features: ["Syntezator mowy (TTS)", "Obsługa bezwzrokowa", "Mobilne / Przenośne", "Środowisko Android"], imageUrl: "images/devices/smart-vision-2.jpg" },
-                            { name: "Victor Stream Reader", desc: "Kompaktowy odtwarzacz cyfrowych książek (Daisy), podcastów i muzyki. Oferuje dotykowe przyciski idealne dla osób niewidomych.", features: ["Obsługa bezwzrokowa", "Syntezator mowy (TTS)", "Mobilne / Przenośne"], imageUrl: "images/devices/victor-stream.jpg" },
+                            { name: "Victor Reader Stream", desc: "Kompaktowy odtwarzacz cyfrowych książek (Daisy), podcastów i muzyki. Oferuje dotykowe przyciski idealne dla osób niewidomych.", features: ["Obsługa bezwzrokowa", "Syntezator mowy (TTS)", "Mobilne / Przenośne"], imageUrl: "images/devices/victor-stream.jpg" },
                             { name: "Milestone 112 Ace", desc: "Dyktafon i podręczny asystent głosowy wielkości karty kredytowej. Rewelacyjny do szybkiego nagrywania własnych notatek głosowych.", features: ["Obsługa bezwzrokowa", "Mobilne / Przenośne", "Dla seniora"], imageUrl: "images/devices/milestone-112-ace.jpg" },
                             { name: "Sunu Band", desc: "Inteligentna opaska wykorzystująca sonar i wibracje do echolokacji. Ułatwia bezkolizyjne poruszanie się, wykrywając przeszkody na wys. głowy.", features: ["Obsługa bezwzrokowa", "Integracja sensoryczna", "Mobilne / Przenośne"], imageUrl: "images/devices/sunu-band.jpg" },
                             { name: "Sonda Ray", desc: "Urządzenie wspomagające (rodzaj elektronicznej laski) wyposażone w ultradźwięki. Alarmuje dźwiękiem lub wibracją o wykryciu przeszkody.", features: ["Obsługa bezwzrokowa", "Mobilne / Przenośne"], imageUrl: "images/devices/sonda-ray.jpg" },
@@ -2348,10 +2348,10 @@
                         category: "Sterowanie wzrokiem (Eye-tracking)",
                         icon: "eye",
                         items: [
-                            { name: "PCEye", desc: "Kompaktowy eyetracker zamieniający ruch gałek ocznych w ruch kursora myszy. Pozwala na niezależną obsługę komputera wyłącznie za pomocą wzroku.", features: ["Sterowanie wzrokiem", "Alternatywny dostęp", "Środowisko Windows"], imageUrl: "images/devices/pceye-pceye-5.jpg" },
+                            { name: "Tobii Dynavox PCEye 5", desc: "Kompaktowy eyetracker zamieniający ruch gałek ocznych w ruch kursora myszy. Pozwala na niezależną obsługę komputera wyłącznie za pomocą wzroku.", features: ["Sterowanie wzrokiem", "Alternatywny dostęp", "Środowisko Windows"], imageUrl: "images/devices/pceye-pceye-5.jpg" },
                             { name: "Mocowanie do PCEye", desc: "Specjalistyczny uchwyt montażowy, pozwalający na stabilne zamocowanie eyetrackera do monitorów i laptopów.", features: ["Sterowanie wzrokiem", "Stacjonarne"], imageUrl: "images/devices/mocowanie-do-pceye.jpg" },
-                            { name: "Eye tracker do iPad", desc: "Dedykowana nakładka z kamerą śledzącą wzrok do systemu iOS. Przekształca iPada w zaawansowane narzędzie komunikacji.", features: ["Sterowanie wzrokiem", "Alternatywny dostęp", "Środowisko Apple (iOS/macOS)"], imageUrl: "images/devices/eye-tracker-do-ipad.jpg" },
-                            { name: "IntelliGaze System IG30NT", desc: "Zaawansowany, medyczny system śledzenia wzroku. Cechuje się dużą tolerancją na niekontrolowane ruchy głowy (np. przy MPD).", features: ["Sterowanie wzrokiem", "Alternatywny dostęp", "Stacjonarne"], imageUrl: "images/devices/intelligaze-system-ig30nt.jpg" },
+                            { name: "Eyetuitive", desc: "Dedykowana nakładka z kamerą śledzącą wzrok do systemu iOS. Przekształca iPada w zaawansowane narzędzie komunikacji.", features: ["Sterowanie wzrokiem", "Alternatywny dostęp", "Środowisko Apple (iOS/macOS)"], imageUrl: "images/devices/eye-tracker-do-ipad.jpg" },
+                            { name: "IntelliGaze IG30", desc: "Zaawansowany, medyczny system śledzenia wzroku. Cechuje się dużą tolerancją na niekontrolowane ruchy głowy (np. przy MPD).", features: ["Sterowanie wzrokiem", "Alternatywny dostęp", "Stacjonarne"], imageUrl: "images/devices/intelligaze-system-ig30nt.jpg" },
                             { name: "Inclusive Eye Gaze Choosing and Learning", desc: "Ćwiczenia zawarte w programie mają na celu przygotowanie użytkownika do komunikacji z użyciem komputera poprzez rozwijanie umiejętności sterowania wzrokiem oraz dokonywania wyborów, rozwijanie wczesnego rozumienia języka, umiejętności ekspresji.", features: ["Sterowanie wzrokiem", "Edukacja i Terapia", "Środowisko Windows"], imageUrl: "images/devices/choosing-and-learning.jpg" },
                             { name: "Inclusive Eye Gaze Exploring and Playing", desc: "Oprogramowanie współpracuje z dowolnym urządzeniem śledzącym ruch gałki ocznej (np. PCEye Go, Tobii i-15, EyeTech) rozwijając umiejętności od wczesnej eksploracji do dokonywania wyborów", features: ["Sterowanie wzrokiem", "Edukacja i Terapia", "Środowisko Windows"], imageUrl: "images/devices/exploring-and-playing.jpg" },
                             { name: "Inclusive Eye Gaze Attention and Looking", desc: "Ćwiczenia zawarte w zestawie pozwalają na naukę podstawowych umiejętności takich jak: koncentracja uwagi, patrzenie oraz rozumienie zasady sterowania wzrokiem.", features: ["Sterowanie wzrokiem", "Edukacja i Terapia", "Środowisko Windows"], imageUrl: "images/devices/attention-and-looking.jpg" },
@@ -2380,7 +2380,7 @@
                             { name: "Cosmo Explore", desc: "Wielofunkcyjne, świecące i wytrzymałe przyciski Bluetooth (zestaw 3 przycisków). Służą do obsługi komputera i interaktywnej terapii motorycznej.", features: ["Alternatywny dostęp", "Bezprzewodowe (Bluetooth)", "Integracja sensoryczna"], imageUrl: "images/devices/cosmo-explore.jpg" },
                             { name: "Cosmo Excel", desc: "Zaawansowany zestaw świecących i wytrzymałych przycisków Bluetooth (6 sztuk). Zawiera rozbudowane oprogramowanie do interaktywnej terapii motorycznej.", features: ["Alternatywny dostęp", "Bezprzewodowe (Bluetooth)", "Integracja sensoryczna"], imageUrl: "images/devices/cosmo-excel.jpg" },
                             { name: "SimplyWorks 125", desc: "Bezprzewodowe przyciski (switch) w jaskrawych kolorach z odbiornikiem. Pozwalają na zdalną obsługę myszy i zabawek.", features: ["Alternatywny dostęp", "Bezprzewodowe (Bluetooth)"], imageUrl: "images/devices/simplyworks-125.jpg" },
-                            { name: "Przycisk Big Switch Twist", desc: "Duży, przewodowy przycisk z odkręcaną pokrywą, pod którą można umieścić własny symbol lub zdjęcie akcji.", features: ["Alternatywny dostęp", "Komunikacja (AAC)"], imageUrl: "images/devices/przycisk-big-switch-twist.jpg" },
+                            { name: "Big Switch Twist", desc: "Duży, przewodowy przycisk z odkręcaną pokrywą, pod którą można umieścić własny symbol lub zdjęcie akcji.", features: ["Alternatywny dostęp", "Komunikacja (AAC)"], imageUrl: "images/devices/przycisk-big-switch-twist.jpg" },
                             { name: "Mysz adaptowana - interfejs", desc: "Moduł umożliwiający podłączenie kilku standardowych switchy, symulujących kliknięcia myszy lub klawiatury.", features: ["Alternatywny dostęp", "Stacjonarne"], imageUrl: "images/devices/mysz-adaptowana.jpg" },
                             { name: "Bigtrack Wireless", desc: "Bezprzewodowa mysz typu trackball z dużą kulką. Umożliwia sterowanie dłonią, łokciem lub stopą dla osób z problemami motorycznymi.", features: ["Alternatywny dostęp", "Bezprzewodowe (Bluetooth)"], imageUrl: "images/devices/bigtrack-wireless.jpg" },
                             { name: "Adaptacyjny kontroler Xbox", desc: "Przełomowy hub (rozdzielacz) z gniazdami Jack do podłączania zewnętrznych przycisków i joysticków, tworzący spersonalizowany pad.", features: ["Alternatywny dostęp", "Środowisko Windows"], imageUrl: "images/devices/adaptacyjny-kontroler-xbox.jpg" },
@@ -2391,7 +2391,7 @@
                         category: "Specjalistyczne klawiatury",
                         icon: "keyboard",
                         items: [
-                            { name: "Klawiatura orbiTouch", desc: "Bezkawiszowa klawiatura z dwoma ślizgającymi się grzybkami do wprowadzania znaków. Idealna dla osób z artretyzmem lub po amputacjach.", features: ["Alternatywny dostęp", "Stacjonarne"], imageUrl: "images/devices/klawiatura-orbitouch.jpg" },
+                            { name: "OrbiTouch", desc: "Bezkawiszowa klawiatura z dwoma ślizgającymi się grzybkami do wprowadzania znaków. Idealna dla osób z artretyzmem lub po amputacjach.", features: ["Alternatywny dostęp", "Stacjonarne"], imageUrl: "images/devices/klawiatura-orbitouch.jpg" },
                             { name: "Klawiatura Clevy z ramką", desc: "Edukacyjna klawiatura o powiększonych klawiszach i żywych kolorach. Metalowa ramka zapobiega jednoczesnemu wciśnięciu wielu klawiszy.", features: ["Alternatywny dostęp", "Edukacja i Terapia"], imageUrl: "images/devices/klawiatura-clevy.jpg" },
                             { name: "Klawiatura Maltron Single Handed Prawa", desc: "Profilowana klawiatura ergonomiczna do obsługi jedną prawą dłonią. Układ klawiszy zoptymalizowany pod kątem pisania jedną ręką.", features: ["Alternatywny dostęp", "Stacjonarne"], imageUrl: "images/devices/klawiatura-maltron-single-handed-prawa.jpg" },
                             { name: "Klawiatura Maltron Single Handed Lewa", desc: "Profilowana klawiatura ergonomiczna do obsługi jedną lewą dłonią. Układ klawiszy zoptymalizowany pod kątem pisania jedną ręką.", features: ["Alternatywny dostęp", "Stacjonarne"], imageUrl: "images/devices/klawiatura-maltron-single-handed-lewa.jpg" },
@@ -2415,12 +2415,12 @@
                         category: "Sprzęt rehabilitacyjny i medyczny",
                         icon: "activity",
                         items: [
-                            { name: "Smart Drive", desc: "Lekki napęd wspomagający do wózków aktywnych. Ułatwia pokonywanie wzniesień i dystansów bez nadmiernego męczenia rąk.", features: ["Mobilne / Przenośne"], imageUrl: "images/devices/smart-drive.jpg" },
-                            { name: "Podnośnik LeviCare", desc: "Hydrauliczny podnośnik transportowy zapewniający bezpieczne i komfortowe przenoszenie pacjenta (np. z łóżka na wózek).", features: ["Stacjonarne"], imageUrl: "images/devices/podnosnik-levicare.jpg" },
-                            { name: "Przystawka skuterowa", desc: "Elektryczna przystawka doczepiana z przodu wózka inwalidzkiego. Przekształca wózek w szybki i zwinny skuter (elektryczny napęd, kierownica).", features: ["Mobilne / Przenośne"], imageUrl: "images/devices/przystawka-skuterowa.jpg" },
-                            { name: "Pionizer Grillo", desc: "Elektryczny pionizer pomagający w przyjmowaniu i utrzymywaniu pozycji stojącej, wspierający rehabilitację i układ krążenia.", features: ["Stacjonarne", "Edukacja i Terapia"], imageUrl: "images/devices/pionizer-grillo.jpg" },
-                            { name: "Koncentrator tlenu (stacjonarny)", desc: "Medyczne urządzenie dostarczające skoncentrowany tlen w wersji domowej o dużej wydajności.", features: ["Dla seniora"], imageUrl: "images/devices/koncentrator-stacjonarny.jpg" },
-                            { name: "Koncentrator tlenu (przenośny)", desc: "Medyczne urządzenie dostarczające skoncentrowany tlen w wersji przenośnej do użycia w podróży.", features: ["Dla seniora"], imageUrl: "images/devices/koncentrator-przenosny.jpg" }
+                            { name: "Smart Drive MX2+", desc: "Lekki napęd wspomagający do wózków aktywnych. Ułatwia pokonywanie wzniesień i dystansów bez nadmiernego męczenia rąk.", features: ["Napęd", "Mobilne / Przenośne"], imageUrl: "images/devices/smart-drive.jpg" },
+                            { name: "Podnośnik LeviCare", desc: "Hydrauliczny podnośnik transportowy zapewniający bezpieczne i komfortowe przenoszenie pacjenta (np. z łóżka na wózek).", features: ["Podnośnik", "Stacjonarne"], imageUrl: "images/devices/podnosnik-levicare.jpg" },
+                            { name: "Rehasense Eco Assist", desc: "Elektryczna przystawka doczepiana z przodu wózka inwalidzkiego. Przekształca wózek w szybki i zwinny skuter (elektryczny napęd, kierownica).", features: ["Napęd", "Przystawka skuterowa", "Mobilne / Przenośne"], imageUrl: "images/devices/przystawka-skuterowa.jpg" },
+                            { name: "Pionizator Grillo", desc: "Elektryczny pionizator pomagający w przyjmowaniu i utrzymywaniu pozycji stojącej, wspierający rehabilitację i układ krążenia.", features: ["Pionizator", "Stacjonarne"], imageUrl: "images/devices/pionizer-grillo.jpg" },
+                            { name: "DeVilbiss 525KS", desc: "Medyczne urządzenie dostarczające skoncentrowany tlen w wersji domowej o dużej wydajności.", features: ["Koncentrator tlenu", "Stacjonarne", "Dla seniora"], imageUrl: "images/devices/koncentrator-stacjonarny.jpg" },
+                            { name: "Inogen Rove 6", desc: "Medyczne urządzenie dostarczające skoncentrowany tlen w wersji przenośnej do użycia w podróży.", features: ["Koncentrator tlenu", "Mobilne / przenośne", "Dla seniora"], imageUrl: "images/devices/koncentrator-przenosny.jpg" }
                         ]
                     }
                 ]
@@ -2798,7 +2798,17 @@
             waitForImages(document.getElementById('print-area')).then(() => window.print());
         }
 
-// Dodanie przycisku powrotu na górę do body
+        function printDept(deptOriginalIndex) {
+            const source = combinedCatalogData.length ? combinedCatalogData : catalogData;
+            const dept = source[deptOriginalIndex];
+            if (!dept) return;
+            let items = [];
+            dept.categories.forEach(cat => items.push(...cat.items));
+            generatePrintView(items, dept.departmentTitle + " – OWiT Toruń");
+            waitForImages(document.getElementById('print-area')).then(() => window.print());
+        }
+
+        // Dodanie przycisku powrotu na górę do body
         document.body.insertAdjacentHTML('beforeend', `
             <button id="scrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-6 bg-green-700 hover:bg-green-800 text-white p-3 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 print-hide z-50" aria-label="Wróć na górę strony">
                 <i data-lucide="arrow-up" class="w-6 h-6"></i>
@@ -2962,8 +2972,16 @@
                     <div id="dept-${department.originalIndex}" class="department-section ${pageBreakClass} ${deptSelectedClass}">
                         <!-- Tytuł Działu -->
                         <div class="dept-header-bg text-center md:text-left mb-12 text-white p-8 rounded-2xl shadow-md print:bg-transparent print:text-black print:p-0 print:border-b-4 print:border-gray-700 print:rounded-none" style="background:${deptColor.bg}">
-                            <h2 class="text-3xl md:text-4xl font-bold mb-3">${department.departmentTitle}</h2>
-                            <p class="text-white/80 print:text-gray-600 text-base md:text-lg">${department.departmentDesc}</p>
+                            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                                <div>
+                                    <h2 class="text-3xl md:text-4xl font-bold mb-3">${department.departmentTitle}</h2>
+                                    <p class="text-white/80 print:text-gray-600 text-base md:text-lg">${department.departmentDesc}</p>
+                                </div>
+                                <button onclick="printDept(${department.originalIndex})" class="print:hidden shrink-0 flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white border border-white/40 px-3 py-2 md:px-4 rounded-xl font-semibold transition-colors text-sm cursor-pointer whitespace-nowrap" aria-label="Drukuj dział: ${department.departmentTitle}">
+                                    <i data-lucide="printer" class="w-4 h-4"></i>
+                                    <span class="hidden md:inline">Drukuj dział</span>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="space-y-16">
@@ -3335,7 +3353,7 @@
     <script src="components/footer.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').catch(() => {});
+            navigator.serviceWorker.register('./sw.js').catch(() => { });
         }
     </script>
 </body>
