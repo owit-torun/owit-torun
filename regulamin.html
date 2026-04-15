@@ -156,9 +156,10 @@
         }
 
         /* ── A11y classes ────────────────────────────────────────── */
-        body.a11y-high-contrast { background: #000 !important; color: #fff !important; }
-        body.a11y-high-contrast * { border-color: #fff !important; }
-        body.a11y-high-contrast a { color: #ff0 !important; }
+        body.a11y-high-contrast { background: #000 !important; color: #ff0 !important; }
+        body.a11y-high-contrast * { background-color: #000 !important; border-color: #ff0 !important; color: #ff0 !important; }
+        body.a11y-high-contrast button { border: 2px solid #ff0 !important; }
+        body.a11y-high-contrast a { color: #0ff !important; text-decoration: underline !important; }
         body.a11y-font-lg    { font-size: 1.125rem !important; }
         body.a11y-font-xl    { font-size: 1.3rem !important; }
         body.a11y-spacing *  { letter-spacing: .05em !important; line-height: 1.9 !important; }
@@ -548,7 +549,7 @@
 
         function toggleHighContrast() {
             const on = document.body.classList.toggle('a11y-high-contrast');
-            localStorage.setItem('owit-contrast', on);
+            localStorage.setItem('a11y-contrast', on);
             setA11yBadge('a11y-contrast', on);
             announce(on ? 'Wysoki kontrast włączony' : 'Wysoki kontrast wyłączony');
         }
@@ -557,7 +558,7 @@
             document.documentElement.style.fontSize = currentFontSize + 'px';
             const label = document.getElementById('font-size-label');
             if (label) label.textContent = currentFontSize === 16 ? 'Domyślny (16px)' : currentFontSize + 'px';
-            localStorage.setItem('owit-fontsize-px', currentFontSize);
+            localStorage.setItem('a11y-font-size', currentFontSize);
             announce('Rozmiar tekstu: ' + currentFontSize + '%');
         }
         function resetA11y() {
@@ -567,23 +568,23 @@
             document.documentElement.style.fontSize = '16px';
             const label = document.getElementById('font-size-label');
             if (label) label.textContent = 'Domyślny (16px)';
-            ['owit-contrast','owit-fontsize','owit-fontsize-px','owit-dyslexic','owit-spacing','owit-motion','owit-grayscale','dark-mode'].forEach(k => localStorage.removeItem(k));
+            ['a11y-contrast','owit-fontsize','a11y-font-size','a11y-dyslexic','a11y-spacing','a11y-stop-motion','a11y-grayscale','dark-mode'].forEach(k => localStorage.removeItem(k));
         }
         function toggleDyslexicFont() {
             const on = document.body.classList.toggle('a11y-dyslexic');
-            localStorage.setItem('owit-dyslexic', on);
+            localStorage.setItem('a11y-dyslexic', on);
             setA11yBadge('a11y-dyslexic', on);
             announce(on ? 'Czcionka dla dysleksji włączona' : 'Czcionka dla dysleksji wyłączona');
         }
         function toggleSpacing() {
             const on = document.body.classList.toggle('a11y-spacing');
-            localStorage.setItem('owit-spacing', on);
+            localStorage.setItem('a11y-spacing', on);
             setA11yBadge('a11y-spacing', on);
             announce(on ? 'Zwiększony odstęp włączony' : 'Zwiększony odstęp wyłączony');
         }
         function toggleStopAnimations() {
             const on = document.body.classList.toggle('a11y-stop-motion');
-            localStorage.setItem('owit-motion', on);
+            localStorage.setItem('a11y-stop-motion', on);
             setA11yBadge('a11y-motion', on);
             announce(on ? 'Animacje zatrzymane' : 'Animacje włączone');
         }
@@ -597,7 +598,7 @@
 
         function toggleGrayscale() {
             const on = document.body.classList.toggle('a11y-grayscale');
-            localStorage.setItem('owit-grayscale', on);
+            localStorage.setItem('a11y-grayscale', on);
             setA11yBadge('a11y-grayscale', on);
             announce(on ? 'Skala szarości włączona' : 'Skala szarości wyłączona');
         }
@@ -629,13 +630,13 @@
 
         // Restore settings
         (function() {
-            if (localStorage.getItem('owit-contrast')  === 'true') toggleHighContrast();
-            const fsPx = parseInt(localStorage.getItem('owit-fontsize-px') || '16');
+            if (localStorage.getItem('a11y-contrast')  === 'true') toggleHighContrast();
+            const fsPx = parseInt(localStorage.getItem('a11y-font-size') || '16');
             if (fsPx !== 16) { currentFontSize = fsPx; document.documentElement.style.fontSize = fsPx + 'px'; const l = document.getElementById('font-size-label'); if (l) l.textContent = fsPx + 'px'; }
-            if (localStorage.getItem('owit-dyslexic')  === 'true') toggleDyslexicFont();
-            if (localStorage.getItem('owit-spacing')   === 'true') toggleSpacing();
-            if (localStorage.getItem('owit-motion')    === 'true') toggleStopAnimations();
-            if (localStorage.getItem('owit-grayscale') === 'true') toggleGrayscale();
+            if (localStorage.getItem('a11y-dyslexic')  === 'true') toggleDyslexicFont();
+            if (localStorage.getItem('a11y-spacing')   === 'true') toggleSpacing();
+            if (localStorage.getItem('a11y-stop-motion')    === 'true') toggleStopAnimations();
+            if (localStorage.getItem('a11y-grayscale') === 'true') toggleGrayscale();
             if (localStorage.getItem('dark-mode') === 'true') { document.body.classList.add('dark-mode'); setA11yBadge('a11y-dark-mode', true); }
         })();
     </script>
