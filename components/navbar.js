@@ -65,6 +65,7 @@
           </li>
 
           <li>${desktopLink(pre + '#kontakt', 'Kontakt')}</li>
+          <li>${desktopLink('gry.html', 'Strefa relaksu')}</li>
         </ul>
 
         <!-- Mobile btn -->
@@ -92,6 +93,7 @@
           ${mobileLink('przydatne-linki.html', 'link', 'Przydatne linki')}
           ${mobileLink('media.html', 'image', 'Dla mediów')}
           <li><a href="${pre + '#kontakt'}" onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="phone" class="w-4 h-4"></i>Kontakt</a></li>
+          ${mobileLink('gry.html', 'gamepad-2', 'Strefa relaksu')}
         </ul>
       </div>
     </nav>

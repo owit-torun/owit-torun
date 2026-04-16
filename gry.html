@@ -1,0 +1,3349 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strefa relaksu Wspiernika | OWiT Toruń</title>
+    <meta name="description"
+        content="Pobaw się z maskotką OWiT Toruń – Wspiernikiem! Pięć gier przeglądarkowych o technologiach asystujących: łapanie sprzętu, memory, quiz, sortowanie i labirynt dostępności.">
+    <link rel="canonical" href="https://owit-torun.pl/gry.html">
+    <link rel="icon" type="image/png" sizes="64x64" href="images/ui/favicon-64.png">
+    <link rel="apple-touch-icon" href="images/ui/icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2b7333">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://owit-torun.pl/gry.html">
+    <meta property="og:title" content="Strefa relaksu Wspiernika | OWiT Toruń">
+    <meta property="og:description"
+        content="Pobaw się z maskotką OWiT – Wspiernikiem! Cztery gry o technologiach asystujących.">
+    <meta property="og:image" content="https://owit-torun.pl/images/ui/og-banner.jpg">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:site_name" content="OWiT Toruń">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        green: {
+                            50: '#edf9ee', 100: '#d1f2d4', 200: '#a3e5a9', 300: '#6fd278',
+                            400: '#45a94d', 500: '#45a94d', 600: '#389140', 700: '#2b7333', 800: '#1f5526', 900: '#13381a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        html {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            html {
+                scroll-behavior: smooth;
+            }
+        }
+
+        :focus-visible {
+            outline: 3px solid #2b7333 !important;
+            outline-offset: 3px !important;
+            border-radius: 4px;
+        }
+
+        #a11y-toggle-btn:focus-visible,
+        #scroll-top-btn:focus-visible {
+            outline-color: #ffffff !important;
+        }
+
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            top: 1rem;
+            background: #1f5526;
+            color: #fff;
+            padding: .5rem 1.25rem;
+            border-radius: 0 0 .5rem .5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            z-index: 9999;
+            text-decoration: none;
+            transition: left .2s;
+        }
+
+        .skip-link:focus {
+            left: 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #45a94d, #2b7333);
+            z-index: 9999;
+            transition: width .1s linear;
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #45a94d;
+            transform: scaleX(0);
+            transition: transform .2s ease;
+            border-radius: 9999px;
+        }
+
+        .nav-link:hover::after {
+            transform: scaleX(1);
+        }
+
+        /* --- Accessibility --- */
+        body.a11y-high-contrast {
+            background: #000 !important;
+            color: #fff !important;
+        }
+
+        body.a11y-high-contrast a {
+            color: #ff0 !important;
+        }
+
+        body.a11y-spacing * {
+            letter-spacing: .05em !important;
+            line-height: 1.9 !important;
+        }
+
+        body.a11y-dyslexic,
+        body.a11y-dyslexic * {
+            font-family: 'Lexend', sans-serif !important;
+        }
+
+        body.a11y-stop-motion *,
+        body.a11y-stop-motion *::before,
+        body.a11y-stop-motion *::after {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        .a11y-badge {
+            font-size: .65rem;
+            font-weight: 700;
+            padding: .15rem .45rem;
+            border-radius: 9999px;
+            margin-left: auto;
+        }
+
+        .a11y-badge.on {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .a11y-badge.off {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        @keyframes widgetPulse {
+            0% {
+                box-shadow: 0 4px 22px rgba(0, 0, 0, .2), 0 0 0 0 rgba(69, 169, 77, .5)
+            }
+
+            60% {
+                box-shadow: 0 4px 22px rgba(0, 0, 0, .2), 0 0 0 14px rgba(69, 169, 77, 0)
+            }
+
+            100% {
+                box-shadow: 0 4px 22px rgba(0, 0, 0, .2), 0 0 0 0 rgba(69, 169, 77, 0)
+            }
+        }
+
+        #a11y-toggle-btn {
+            animation: widgetPulse 1.5s ease 2.5s 3;
+        }
+
+        /* --- Dark mode --- */
+        body.dark-mode {
+            background-color: #111827;
+            color: #f3f4f6;
+        }
+
+        body.dark-mode #navbar>div {
+            background-color: rgba(17, 24, 39, 0.97) !important;
+            border-color: #374151 !important;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, .5) !important;
+        }
+
+        body.dark-mode .bg-white {
+            background-color: #1f2937 !important;
+        }
+
+        body.dark-mode .bg-gray-50 {
+            background-color: #111827 !important;
+        }
+
+        body.dark-mode .bg-gray-100 {
+            background-color: #374151 !important;
+        }
+
+        body.dark-mode .text-gray-900 {
+            color: #f9fafb !important;
+        }
+
+        body.dark-mode .text-gray-800 {
+            color: #f3f4f6 !important;
+        }
+
+        body.dark-mode .text-gray-700 {
+            color: #e5e7eb !important;
+        }
+
+        body.dark-mode .text-gray-600 {
+            color: #9ca3af !important;
+        }
+
+        body.dark-mode .text-gray-500 {
+            color: #6b7280 !important;
+        }
+
+        body.dark-mode .border-gray-100 {
+            border-color: #374151 !important;
+        }
+
+        body.dark-mode .border-gray-200 {
+            border-color: #4b5563 !important;
+        }
+
+        body.dark-mode .bg-green-50 {
+            background-color: #052e16 !important;
+        }
+
+        body.dark-mode .bg-green-100 {
+            background-color: #14532d !important;
+        }
+
+        body.dark-mode .text-green-700 {
+            color: #4ade80 !important;
+        }
+
+        body.dark-mode .text-green-800 {
+            color: #86efac !important;
+        }
+
+        body.dark-mode .border-green-100 {
+            border-color: #14532d !important;
+        }
+
+        body.dark-mode .hover\:bg-gray-50:hover {
+            background-color: #374151 !important;
+        }
+
+        body.dark-mode .hover\:bg-green-50:hover {
+            background-color: #052e16 !important;
+        }
+
+        body.dark-mode #a11y-panel {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+        }
+
+        body.dark-mode .a11y-row:hover {
+            background-color: #374151 !important;
+        }
+
+        body.dark-mode .shadow-sm {
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .4) !important;
+        }
+
+        body.dark-mode .shadow-lg {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, .6) !important;
+        }
+
+        body.a11y-grayscale> :not(#a11y-widget):not(#scroll-progress):not(header) {
+            filter: grayscale(100%);
+        }
+
+        body.a11y-grayscale #navbar {
+            filter: grayscale(100%);
+        }
+
+        /* --- Game tab buttons --- */
+        .game-tab {
+            transition: all .2s ease;
+        }
+
+        .game-tab.active {
+            background: #2b7333;
+            color: white;
+            box-shadow: 0 4px 12px rgba(43, 115, 51, .35);
+        }
+
+        .game-tab:not(.active):hover {
+            background: #edf9ee;
+            color: #2b7333;
+        }
+
+        .game-panel {
+            display: none;
+        }
+
+        .game-panel.active {
+            display: block;
+        }
+
+        /* ===== GAME 1: Łapacz Sprzętu ===== */
+        #catcher-wrap {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        #catcher-canvas {
+            display: block;
+            border-radius: 16px;
+            cursor: none;
+            touch-action: none;
+            max-width: 100%;
+            image-rendering: auto;
+        }
+
+        #g1-ui {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        /* Fullscreen container */
+        #game-0:fullscreen,
+        #game-0:-webkit-full-screen {
+            background: #111827;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #game-0:fullscreen #catcher-canvas,
+        #game-0:-webkit-full-screen #catcher-canvas {
+            max-height: calc(100vh - 200px);
+            border-radius: 12px;
+        }
+
+        /* Fullscreen: kolory tekstu HUD na ciemnym tle */
+        #game-0:fullscreen #g1-ui .text-gray-500,
+        #game-0:-webkit-full-screen #g1-ui .text-gray-500 {
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        #game-0:fullscreen #g1-ui .text-gray-700,
+        #game-0:-webkit-full-screen #g1-ui .text-gray-700 {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        #game-0:fullscreen #g1-ui .text-green-700,
+        #game-0:-webkit-full-screen #g1-ui .text-green-700 {
+            color: #4ade80;
+        }
+
+        /* Fullscreen: HUD layout */
+        #game-0:fullscreen #g1-ui,
+        #game-0:-webkit-full-screen #g1-ui {
+            width: 100%;
+            max-width: min(600px, 90vw);
+            gap: 1.5rem;
+        }
+
+        #game-0:fullscreen #g1-ui > div,
+        #game-0:-webkit-full-screen #g1-ui > div {
+            min-width: 0;
+            flex-shrink: 0;
+        }
+
+        #game-0:fullscreen #g1-diff-btns,
+        #game-0:-webkit-full-screen #g1-diff-btns {
+            width: 100%;
+            max-width: min(600px, 90vw);
+        }
+
+        /* Fullscreen: życia – czerwone na ciemnym tle */
+        #game-0:fullscreen #g1-lives,
+        #game-0:-webkit-full-screen #g1-lives {
+            color: #f87171;
+        }
+
+        /* Fullscreen: przycisk FS na ciemnym tle */
+        #game-0:fullscreen #g1-fs-btn,
+        #game-0:-webkit-full-screen #g1-fs-btn {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        #game-0:fullscreen #g1-fs-btn:hover,
+        #game-0:-webkit-full-screen #g1-fs-btn:hover {
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        /* Accessible focus ring on canvas */
+        #catcher-canvas:focus-visible {
+            outline: 4px solid #45a94d !important;
+            outline-offset: 4px !important;
+        }
+
+        /* Keyboard legend */
+        .g1-key {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2rem;
+            padding: .2rem .5rem;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: .8rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        /* ===== Fullscreen – DOM games (1/2/3) ===== */
+        #game-1:fullscreen,
+        #game-1:-webkit-full-screen,
+        #game-2:fullscreen,
+        #game-2:-webkit-full-screen,
+        #game-3:fullscreen,
+        #game-3:-webkit-full-screen {
+            background: white;
+            padding: 32px 48px;
+            overflow-y: auto;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 0 !important;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode #game-1:fullscreen,
+        body.dark-mode #game-1:-webkit-full-screen,
+        body.dark-mode #game-2:fullscreen,
+        body.dark-mode #game-2:-webkit-full-screen,
+        body.dark-mode #game-3:fullscreen,
+        body.dark-mode #game-3:-webkit-full-screen {
+            background: #1f2937;
+        }
+
+        /* ===== Game 1 (Memory) fullscreen – siatka wypełnia ekran ===== */
+        #game-1:fullscreen .memory-grid,
+        #game-1:-webkit-full-screen .memory-grid {
+            width: min(82vmin, 94vw);
+            max-width: min(82vmin, 94vw);
+            gap: max(8px, 1.4vmin);
+            margin: 0 auto;
+        }
+
+        /* ===== Game 2 (Quiz) fullscreen – zoom na treść ===== */
+        #game-2:fullscreen,
+        #game-2:-webkit-full-screen {
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        #game-2:fullscreen #quiz-area,
+        #game-2:-webkit-full-screen #quiz-area {
+            zoom: 1.65;
+        }
+
+        #game-2:fullscreen .max-w-lg,
+        #game-2:-webkit-full-screen .max-w-lg {
+            max-width: min(900px, 90vw) !important;
+            zoom: 1.3;
+        }
+
+        /* ===== Game 3 (Sorting) fullscreen – zoom na treść ===== */
+        #game-3:fullscreen,
+        #game-3:-webkit-full-screen {
+            overflow-x: hidden;
+        }
+
+        #game-3:fullscreen #sort-card-wrap,
+        #game-3:-webkit-full-screen #sort-card-wrap {
+            max-width: min(560px, 90vw) !important;
+            justify-content: center;
+            zoom: 1.4;
+        }
+
+        #game-3:fullscreen #sort-card-wrap img[src*="wspiernik"],
+        #game-3:-webkit-full-screen #sort-card-wrap img[src*="wspiernik"] {
+            height: 250px;
+            width: auto;
+        }
+
+        #game-3:fullscreen #sort-card,
+        #game-3:-webkit-full-screen #sort-card {
+            max-width: 360px !important;
+        }
+
+        #game-3:fullscreen #sort-boxes,
+        #game-3:-webkit-full-screen #sort-boxes {
+            max-width: min(960px, 95vw);
+            gap: 20px;
+            zoom: 1.35;
+        }
+
+        #game-3:fullscreen .sort-box,
+        #game-3:-webkit-full-screen .sort-box {
+            padding: 24px 20px;
+        }
+
+        /* ===== GAME 2: Memory ===== */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .mem-card {
+            aspect-ratio: 1;
+            perspective: 700px;
+            cursor: pointer;
+        }
+
+        .mem-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform .45s ease;
+            border-radius: 12px;
+        }
+
+        .mem-card.flipped .mem-card-inner,
+        .mem-card.matched .mem-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .mem-card-front,
+        .mem-card-back {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .mem-card-front {
+            background: linear-gradient(160deg, #1f5526 0%, #2b7333 50%, #45a94d 100%);
+            flex-direction: column;
+            gap: 0;
+        }
+
+        /* Wspiernik watermark on card front */
+        .mem-wspiernik {
+            width: 82%;
+            max-height: 82%;
+            object-fit: contain;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.55;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .mem-card-front-q {
+            position: absolute;
+            top: 6px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: .75rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: .05em;
+        }
+
+        .mem-card-back {
+            background: white;
+            border: 2px solid #d1f2d4;
+            transform: rotateY(180deg);
+            flex-direction: column;
+            gap: 4px;
+            padding: 5px 4px 4px;
+        }
+
+        .mem-card.matched .mem-card-back {
+            background: #edf9ee;
+            border-color: #45a94d;
+            box-shadow: 0 0 0 2px #45a94d44;
+        }
+
+        .mem-card-back .mem-img {
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        .mem-card-back .mem-label {
+            font-size: .58rem;
+            font-weight: 700;
+            color: #2b7333;
+            text-align: center;
+            line-height: 1.2;
+            padding: 0 2px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 540px) {
+            .memory-grid {
+                gap: 6px;
+            }
+
+            .mem-card-back .mem-label {
+                font-size: .5rem;
+            }
+        }
+
+        /* ===== GAME 3: Quiz ===== */
+
+        /* Wiersz główny: [mascot] [bubble + odpowiedzi] */
+        .quiz-main-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            max-width: 580px;
+            margin: 0 auto;
+            overflow: visible;
+        }
+
+        /* Kolumna z bąbelkiem i odpowiedziami */
+        .quiz-content-col {
+            flex: 1;
+            min-width: 0;
+            overflow: visible;
+        }
+
+        /* Bąbelek — wysuwa się w lewo nad maskotkę */
+        .quiz-speech-row {
+            margin-bottom: 8px;
+            margin-left: -68px;
+        }
+
+        /* Bubble */
+        .quiz-bubble {
+            width: calc(100% + 68px);
+            position: relative;
+            background: #fff;
+            border: 2.5px solid #45a94d;
+            border-radius: 18px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 18px rgba(43, 115, 51, .12);
+        }
+
+        /* Ogon — z dołu bąbelka, wskazuje w dół na głowę Wspiernika */
+        .quiz-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            left: 42px;
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-right: 2.5px solid #45a94d;
+            border-bottom: 2.5px solid #45a94d;
+            transform: rotate(45deg);
+        }
+
+        /* Mascot po lewej — głowa na poziomie górnej krawędzi pierwszej odpowiedzi */
+        .quiz-mascot-q {
+            width: 92px;
+            flex-shrink: 0;
+            object-fit: contain;
+            object-position: top;
+            margin-top: 80px;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, .14));
+            align-self: flex-start;
+        }
+
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .quiz-main-row {
+                max-width: 700px;
+                gap: 16px;
+            }
+
+            .quiz-speech-row {
+                margin-left: -100px;
+            }
+
+            .quiz-mascot-q {
+                width: 130px;
+                margin-top: 90px;
+            }
+
+            .quiz-bubble {
+                width: calc(100% + 100px);
+                padding: 20px 26px;
+                border-radius: 22px;
+            }
+
+            .quiz-bubble::before {
+                bottom: -15px;
+                left: 56px;
+                width: 26px;
+                height: 26px;
+            }
+        }
+
+        /* Wąskie ekrany: chowamy maskotkę */
+        @media (max-width: 560px) {
+            .quiz-mascot-q {
+                display: none;
+            }
+
+            .quiz-speech-row {
+                margin-left: 0;
+            }
+
+            .quiz-bubble {
+                width: 100%;
+            }
+        }
+
+        /* Dark mode */
+        body.dark-mode .quiz-bubble {
+            background: #1f2937;
+            border-color: #45a94d;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, .35);
+        }
+
+        body.dark-mode .quiz-bubble::before {
+            background: #1f2937;
+            border-right-color: #45a94d;
+            border-bottom-color: #45a94d;
+        }
+
+        body.dark-mode #quiz-question {
+            color: #d1f2d4 !important;
+        }
+
+        .quiz-option {
+            transition: all .2s ease;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover:not(.correct):not(.wrong):not(.disabled) {
+            background: #edf9ee;
+            border-color: #45a94d;
+        }
+
+        .quiz-option.correct {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+
+        .quiz-option.wrong {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #dc2626;
+        }
+
+        .quiz-option.disabled {
+            cursor: default;
+            opacity: .6;
+        }
+
+        #quiz-progress-bar {
+            transition: width .4s ease;
+        }
+
+        /* ===== GAME 5: Labirynt Dostępności ===== */
+        #maze-canvas {
+            display: block;
+            touch-action: none;
+            border-radius: 12px;
+            cursor: default;
+            image-rendering: auto;
+        }
+
+        #maze-wrap {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 0;
+        }
+
+        #mz-win-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 24px;
+            pointer-events: none;
+        }
+
+        #mz-win-overlay.active { pointer-events: auto; }
+
+        #mz-info-box { transition: opacity 0.3s; }
+
+        /* fullscreen */
+        #game-4:fullscreen,
+        #game-4:-webkit-full-screen {
+            background: #111827;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 0 !important;
+            padding: 12px !important;
+        }
+        #game-4:fullscreen #maze-wrap,
+        #game-4:-webkit-full-screen #maze-wrap {
+            max-width: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #game-4:fullscreen #maze-canvas,
+        #game-4:-webkit-full-screen #maze-canvas {
+            border-radius: 10px;
+        }
+        #game-4:fullscreen .mz-hud,
+        #game-4:-webkit-full-screen .mz-hud {
+            color: #f3f4f6;
+        }
+        #game-4:fullscreen .mz-hud .text-gray-500,
+        #game-4:-webkit-full-screen .mz-hud .text-gray-500 {
+            color: #9ca3af !important;
+        }
+
+        /* ===== GAME 4: Sortowanie ===== */
+        .sort-box {
+            transition: all .2s ease;
+            cursor: pointer;
+        }
+
+        .sort-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(43, 115, 51, .2);
+        }
+
+        .sort-box.correct-flash {
+            animation: flashGreen .5s ease;
+        }
+
+        .sort-box.wrong-flash {
+            animation: flashRed .5s ease;
+        }
+
+        @keyframes flashGreen {
+
+            0%,
+            100% {
+                background: inherit;
+            }
+
+            50% {
+                background: #dcfce7;
+                border-color: #22c55e;
+            }
+        }
+
+        @keyframes flashRed {
+
+            0%,
+            100% {
+                background: inherit;
+            }
+
+            50% {
+                background: #fee2e2;
+                border-color: #ef4444;
+            }
+        }
+
+        #sort-card {
+            transition: all .3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased">
+    <script>(function () { if (localStorage.getItem('dark-mode') === 'true') { document.body.style.transition = 'none'; document.body.classList.add('dark-mode'); requestAnimationFrame(function () { document.body.style.transition = ''; }); } })();</script>
+
+    <a href="#main" class="skip-link">Przejdź do treści głównej</a>
+    <div id="scroll-progress" style="width:0%" aria-hidden="true"></div>
+
+    <header id="site-header"></header>
+
+    <main id="main" class="pt-36 pb-24 px-4">
+        <div class="max-w-4xl mx-auto">
+
+            <h1 class="sr-only">Strefa relaksu Wspiernika – OWiT Toruń</h1>
+
+            <!-- Breadcrumb -->
+            <nav aria-label="Ścieżka nawigacji" class="mb-8">
+                <ol class="flex items-center gap-2 text-sm text-gray-600">
+                    <li><a href="index.html" class="hover:text-green-700 transition-colors flex items-center gap-1"><i
+                                data-lucide="home" class="w-3.5 h-3.5"></i>Strona główna</a></li>
+                    <li aria-hidden="true"><i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i></li>
+                    <li class="text-gray-900 font-medium" aria-current="page">Strefa relaksu</li>
+                </ol>
+            </nav>
+
+            <!-- Hero usunięte -->
+            <!-- Mode selection -->
+            <div id="mode-selection" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+                <!-- Card 1: Gry -->
+                <button onclick="showSection('gry')"
+                    class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
+                    <img src="images/ui/wspiernik-play.png" alt="" aria-hidden="true"
+                        class="mx-auto h-36 object-contain mb-3 group-hover:scale-105 transition-transform"
+                        onerror="this.src='images/ui/wspiernik.png';">
+                    <span class="text-lg font-bold text-green-800 mb-1 block">Gry przeglądarkowe</span>
+                    <p class="text-sm text-gray-600">Łap sprzęt, sortuj, rozwiązuj quizy i trenuj pamięć z naszymi grami!</p>
+                </button>
+                <!-- Card 2: Kolorowanki -->
+                <button onclick="showSection('kolorowanki')"
+                    class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
+                    <img src="images/ui/wspiernik-koloruje.png" alt="" aria-hidden="true"
+                        class="mx-auto h-36 object-contain mb-3 group-hover:scale-105 transition-transform"
+                        onerror="this.src='images/ui/wspiernik.png';">
+                    <span class="text-lg font-bold text-green-800 mb-1 block">Kolorowanki</span>
+                    <p class="text-sm text-gray-600">Wydrukuj i pokoloruj Wspiernika.</p>
+                </button>
+                <!-- Card 3: Wykreślanki -->
+                <button onclick="showSection('wykreslanki')"
+                    class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
+                    <img src="images/ui/wspiernik-krzyzowki.png" alt="" aria-hidden="true"
+                        class="mx-auto h-36 object-contain mb-3 group-hover:scale-105 transition-transform"
+                        onerror="this.src='images/ui/wspiernik.png';">
+                    <span class="text-lg font-bold text-green-800 mb-1 block">Wykreślanki i krzyżówki</span>
+                    <p class="text-sm text-gray-600">Wydrukuj i znajdź ukryte słowa lub rozwiąż krzyżówkę.</p>
+                </button>
+                <!-- Card 4: Oddech -->
+                <button onclick="showSection('oddech')"
+                    class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
+                    <img src="images/ui/wspiernik-oddech.png" alt="" aria-hidden="true"
+                        class="mx-auto h-36 object-contain mb-3 group-hover:scale-105 transition-transform"
+                        onerror="this.src='images/ui/wspiernik.png';">
+                    <span class="text-lg font-bold text-green-800 mb-1 block">Ćwiczenia oddechowe</span>
+                    <p class="text-sm text-gray-600">Skorzystaj z wirtualnego pomocnika do wyciszenia i relaksu.</p>
+                </button>
+            </div>
+
+            <div id="section-gry" class="hidden">
+                <button onclick="showSection('selection')"
+                    class="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 rounded px-2 py-1"><i
+                        data-lucide="arrow-left" class="w-4 h-4"></i> Wróć do wyboru</button>
+                <!-- Game tabs -->
+                <div class="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="Wybierz grę">
+                    <button
+                        class="game-tab px-4 py-2.5 rounded-xl font-semibold text-sm border border-gray-200 bg-white text-gray-700 flex items-center gap-2"
+                        onclick="switchGame(0)" role="tab" aria-selected="false" aria-controls="game-0" id="tab-0">
+                        <span aria-hidden="true">🧺</span> Łapacz Sprzętu
+                    </button>
+                    <button
+                        class="game-tab px-4 py-2.5 rounded-xl font-semibold text-sm border border-gray-200 bg-white text-gray-700 flex items-center gap-2"
+                        onclick="switchGame(1)" role="tab" aria-selected="false" aria-controls="game-1" id="tab-1">
+                        <span aria-hidden="true">🃏</span> Memory Sprzętu
+                    </button>
+                    <button
+                        class="game-tab px-4 py-2.5 rounded-xl font-semibold text-sm border border-gray-200 bg-white text-gray-700 flex items-center gap-2"
+                        onclick="switchGame(2)" role="tab" aria-selected="false" aria-controls="game-2" id="tab-2">
+                        <span aria-hidden="true">❓</span> Quiz OWiT
+                    </button>
+                    <button
+                        class="game-tab px-4 py-2.5 rounded-xl font-semibold text-sm border border-gray-200 bg-white text-gray-700 flex items-center gap-2"
+                        onclick="switchGame(3)" role="tab" aria-selected="false" aria-controls="game-3" id="tab-3">
+                        <span aria-hidden="true">📦</span> Sortowanie
+                    </button>
+                    <button
+                        class="game-tab px-4 py-2.5 rounded-xl font-semibold text-sm border border-gray-200 bg-white text-gray-700 flex items-center gap-2"
+                        onclick="switchGame(4)" role="tab" aria-selected="false" aria-controls="game-4" id="tab-4">
+                        <span aria-hidden="true">🧩</span> Labirynt
+                    </button>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- WELCOME: Ekran powitalny gier                           -->
+                <!-- ======================================================= -->
+                <div id="game-welcome" class="bg-white rounded-3xl border border-gray-100 shadow-sm p-10 text-center">
+                    <img src="images/ui/wspiernik-gra.png"
+                        alt="Wspiernik mówi: Jeśli chcesz się odprężyć możemy razem pograć. Wybierz jedną z gier powyżej, żeby rozpocząć. Powodzenia!"
+                        class="mx-auto w-full max-w-2xl h-auto">
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- GAME 0: Łapacz Sprzętu                                  -->
+                <!-- ======================================================= -->
+                <div class="game-panel bg-white rounded-3xl border border-gray-100 shadow-sm p-6" id="game-0"
+                    role="tabpanel" aria-labelledby="tab-0">
+                    <div class="text-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 mb-1">Łapacz Sprzętu</h2>
+                        <p class="text-sm text-gray-600 mb-2">Łap sprzęt asystujący koszem Wspiernika! Unikaj zepsutego
+                            sprzętu <span aria-hidden="true">💀</span>.</p>
+                        <p class="text-xs text-gray-500 flex flex-wrap gap-2 justify-center items-center">
+                            <span><span class="g1-key">←</span> <span class="g1-key">→</span> lub mysz / dotyk</span>
+                            <span aria-hidden="true">·</span>
+                            <span><span class="g1-key">Spacja</span> – start / nowa gra</span>
+                            <span aria-hidden="true">·</span>
+                            <span><span class="g1-key">Esc</span> – pauza</span>
+                        </p>
+                    </div>
+
+                    <!-- Poziomy trudności -->
+                    <div class="flex gap-2 justify-center mb-3" id="g1-diff-btns" role="group"
+                        aria-label="Poziom trudności">
+                        <button id="g1-diff-easy" onclick="g1SelectDiff('easy')"
+                            class="g1-diff-btn px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            aria-pressed="false"><span aria-hidden="true">🟢</span> Łatwy</button>
+                        <button id="g1-diff-normal" onclick="g1SelectDiff('normal')"
+                            class="g1-diff-btn px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors bg-green-700 text-white"
+                            aria-pressed="true"><span aria-hidden="true">⚡</span> Normalny</button>
+                        <button id="g1-diff-hard" onclick="g1SelectDiff('hard')"
+                            class="g1-diff-btn px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            aria-pressed="false"><span aria-hidden="true">🔥</span> Trudny</button>
+                    </div>
+
+                    <!-- HUD -->
+                    <div id="g1-ui" class="flex justify-between items-center max-w-xl mx-auto mb-3 px-2">
+                        <div>
+                            <div class="flex gap-1 text-xl" id="g1-lives" role="status" aria-label="Życia: 3"
+                                aria-live="polite">♥♥♥</div>
+                            <div class="text-xs text-gray-500 mt-0.5">życia</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-green-700" id="g1-score" role="status"
+                                aria-live="polite" aria-atomic="true" aria-label="Wynik: 0">0</div>
+                            <div class="text-xs text-gray-500">punkty</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xl font-semibold text-gray-700" id="g1-hi" aria-label="Rekord: 0">0</div>
+                            <div class="text-xs text-gray-500">rekord</div>
+                        </div>
+                        <div>
+                            <button onclick="g1Fullscreen()" id="g1-fs-btn" title="Pełny ekran (F)"
+                                class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                                aria-label="Przełącz pełny ekran">
+                                <i data-lucide="maximize-2" class="w-5 h-5 text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="catcher-wrap">
+                        <canvas id="catcher-canvas"
+                            aria-label="Pole gry Łapacz Sprzętu. Wspiernik z koszem łapie sprzęt asystujący." role="img"
+                            tabindex="0"></canvas>
+                    </div>
+
+                    <div id="g1-status" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+                    <div class="text-center mt-4 flex gap-3 justify-center flex-wrap">
+                        <button onclick="g1Start()" id="g1-start-btn"
+                            class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors"
+                            aria-keyshortcuts="Space">
+                            <i data-lucide="play" class="w-4 h-4"></i>Zagraj! <span
+                                class="text-green-300 text-xs font-normal">[Spacja]</span>
+                        </button>
+                        <button onclick="g1Reset()" id="g1-reset-btn"
+                            class="hidden inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-6 py-2.5 rounded-xl transition-colors"
+                            aria-keyshortcuts="Space">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>Nowa gra <span
+                                class="text-gray-500 text-xs font-normal">[Spacja]</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- GAME 1: Memory                                           -->
+                <!-- ======================================================= -->
+                <div class="game-panel bg-white rounded-3xl border border-gray-100 shadow-sm p-6" id="game-1"
+                    role="tabpanel" aria-labelledby="tab-1">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="flex-1">
+                            <h2 class="text-xl font-bold text-gray-900 mb-0.5">Memory Sprzętu</h2>
+                            <p class="text-sm text-gray-600">Znajdź 8 par urządzeń asystujących. Kliknij karty, żeby je
+                                odkryć!</p>
+                            <p class="text-xs text-gray-500 mt-1"><span class="g1-key">Enter</span> / <span
+                                    class="g1-key">Spacja</span> – odkryj kartę &nbsp;·&nbsp; <span
+                                    class="g1-key">F</span>
+                                – pełny ekran</p>
+                        </div>
+                        <button onclick="memFullscreen()" title="Pełny ekran (F)"
+                            class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                            aria-label="Przełącz pełny ekran">
+                            <i data-lucide="maximize-2" class="w-5 h-5 text-gray-600"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex justify-center gap-6 mb-5 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-green-700" id="mem-moves" aria-live="polite"
+                                aria-atomic="true">0</div>
+                            <div class="text-xs text-gray-500">ruchów</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-700" id="mem-time">0:00</div>
+                            <div class="text-xs text-gray-500">czas</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-700" id="mem-pairs" aria-live="polite" aria-atomic="true">0/8</div>
+                            <div class="text-xs text-gray-500">pary</div>
+                        </div>
+                    </div>
+
+                    <div class="memory-grid" id="mem-grid" role="list" aria-label="Karty memory"></div>
+
+                    <div id="mem-win"
+                        class="hidden text-center mt-6 p-6 bg-green-50 rounded-2xl border border-green-200">
+                        <div class="text-4xl mb-2" aria-hidden="true">🎉</div>
+                        <p class="text-lg font-bold text-green-800 mb-1">Brawo! Wszystkie pary znalezione!</p>
+                        <p class="text-sm text-gray-600 mb-4" id="mem-result"></p>
+                        <button onclick="memInit()"
+                            class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>Zagraj ponownie
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button onclick="memInit()"
+                            class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm">
+                            <i data-lucide="shuffle" class="w-4 h-4"></i>Tasuj i zacznij od nowa
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- GAME 2: Quiz                                             -->
+                <!-- ======================================================= -->
+                <div class="game-panel bg-white rounded-3xl border border-gray-100 shadow-sm p-6" id="game-2"
+                    role="tabpanel" aria-labelledby="tab-2">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="flex-1">
+                            <h2 class="text-xl font-bold text-gray-900 mb-0.5">Quiz OWiT</h2>
+                            <p class="text-sm text-gray-600">10 losowych pytań o technologiach asystujących i OWiT
+                                Toruń.
+                                Odpowiedzi są tasowane!</p>
+                            <p class="text-xs text-gray-500 mt-1"><span class="g1-key">1</span>–<span
+                                    class="g1-key">4</span> – wybierz odpowiedź &nbsp;·&nbsp; <span
+                                    class="g1-key">Enter</span> – następne &nbsp;·&nbsp; <span class="g1-key">F</span> –
+                                pełny ekran</p>
+                        </div>
+                        <button onclick="quizFullscreen()" title="Pełny ekran (F)"
+                            class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                            aria-label="Przełącz pełny ekran">
+                            <i data-lucide="maximize-2" class="w-5 h-5 text-gray-600"></i>
+                        </button>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="max-w-lg mx-auto mb-5">
+                        <div class="flex justify-between text-xs text-gray-500 mb-1">
+                            <span id="quiz-q-label">Pytanie 1 / 10</span>
+                            <span id="quiz-score-label" class="ml-6">0 pkt</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div id="quiz-progress-bar" class="h-full bg-green-500 rounded-full" style="width:10%"
+                                aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" role="progressbar" aria-label="Postęp quizu"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question area -->
+                    <div id="quiz-area">
+                        <div class="quiz-main-row">
+                            <!-- Mascot po lewej -->
+                            <img src="images/ui/wspiernik.png" alt="Wspiernik pyta:" class="quiz-mascot-q"
+                                onerror="this.style.display='none'">
+                            <!-- Bubble + odpowiedzi -->
+                            <div class="quiz-content-col">
+                                <div class="quiz-speech-row">
+                                    <div class="quiz-bubble">
+                                        <div id="quiz-question" class="font-semibold leading-snug"></div>
+                                    </div>
+                                </div>
+                                <div id="quiz-options" class="space-y-3 mt-5"></div>
+                                <div id="quiz-feedback" class="hidden mt-4 p-4 rounded-xl text-sm leading-relaxed">
+                                </div>
+                                <div class="text-center mt-5">
+                                    <button id="quiz-next-btn" onclick="quizNext()"
+                                        class="hidden inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors">
+                                        Następne pytanie <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final screen -->
+                    <div id="quiz-end"
+                        class="hidden max-w-lg mx-auto text-center p-6 bg-green-50 rounded-2xl border border-green-200">
+                        <div class="text-5xl mb-3" id="quiz-end-emoji"></div>
+                        <h3 class="text-xl font-bold text-green-800 mb-2" id="quiz-end-title"></h3>
+                        <p class="text-gray-600 mb-2" id="quiz-end-score"></p>
+                        <p class="text-sm text-gray-500 mb-5" id="quiz-end-msg"></p>
+                        <button onclick="quizInit()"
+                            class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>Spróbuj ponownie
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- GAME 3: Sortowanie                                       -->
+                <!-- ======================================================= -->
+                <div class="game-panel bg-white rounded-3xl border border-gray-100 shadow-sm p-6" id="game-3"
+                    role="tabpanel" aria-labelledby="tab-3">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="flex-1">
+                            <h2 class="text-xl font-bold text-gray-900 mb-0.5">Sortowanie Sprzętu</h2>
+                            <p class="text-sm text-gray-600">Przyporządkuj urządzenia do właściwej kategorii OWiT.
+                                Kliknij
+                                odpowiedni dział!</p>
+                            <p class="text-xs text-gray-500 mt-1"><span class="g1-key">1</span>–<span
+                                    class="g1-key">4</span> – wybierz kategorię &nbsp;·&nbsp; <span
+                                    class="g1-key">F</span>
+                                – pełny ekran</p>
+                        </div>
+                        <button onclick="sortFullscreen()" title="Pełny ekran (F)"
+                            class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                            aria-label="Przełącz pełny ekran">
+                            <i data-lucide="maximize-2" class="w-5 h-5 text-gray-600"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex justify-center gap-6 mb-5 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-green-700" id="sort-correct" aria-live="polite">0</div>
+                            <div class="text-xs text-gray-500">poprawne</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-red-500" id="sort-wrong" aria-live="polite">0</div>
+                            <div class="text-xs text-gray-500">błędne</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-500" id="sort-left" aria-live="polite">20</div>
+                            <div class="text-xs text-gray-500">pozostało</div>
+                        </div>
+                    </div>
+
+                    <!-- Current card -->
+                    <div id="sort-card-wrap" class="mx-auto mb-6 flex items-end justify-center"
+                        style="max-width: min(400px, 95vw);">
+                        <img src="images/ui/wspiernik-oparty.png" alt="" aria-hidden="true"
+                            style="height:190px; width:auto; flex-shrink:0; object-fit:contain; margin-right:-14px; position:relative; z-index:10; filter:drop-shadow(0 2px 6px rgba(0,0,0,.15)); pointer-events:none; align-self:flex-end;">
+                        <div id="sort-card"
+                            class="bg-white border-2 border-gray-200 rounded-2xl shadow-lg overflow-hidden"
+                            style="flex:1; max-width:290px;">
+                            <div class="bg-gradient-to-br from-green-700 to-green-500 px-4 pt-4 pb-2 flex items-center justify-center"
+                                style="min-height:130px;">
+                                <img id="sort-item-img" src="" alt=""
+                                    class="max-h-28 max-w-full object-contain rounded-xl bg-white/10 p-1">
+                            </div>
+                            <div class="px-4 py-3">
+                                <div id="sort-item-name" class="font-bold text-base text-gray-900 leading-snug"></div>
+                                <div id="sort-item-cat" class="text-xs text-gray-500 mt-0.5"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Boxes -->
+                    <div class="grid grid-cols-2 gap-3 max-w-xl mx-auto" id="sort-boxes">
+                        <button
+                            class="sort-box bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 text-left hover:border-blue-400"
+                            onclick="sortGuess(0)" aria-label="1: Technologie Uniwersalne" aria-keyshortcuts="1">
+                            <div class="flex items-start gap-2 mb-1">
+                                <span
+                                    class="inline-flex items-center justify-center w-5 h-5 rounded bg-blue-200 text-blue-800 font-bold text-xs flex-shrink-0 mt-0.5">1</span>
+                                <span class="text-xl" aria-hidden="true">🖥️</span>
+                            </div>
+                            <div class="font-bold text-blue-800 text-sm">Technologie Uniwersalne</div>
+                            <div class="text-xs text-blue-600">Komputery, tablety, oprogramowanie</div>
+                        </button>
+                        <button
+                            class="sort-box bg-purple-50 border-2 border-purple-200 rounded-2xl p-4 text-left hover:border-purple-400"
+                            onclick="sortGuess(1)" aria-label="2: Wsparcie Widzenia i Czytania" aria-keyshortcuts="2">
+                            <div class="flex items-start gap-2 mb-1">
+                                <span
+                                    class="inline-flex items-center justify-center w-5 h-5 rounded bg-purple-200 text-purple-800 font-bold text-xs flex-shrink-0 mt-0.5">2</span>
+                                <span class="text-xl" aria-hidden="true">👁️</span>
+                            </div>
+                            <div class="font-bold text-purple-800 text-sm">Wsparcie Widzenia</div>
+                            <div class="text-xs text-purple-600">Powiększalniki, brajl, lupy</div>
+                        </button>
+                        <button
+                            class="sort-box bg-orange-50 border-2 border-orange-200 rounded-2xl p-4 text-left hover:border-orange-400"
+                            onclick="sortGuess(2)" aria-label="3: Wsparcie Słuchu" aria-keyshortcuts="3">
+                            <div class="flex items-start gap-2 mb-1">
+                                <span
+                                    class="inline-flex items-center justify-center w-5 h-5 rounded bg-orange-200 text-orange-800 font-bold text-xs flex-shrink-0 mt-0.5">3</span>
+                                <span class="text-xl" aria-hidden="true">🎧</span>
+                            </div>
+                            <div class="font-bold text-orange-800 text-sm">Wsparcie Słuchu</div>
+                            <div class="text-xs text-orange-600">Mikrofony, pętle indukcyjne</div>
+                        </button>
+                        <button
+                            class="sort-box bg-green-50 border-2 border-green-200 rounded-2xl p-4 text-left hover:border-green-400"
+                            onclick="sortGuess(3)" aria-label="4: Wsparcie motoryki i AAC" aria-keyshortcuts="4">
+                            <div class="flex items-start gap-2 mb-1">
+                                <span
+                                    class="inline-flex items-center justify-center w-5 h-5 rounded bg-green-200 text-green-800 font-bold text-xs flex-shrink-0 mt-0.5">4</span>
+                                <span class="text-xl" aria-hidden="true">💬</span>
+                            </div>
+                            <div class="font-bold text-green-800 text-sm">Wsparcie motoryki i AAC</div>
+                            <div class="text-xs text-green-600">Eye-tracking, switche, AAC, ergonomia</div>
+                        </button>
+                    </div>
+
+                    <!-- End screen -->
+                    <div id="sort-end"
+                        class="hidden text-center mt-6 p-6 bg-green-50 rounded-2xl border border-green-200">
+                        <div class="text-4xl mb-2" aria-hidden="true">🏆</div>
+                        <p class="text-lg font-bold text-green-800 mb-1" id="sort-end-title"></p>
+                        <p class="text-sm text-gray-600 mb-4" id="sort-end-msg"></p>
+                        <button onclick="sortInit()"
+                            class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>Zagraj ponownie
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- GAME 4: Labirynt Dostępności                            -->
+                <!-- ======================================================= -->
+                <div class="game-panel bg-white rounded-3xl border border-gray-100 shadow-sm p-6" id="game-4"
+                    role="tabpanel" aria-labelledby="tab-4">
+                    <div class="flex items-start gap-3 mb-4">
+                        <div class="flex-1 text-center">
+                        <h2 class="text-xl font-bold text-gray-900 mb-1">Labirynt Dostępności</h2>
+                        <p class="text-sm text-gray-600 mb-2">Prowadź Wspiernika do siedziby OWiT <span
+                                aria-hidden="true">🏠</span>, zbierając urządzenia asystujące i omijając bariery!</p>
+                        <p class="text-xs text-gray-500 flex flex-wrap gap-2 justify-center items-center">
+                            <span><span class="g1-key">↑</span><span class="g1-key">↓</span><span
+                                    class="g1-key">←</span><span class="g1-key">→</span> lub <span
+                                    class="g1-key">WASD</span> – ruch</span>
+                            <span aria-hidden="true">·</span>
+                            <span>na telefonie: przesuń palcem</span>
+                            <span aria-hidden="true">·</span>
+                            <span><span class="g1-key">F</span> – pełny ekran</span>
+                        </p>
+                        </div>
+                        <button onclick="mzFullscreen()" title="Pełny ekran (F)"
+                            class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                            aria-label="Przełącz pełny ekran">
+                            <i data-lucide="maximize-2" class="w-5 h-5 text-gray-600"></i>
+                        </button>
+                    </div>
+
+                    <!-- HUD -->
+                    <div class="mz-hud flex items-center justify-center gap-6 mb-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-blue-600">
+                                <span id="mz-collected" aria-live="polite" aria-label="Zebrane urządzenia">0</span><span
+                                    class="text-base font-normal text-gray-400">/<span id="mz-total">8</span></span>
+                            </div>
+                            <div class="text-xs text-gray-500">urządzeń</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-700" id="mz-steps" aria-live="polite"
+                                aria-label="Liczba kroków">0</div>
+                            <div class="text-xs text-gray-500">kroków</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-red-500" id="mz-penalty" aria-live="polite">0</div>
+                            <div class="text-xs text-gray-500">kary</div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas -->
+                    <div id="maze-wrap">
+                        <canvas id="maze-canvas" tabindex="0"
+                            aria-label="Labirynt dostępności. Użyj klawiszy strzałek lub WASD do poruszania Wspiernikiem. Zbieraj niebieskie urządzenia i dotrzyj do domu OWiT.">
+                        </canvas>
+                        <div id="mz-win-overlay">
+                            <button id="mz-restart-btn" onclick="mzReset()"
+                                class="hidden inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-3 rounded-xl transition-colors shadow-xl">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>Zagraj ponownie
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Last collected device info -->
+                    <div class="mt-3 min-h-[52px] flex justify-center items-center">
+                        <div id="mz-info-box"
+                            class="hidden items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-2">
+                            <img id="mz-info-img" src="" alt="" class="w-10 h-10 object-cover rounded-lg flex-shrink-0">
+                            <div class="text-left">
+                                <div id="mz-info-name" class="text-sm font-bold text-blue-800"></div>
+                                <div id="mz-info-desc" class="text-xs text-blue-600 leading-snug max-w-xs"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-kolorowanki" class="hidden">
+                <button onclick="showSection('selection')"
+                    class="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 rounded px-2 py-1 mt-4"><i
+                        data-lucide="arrow-left" class="w-4 h-4"></i> Wróć do wyboru</button>
+                <!-- Kolorowanki -->
+                <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:p-10 mb-8 mt-2">
+                    <div class="flex flex-col md:flex-row items-center gap-8">
+                        <!-- Lewy obrazek -->
+                        <div class="flex-shrink-0 w-full md:w-1/3 flex justify-center">
+                            <img src="images/ui/wspiernik-pedzel.png" alt="Wspiernik mówi: Lubisz kolorować? Ja też! Wydrukuj sobie kolorowankę i pomalujmy razem!" class="w-full object-contain" onerror="this.src='images/ui/wspiernik.png';">
+                        </div>
+                        <!-- Prawa treść -->
+                        <div class="flex-1 w-full">
+                            <div class="text-center md:text-left mb-8">
+                                <h2
+                                    class="text-2xl md:text-3xl font-bold text-green-800 mb-2 flex items-center justify-center md:justify-start gap-3">
+                                    <i data-lucide="palette" class="w-8 h-8 text-green-600"></i> Kolorowanki dla najmłodszych
+                                </h2>
+                                <p class="text-gray-600">Wydrukuj i pokoloruj! Poza grami przeglądarkowymi przygotowaliśmy
+                                    wspaniałe kolorowanki do pobrania.</p>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4">
+                        <a href="pdf/kolorowanki/kolorowanka1.pdf" target="_blank"
+                            class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
+                            aria-label="Wydrukuj kolorowankę nr 1">
+                            <img src="images/kolorowanki/kolorowanka1.png" alt="Podgląd kolorowanki 1" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100">
+                            <span class="font-bold text-sm text-center">Kolorowanka 1</span>
+                        </a>
+                        <a href="pdf/kolorowanki/kolorowanka2.pdf" target="_blank"
+                            class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
+                            aria-label="Wydrukuj kolorowankę nr 2">
+                            <img src="images/kolorowanki/kolorowanka2.png" alt="Podgląd kolorowanki 2" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100">
+                            <span class="font-bold text-sm text-center">Kolorowanka 2</span>
+                        </a>
+                        <a href="pdf/kolorowanki/kolorowanka3.pdf" target="_blank"
+                            class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
+                            aria-label="Wydrukuj kolorowankę nr 3">
+                            <img src="images/kolorowanki/kolorowanka3.png" alt="Podgląd kolorowanki 3" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100">
+                            <span class="font-bold text-sm text-center">Kolorowanka 3</span>
+                        </a>
+                        <a href="pdf/kolorowanki/kolorowanka4.pdf" target="_blank"
+                            class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
+                            aria-label="Wydrukuj kolorowankę nr 4">
+                            <img src="images/kolorowanki/kolorowanka4.png" alt="Podgląd kolorowanki 4" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100">
+                            <span class="font-bold text-sm text-center">Kolorowanka 4</span>
+                        </a>
+                        <a href="pdf/kolorowanki/kolorowanka5.pdf" target="_blank"
+                            class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
+                            aria-label="Wydrukuj kolorowankę nr 5">
+                            <img src="images/kolorowanki/kolorowanka5.png" alt="Podgląd kolorowanki 5" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100">
+                            <span class="font-bold text-sm text-center">Kolorowanka 5</span>
+                        </a>
+                        <a href="pdf/kolorowanki/kolorowanka6.pdf" target="_blank"
+                            class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
+                            aria-label="Wydrukuj kolorowankę nr 6">
+                            <img src="images/kolorowanki/kolorowanka6.png" alt="Podgląd kolorowanki 6" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" onerror="this.style.display='none'">
+                            <span class="font-bold text-sm text-center">Kolorowanka 6</span>
+                        </a>
+                        <a href="pdf/kolorowanki/kolorowanka7.pdf" target="_blank"
+                            class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
+                            aria-label="Wydrukuj kolorowankę nr 7">
+                            <img src="images/kolorowanki/kolorowanka7.png" alt="Podgląd kolorowanki 7" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" onerror="this.style.display='none'">
+                            <span class="font-bold text-sm text-center">Kolorowanka 7</span>
+                        </a>
+                        <a href="pdf/kolorowanki/kolorowanka8.pdf" target="_blank"
+                            class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
+                            aria-label="Wydrukuj kolorowankę nr 8">
+                            <img src="images/kolorowanki/kolorowanka8.png" alt="Podgląd kolorowanki 8" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" onerror="this.style.display='none'">
+                            <span class="font-bold text-sm text-center">Kolorowanka 8</span>
+                        </a>
+                        <a href="pdf/kolorowanki/kolorowanka9.pdf" target="_blank"
+                            class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
+                            aria-label="Wydrukuj kolorowankę nr 9">
+                            <img src="images/kolorowanki/kolorowanka9.png" alt="Podgląd kolorowanki 9" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" onerror="this.style.display='none'">
+                            <span class="font-bold text-sm text-center">Kolorowanka 9</span>
+                        </a>
+                        <a href="pdf/kolorowanki/kolorowanka10.pdf" target="_blank"
+                            class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
+                            aria-label="Wydrukuj kolorowankę nr 10">
+                            <img src="images/kolorowanki/kolorowanka10.png" alt="Podgląd kolorowanki 10" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" onerror="this.style.display='none'">
+                            <span class="font-bold text-sm text-center">Kolorowanka 10</span>
+                        </a>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- zamyka section-kolorowanki -->
+
+            <div id="section-wykreslanki" class="hidden">
+                <button onclick="showSection('selection')"
+                    class="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 rounded px-2 py-1 mt-4"><i
+                        data-lucide="arrow-left" class="w-4 h-4"></i> Wróć do wyboru</button>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 lg:p-8 mt-4">
+                    <div class="flex flex-col md:flex-row items-center gap-8">
+                        <div class="flex-shrink-0 w-full md:w-1/3 flex justify-center">
+                            <img src="images/ui/wspiernik-krzyzowki-2.png" alt="Wspiernik mówi: Wolisz krzyżówki czy wykreślanki? Pobierz i wydrukuj co tylko chcesz!" class="w-full object-contain" onerror="this.src='images/ui/wspiernik.png';">
+                        </div>
+                        <div class="flex-1 w-full">
+                            <div class="mb-4">
+                                <h2 class="text-xl lg:text-2xl font-bold text-green-800 mb-1 flex items-center gap-2">
+                                    <i data-lucide="grid" class="w-8 h-8 text-green-600"></i> Wykreślanki i krzyżówki
+                                </h2>
+                                <p class="text-gray-600">Wydrukuj i znajdź ukryte słowa lub rozwiąż krzyżówkę!</p>
+                            </div>
+
+                            <!-- Łatwy -->
+                            <h3 class="text-base font-bold text-green-700 mb-2 mt-4">Łatwy</h3>
+                            <div class="flex flex-wrap gap-3 mb-4">
+                                <a href="pdf/wykreslanki/easy-10x10.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Wykreślanka łatwa 10x10">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> 10×10
+                                </a>
+                                <a href="pdf/wykreslanki/easy-15x15.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Wykreślanka łatwa 15x15">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> 15×15
+                                </a>
+                                <a href="pdf/wykreslanki/easy-20x20.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Wykreślanka łatwa 20x20">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> 20×20
+                                </a>
+                            </div>
+
+                            <!-- Średni -->
+                            <h3 class="text-base font-bold text-yellow-600 mb-2">Średni</h3>
+                            <div class="flex flex-wrap gap-3 mb-4">
+                                <a href="pdf/wykreslanki/medium-10x10.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Wykreślanka średnia 10x10">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> 10×10
+                                </a>
+                                <a href="pdf/wykreslanki/medium-15x15.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Wykreślanka średnia 15x15">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> 15×15
+                                </a>
+                                <a href="pdf/wykreslanki/medium-20x20.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Wykreślanka średnia 20x20">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> 20×20
+                                </a>
+                            </div>
+
+                            <!-- Trudny -->
+                            <h3 class="text-base font-bold text-red-600 mb-2">Trudny</h3>
+                            <div class="flex flex-wrap gap-3">
+                                <a href="pdf/wykreslanki/hard-10x10.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Wykreślanka trudna 10x10">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> 10×10
+                                </a>
+                                <a href="pdf/wykreslanki/hard-15x15.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Wykreślanka trudna 15x15">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> 15×15
+                                </a>
+                                <a href="pdf/wykreslanki/hard-20x20.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Wykreślanka trudna 20x20">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> 20×20
+                                </a>
+                            </div>
+
+                            <!-- Krzyżówki -->
+                            <h3 class="text-base font-bold text-green-700 mb-2 mt-6 flex items-center gap-2"><i data-lucide="layout-grid" class="w-4 h-4"></i> Krzyżówki</h3>
+                            <div class="flex flex-wrap gap-3">
+                                <a href="pdf/krzyzowki/krzyzowka1.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Pobierz krzyżówkę nr 1">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> Krzyżówka 1
+                                </a>
+                                <a href="pdf/krzyzowki/krzyzowka2.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Pobierz krzyżówkę nr 2">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> Krzyżówka 2
+                                </a>
+                                <a href="pdf/krzyzowki/krzyzowka3.pdf" target="_blank"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
+                                    aria-label="Pobierz krzyżówkę nr 3">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i> Krzyżówka 3
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- zamyka section-wykreslanki -->
+
+            <div id="section-oddech" class="hidden">
+                <button onclick="showSection('selection'); if(isBreathing) toggleBreathe();"
+                    class="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 rounded px-2 py-1 mt-4"><i
+                        data-lucide="arrow-left" class="w-4 h-4"></i> Wróć do wyboru</button>
+                
+                <div id="breathe-container" class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:p-10 mb-8 mt-2 text-center overflow-hidden relative flex flex-col justify-center min-h-[400px]">
+                    <button onclick="toggleBreatheFullScreen()" class="absolute top-4 right-4 text-gray-400 hover:text-green-600 focus:outline-none bg-gray-50/50 hover:bg-gray-100 p-2 rounded-lg transition-colors border border-transparent hover:border-gray-200 z-20" aria-label="Włącz/Wyłącz Pełny Ekran">
+                        <i id="breathe-fs-icon" data-lucide="maximize" class="w-5 h-5"></i>
+                    </button>
+                    
+                    <div class="mb-8">
+                        <h2 class="text-2xl md:text-3xl font-bold text-green-800 mb-2 flex items-center justify-center gap-3">
+                            <i data-lucide="wind" class="w-8 h-8 text-green-600"></i> Ćwiczenie oddechowe
+                        </h2>
+                        <p class="text-gray-600">Zsynchronizuj swój oddech z animacją. To pomoże Ci się wyciszyć.</p>
+                    </div>
+
+                    <div id="breathe-wrapper" class="flex justify-center items-center my-12 h-64 relative max-w-sm mx-auto" style="transition: transform 0.5s ease-in-out;">
+                        <div id="breathe-circle" class="w-48 h-48 rounded-full bg-green-200 opacity-40 absolute" style="transition: transform 4s ease-in-out, background-color 4s ease-in-out; transform: scale(1);"></div>
+                        <div class="z-10 relative flex flex-col items-center">
+                            <img id="breathe-img" src="images/ui/wspiernik-oddech.png" class="h-32 mb-2 object-contain drop-shadow-md" style="transition: transform 4s ease-in-out; transform: scale(1);" alt="Grafika wspiernika" onerror="this.src='images/ui/wspiernik.png';">
+                            <span id="breathe-text" class="font-bold text-green-800 text-lg absolute -bottom-6 bg-white/80 px-4 py-1 rounded-full shadow-sm">Gotowy?</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <button id="breathe-btn" onclick="toggleBreathe()" class="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold px-8 py-3 rounded-xl transition-colors shadow-sm focus:ring-4 focus:ring-green-400 focus:outline-none">
+                            <i data-lucide="play" class="w-5 h-5"></i> Start
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back link -->
+            <div class="mt-8 flex flex-wrap gap-4 justify-center">
+                <a href="index.html"
+                    class="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50 text-gray-700 hover:text-green-700 font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>Wróć na stronę główną
+                </a>
+                <a href="katalog.html"
+                    class="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50 text-gray-700 hover:text-green-700 font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>Katalog sprzętu
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="site-footer"></div>
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- A11Y WIDGET -->
+    <div id="a11y-widget" class="fixed bottom-6 left-6 z-50">
+        <div id="a11y-panel"
+            class="hidden mb-3 bg-white rounded-2xl shadow-2xl border border-gray-100 w-72 overflow-hidden"
+            role="dialog" aria-modal="true" aria-label="Panel ułatwień dostępu" tabindex="-1">
+            <div class="px-4 pt-4 pb-3 border-b border-gray-100 flex items-center justify-between">
+                <p class="text-xs font-bold text-gray-600 uppercase tracking-wider">Ułatwienia dostępu</p>
+                <button onclick="toggleA11yPanel()" class="text-gray-500 hover:text-gray-700 p-1 rounded"
+                    aria-label="Zamknij panel"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-2 space-y-0.5">
+                <button onclick="toggleHighContrast()" id="a11y-contrast"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                    aria-pressed="false"><span
+                        class="w-9 h-9 rounded-xl bg-gray-900 flex items-center justify-center flex-shrink-0"><i
+                            data-lucide="eye" class="w-5 h-5 text-yellow-400"></i></span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-sm font-semibold text-gray-800">Wysoki kontrast</p>
+                        <p class="text-[11px] text-gray-600">Żółty tekst na czarnym tle</p>
+                    </div><span class="a11y-badge off">WYŁ</span>
+                </button>
+                <div class="flex items-center gap-3 px-3 py-2.5"><span
+                        class="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0"><i
+                            data-lucide="type" class="w-5 h-5 text-green-700"></i></span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-sm font-semibold text-gray-800">Rozmiar tekstu</p>
+                        <p class="text-[11px] text-gray-600" id="font-size-label">Domyślny (16px)</p>
+                    </div>
+                    <div class="flex items-center gap-1 flex-shrink-0"><button onclick="changeFontSize(-1)"
+                            class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 font-bold text-base transition-colors flex items-center justify-center"
+                            aria-label="Zmniejsz tekst">−</button><button onclick="changeFontSize(1)"
+                            class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 font-bold text-base transition-colors flex items-center justify-center"
+                            aria-label="Powiększ tekst">+</button></div>
+                </div>
+                <button onclick="toggleDyslexicFont()" id="a11y-dyslexic"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                    aria-pressed="false"><span
+                        class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0"><i
+                            data-lucide="book-open" class="w-5 h-5 text-blue-600"></i></span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-sm font-semibold text-gray-800">Czcionka dla dysleksji</p>
+                        <p class="text-[11px] text-gray-600">Lexend – ułatwia czytanie</p>
+                    </div><span class="a11y-badge off">WYŁ</span>
+                </button>
+                <button onclick="toggleSpacing()" id="a11y-spacing"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                    aria-pressed="false"><span
+                        class="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0"><i
+                            data-lucide="align-justify" class="w-5 h-5 text-violet-600"></i></span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-sm font-semibold text-gray-800">Zwiększony odstęp</p>
+                        <p class="text-[11px] text-gray-600">Szersza interlinia i litery</p>
+                    </div><span class="a11y-badge off">WYŁ</span>
+                </button>
+                <button onclick="toggleStopAnimations()" id="a11y-motion"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                    aria-pressed="false"><span
+                        class="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0"><i
+                            data-lucide="zap-off" class="w-5 h-5 text-orange-500"></i></span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-sm font-semibold text-gray-800">Zatrzymaj animacje</p>
+                        <p class="text-[11px] text-gray-600">Dla wrażliwości na ruch</p>
+                    </div><span class="a11y-badge off">WYŁ</span>
+                </button>
+                <button onclick="toggleDarkMode()" id="a11y-dark-mode"
+                    class="a11y-row w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                    aria-pressed="false"><span
+                        class="w-9 h-9 rounded-xl bg-slate-200 flex items-center justify-center flex-shrink-0"><i
+                            data-lucide="moon" class="w-5 h-5 text-slate-700"></i></span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-sm font-semibold text-gray-800">Tryb ciemny</p>
+                        <p class="text-[11px] text-gray-600">Ciemne tło, mniej zmęczenia oczu</p>
+                    </div><span class="a11y-badge off">WYŁ</span>
+                </button>
+                <button onclick="toggleGrayscale()" id="a11y-grayscale"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                    aria-pressed="false"><span
+                        class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0"><i
+                            data-lucide="contrast" class="w-5 h-5 text-gray-600"></i></span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-sm font-semibold text-gray-800">Skala szarości</p>
+                        <p class="text-[11px] text-gray-600">Pomoc przy ślepocie barw</p>
+                    </div><span class="a11y-badge off">WYŁ</span>
+                </button>
+            </div>
+            <div class="px-4 pb-4 pt-2 border-t border-gray-50"><button onclick="resetA11y()"
+                    class="w-full text-xs text-gray-600 hover:text-red-500 transition-colors py-1 flex items-center justify-center gap-1.5"><i
+                        data-lucide="rotate-ccw" class="w-3 h-3"></i>Przywróć ustawienia domyślne</button></div>
+        </div>
+        <button id="a11y-toggle-btn" onclick="toggleA11yPanel()"
+            class="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-3 rounded-full shadow-xl transition-all font-semibold text-sm"
+            aria-label="Otwórz panel ułatwień dostępu" aria-expanded="false" aria-controls="a11y-panel">
+            <i data-lucide="accessibility" class="w-5 h-5"></i><span>Ułatwienia</span>
+        </button>
+    </div>
+    <button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})"
+        class="hidden fixed bottom-6 right-6 z-50 w-12 h-12 bg-green-700 hover:bg-green-800 text-white rounded-full shadow-lg items-center justify-center transition-all"
+        aria-label="Wróć na górę strony"><i data-lucide="arrow-up" class="w-5 h-5"></i></button>
+
+    <!-- Dane katalogu dla gier – jedyne miejsce do edycji przy dodawaniu sprzętu -->
+    <script src="data/games-catalog.js"></script>
+
+    <script>
+        lucide.createIcons({ attrs: { 'aria-hidden': 'true' } });
+        window.addEventListener('scroll', () => { const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100; const prog = document.getElementById('scroll-progress'); prog.style.width = Math.min(pct, 100) + '%'; const b = document.getElementById('scroll-top-btn'); if (b) { if (window.scrollY > 400) b.classList.replace('hidden', 'flex'); else b.classList.replace('flex', 'hidden'); } }, { passive: true });
+        window.addEventListener('resize', () => { if (window.innerWidth >= 1024) { const m = document.getElementById('mob-menu'), b = document.getElementById('mobile-menu-btn'); if (m) m.classList.add('hidden'); if (b) b.setAttribute('aria-expanded', 'false'); } });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { const mob = document.getElementById('mob-menu'); if (mob && !mob.classList.contains('hidden')) toggleMobileMenu(); const panel = document.getElementById('a11y-panel'); if (panel && !panel.classList.contains('hidden')) toggleA11yPanel(); } });
+
+        // --- Tab switching ---
+        function switchGame(idx) {
+            const welcome = document.getElementById('game-welcome');
+            if (welcome) welcome.style.display = 'none';
+            document.querySelectorAll('.game-tab').forEach((t, i) => {
+                const active = i === idx;
+                t.classList.toggle('active', active);
+                t.setAttribute('aria-selected', active);
+                if (active) { t.classList.remove('bg-white', 'text-gray-700', 'border-gray-200'); t.classList.add('border-green-200'); }
+                else { t.classList.remove('border-green-200'); t.classList.add('bg-white', 'text-gray-700', 'border-gray-200'); }
+            });
+            document.querySelectorAll('.game-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+            if (idx === 0 && !g1.initialized) { g1SetupCanvas(); g1DrawIdle(); }
+            if (idx === 1 && !memState.initialized) memInit();
+            if (idx === 2 && !quizState.initialized) quizInit();
+            if (idx === 3 && !sortState.initialized) sortInit();
+            if (idx === 4 && !mzState.initialized) mzInit();
+        }
+
+        // --- A11y ---
+        let a11yPanelOpen = false, currentFontSize = 16;
+        function toggleA11yPanel() { a11yPanelOpen = !a11yPanelOpen; const p = document.getElementById('a11y-panel'), b = document.getElementById('a11y-toggle-btn'); p.classList.toggle('hidden', !a11yPanelOpen); b.setAttribute('aria-expanded', String(a11yPanelOpen)); if (a11yPanelOpen) { const f = p.querySelector('button,[tabindex="0"]'); if (f) f.focus(); } else { b.focus(); } }
+        function setA11yBadge(id, active) { const b = document.getElementById(id), badge = b ? b.querySelector('.a11y-badge') : null; if (badge) { badge.textContent = active ? 'WŁ' : 'WYŁ'; badge.classList.toggle('on', active); badge.classList.toggle('off', !active); } if (b) b.setAttribute('aria-pressed', active); }
+        function announce(msg) { const a = document.getElementById('a11y-announcer'); if (a) a.textContent = msg; }
+        function toggleHighContrast() { const on = document.body.classList.toggle('a11y-high-contrast'); localStorage.setItem('owit-contrast', on); setA11yBadge('a11y-contrast', on); announce(on ? 'Wysoki kontrast włączony' : 'Wysoki kontrast wyłączony'); }
+        function changeFontSize(step) { currentFontSize = Math.min(28, Math.max(12, currentFontSize + step * 2)); document.documentElement.style.fontSize = currentFontSize + 'px'; const l = document.getElementById('font-size-label'); if (l) l.textContent = currentFontSize === 16 ? 'Domyślny (16px)' : currentFontSize + 'px'; localStorage.setItem('owit-fontsize-px', currentFontSize); }
+        function resetA11y() { ['a11y-high-contrast', 'a11y-dyslexic', 'a11y-spacing', 'a11y-stop-motion', 'a11y-grayscale', 'dark-mode'].forEach(c => document.body.classList.remove(c));['a11y-contrast', 'a11y-dyslexic', 'a11y-spacing', 'a11y-motion', 'a11y-grayscale', 'a11y-dark-mode'].forEach(id => setA11yBadge(id, false)); currentFontSize = 16; document.documentElement.style.fontSize = '16px'; const l = document.getElementById('font-size-label'); if (l) l.textContent = 'Domyślny (16px)';['owit-contrast', 'owit-fontsize', 'owit-fontsize-px', 'owit-dyslexic', 'owit-spacing', 'owit-motion', 'owit-grayscale', 'dark-mode'].forEach(k => localStorage.removeItem(k)); }
+        function toggleDyslexicFont() { const on = document.body.classList.toggle('a11y-dyslexic'); localStorage.setItem('owit-dyslexic', on); setA11yBadge('a11y-dyslexic', on); }
+        function toggleSpacing() { const on = document.body.classList.toggle('a11y-spacing'); localStorage.setItem('owit-spacing', on); setA11yBadge('a11y-spacing', on); }
+        function toggleStopAnimations() { const on = document.body.classList.toggle('a11y-stop-motion'); localStorage.setItem('owit-motion', on); setA11yBadge('a11y-motion', on); }
+        function toggleDarkMode() { const on = document.body.classList.toggle('dark-mode'); setA11yBadge('a11y-dark-mode', on); localStorage.setItem('dark-mode', on); }
+        function toggleGrayscale() { const on = document.body.classList.toggle('a11y-grayscale'); localStorage.setItem('owit-grayscale', on); setA11yBadge('a11y-grayscale', on); }
+        function updateA11yCount() { }
+
+        // Focus trap for a11y dialog
+        document.addEventListener('keydown', function(e) {
+            if (!a11yPanelOpen || e.key !== 'Tab') return;
+            const p = document.getElementById('a11y-panel');
+            const focusable = Array.from(p.querySelectorAll('button, [tabindex="0"]'));
+            if (focusable.length === 0) return;
+            const first = focusable[0], last = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+                if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+            } else {
+                if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        });
+
+        // Tablist arrow-key navigation (ARIA APG pattern)
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Home' && e.key !== 'End') return;
+            const tab = document.activeElement;
+            if (!tab || tab.getAttribute('role') !== 'tab') return;
+            const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+            const idx = tabs.indexOf(tab);
+            if (idx === -1) return;
+            e.preventDefault();
+            let next = idx;
+            if (e.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+            else if (e.key === 'ArrowLeft') next = (idx - 1 + tabs.length) % tabs.length;
+            else if (e.key === 'Home') next = 0;
+            else if (e.key === 'End') next = tabs.length - 1;
+            tabs[next].focus();
+            tabs[next].click();
+        });
+        (function () { if (localStorage.getItem('owit-contrast') === 'true') toggleHighContrast(); const fsPx = parseInt(localStorage.getItem('owit-fontsize-px') || '16'); if (fsPx !== 16) { currentFontSize = fsPx; document.documentElement.style.fontSize = fsPx + 'px'; const l = document.getElementById('font-size-label'); if (l) l.textContent = fsPx + 'px'; } if (localStorage.getItem('owit-dyslexic') === 'true') toggleDyslexicFont(); if (localStorage.getItem('owit-spacing') === 'true') toggleSpacing(); if (localStorage.getItem('owit-motion') === 'true') toggleStopAnimations(); if (localStorage.getItem('owit-grayscale') === 'true') toggleGrayscale(); if (localStorage.getItem('dark-mode') === 'true') { document.body.classList.add('dark-mode'); setA11yBadge('a11y-dark-mode', true); } })();
+
+        // ALL_CATALOG i SORT_ALL ładowane z data/games-catalog.js
+
+        // ============================================================
+        // GAME 1: Łapacz Sprzętu
+        // ============================================================
+        const g1Images = ALL_CATALOG.map(s => { const o = { img: new Image(), label: s.label, ok: false }; o.img.onload = () => o.ok = true; o.img.src = s.src; return o; });
+
+        // Logical canvas dimensions (points, not pixels)
+        const CANVAS_W = 520, CANVAS_H = 460;
+        const PLAYER_W = 84, PLAYER_H = 126;   // tall enough to see belly
+        const CATCH_W = 96;                    // horizontal width of belly catch zone
+        const BELLY_FRAC = 0.60;               // fraction from top of sprite → belly/box centre
+        const ITEM_R = 30;                      // circle radius for falling items
+
+        // Poziomy trudności
+        const G1_DIFF = {
+            easy: { label: 'Łatwy', speed: 1.6, accel: 0.010, spawnStart: 88, spawnMin: 36, spawnDecay: 3, badChance: 0.08, lives: 5, hi: 'owit-g1-hi-easy' },
+            normal: { label: 'Normalny', speed: 2.4, accel: 0.022, spawnStart: 70, spawnMin: 25, spawnDecay: 3, badChance: 0.16, lives: 3, hi: 'owit-g1-hi-normal' },
+            hard: { label: 'Trudny', speed: 3.5, accel: 0.038, spawnStart: 52, spawnMin: 14, spawnDecay: 2, badChance: 0.26, lives: 3, hi: 'owit-g1-hi-hard' },
+        };
+        let g1SelDiff = 'normal';
+
+        function g1SelectDiff(d) {
+            if (g1.running) return;
+            g1SelDiff = d;
+            ['easy', 'normal', 'hard'].forEach(k => {
+                const btn = document.getElementById('g1-diff-' + k);
+                if (!btn) return;
+                if (k === d) {
+                    btn.classList.remove('bg-gray-100', 'text-gray-600');
+                    btn.classList.add('bg-green-700', 'text-white');
+                    btn.setAttribute('aria-pressed', 'true');
+                } else {
+                    btn.classList.remove('bg-green-700', 'text-white');
+                    btn.classList.add('bg-gray-100', 'text-gray-600');
+                    btn.setAttribute('aria-pressed', 'false');
+                }
+            });
+            const hiVal = localStorage.getItem(G1_DIFF[d].hi) || '0';
+            document.getElementById('g1-hi').textContent = hiVal;
+            document.getElementById('g1-hi').setAttribute('aria-label', 'Rekord: ' + hiVal);
+        }
+
+        const g1 = {
+            initialized: false, running: false, paused: false, gameOver: false,
+            playerX: CANVAS_W / 2, speed: 2.4,
+            score: 0, lives: 3,
+            objects: [], frameCount: 0, animId: null,
+            mascot: null, mascotOk: false,
+            keysDown: {},
+            diff: null,  // aktywny config trudności
+            ctx: null    // stored HiDPI context
+        };
+
+        // Preload mascot image
+        (function () {
+            const img = new Image();
+            img.onload = () => { g1.mascot = img; g1.mascotOk = true; if (g1.initialized) g1DrawIdle(); };
+            img.onerror = () => { g1.mascotOk = false; };
+            img.src = 'images/ui/wspiernik-pudelko.png';
+        })();
+
+        // Set up HiDPI canvas – call once, reuse g1.ctx for all drawing
+        function g1SetupCanvas() {
+            g1.ctx = document.getElementById('catcher-canvas').getContext('2d');
+            g1ResizeCanvas(); // sets buffer size, CSS dims, transform and smoothing
+        }
+
+        function g1DrawIdle() {
+            g1.initialized = true;
+            g1DrawBackground();
+            g1DrawPlayer();
+            const ctx = g1.ctx;
+            // Dimmed overlay
+            ctx.fillStyle = 'rgba(0,0,0,0.42)';
+            ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            // Press Space card
+            ctx.fillStyle = 'rgba(255,255,255,0.97)';
+            ctx.beginPath();
+            ctx.roundRect(CANVAS_W / 2 - 160, CANVAS_H / 2 - 52, 320, 104, 18);
+            ctx.fill();
+            ctx.fillStyle = '#1f5526';
+            ctx.font = 'bold 22px Lexend, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Naciśnij SPACJĘ lub', CANVAS_W / 2, CANVAS_H / 2 - 22);
+            ctx.fillText('kliknij "Zagraj!"', CANVAS_W / 2, CANVAS_H / 2 + 12);
+            ctx.font = '13px Lexend, sans-serif';
+            ctx.fillStyle = '#6b7280';
+            ctx.fillText('Steruj: ← → lub mysz / dotyk', CANVAS_W / 2, CANVAS_H / 2 + 42);
+        }
+
+        function g1DrawBackground() {
+            const ctx = g1.ctx;
+            const grad = ctx.createLinearGradient(0, 0, 0, CANVAS_H);
+            grad.addColorStop(0, '#164e24');
+            grad.addColorStop(0.6, '#2b7333');
+            grad.addColorStop(1, '#3a8c42');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            // Decorative dots (stars pattern)
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            for (let i = 0; i < 18; i++) {
+                const x = ((i * 73) % CANVAS_W), y = ((i * 47 + 30) % (CANVAS_H - 60));
+                ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+            }
+            // Ground strip
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(0, CANVAS_H - 10, CANVAS_W, 10);
+        }
+
+        function g1DrawItem(o) {
+            const ctx = g1.ctx;
+            // Shadow + circle background
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.45)';
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetY = 4;
+            ctx.fillStyle = o.bad ? '#fff0f0' : '#ffffff';
+            ctx.beginPath();
+            ctx.arc(o.x, o.y, ITEM_R, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = o.bad ? '#ef4444' : '#45a94d';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.restore();
+
+            if (!o.bad && o.imgObj && o.imgObj.ok) {
+                // Clip to inner circle, draw catalog image
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(o.x, o.y, ITEM_R - 4, 0, Math.PI * 2);
+                ctx.clip();
+                const d = (ITEM_R - 4) * 2;
+                ctx.drawImage(o.imgObj.img, o.x - (ITEM_R - 4), o.y - (ITEM_R - 4), d, d);
+                ctx.restore();
+            } else if (o.bad) {
+                // Red ✕ for bad items
+                ctx.save();
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                const s = ITEM_R * 0.45;
+                ctx.beginPath();
+                ctx.moveTo(o.x - s, o.y - s); ctx.lineTo(o.x + s, o.y + s);
+                ctx.moveTo(o.x + s, o.y - s); ctx.lineTo(o.x - s, o.y + s);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        function g1PlayerTop() { return CANVAS_H - PLAYER_H - 8; }
+        function g1BellyY() { return g1PlayerTop() + PLAYER_H * BELLY_FRAC; }
+
+        function g1DrawPlayer() {
+            const ctx = g1.ctx;
+            const py = g1PlayerTop();
+            if (g1.mascotOk && g1.mascot) {
+                ctx.save();
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.shadowColor = 'rgba(0,0,0,0.4)';
+                ctx.shadowBlur = 14;
+                ctx.shadowOffsetY = 6;
+                ctx.drawImage(g1.mascot, g1.playerX - PLAYER_W / 2, py, PLAYER_W, PLAYER_H);
+                ctx.restore();
+            } else {
+                // Fallback gingerbread emoji
+                ctx.save();
+                ctx.font = PLAYER_H + 'px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText('🧁', g1.playerX, py);
+                ctx.restore();
+            }
+        }
+
+        function g1Spawn() {
+            const isBad = Math.random() < (g1.diff ? g1.diff.badChance : 0.16);
+            const x = ITEM_R + 10 + Math.random() * (CANVAS_W - (ITEM_R + 10) * 2);
+            if (isBad) {
+                g1.objects.push({ x, y: -(ITEM_R + 5), bad: true, imgObj: null, label: 'Zepsuty sprzęt' });
+            } else {
+                const imgObj = g1Images[Math.floor(Math.random() * g1Images.length)];
+                g1.objects.push({ x, y: -(ITEM_R + 5), bad: false, imgObj, label: imgObj.label });
+            }
+        }
+
+        function g1CheckCollision(o) {
+            const bellyY = g1BellyY();
+            const bLeft = g1.playerX - CATCH_W / 2;
+            const bRight = g1.playerX + CATCH_W / 2;
+            return o.x + ITEM_R * 0.65 > bLeft && o.x - ITEM_R * 0.65 < bRight
+                && o.y + ITEM_R > bellyY - 22 && o.y - ITEM_R < bellyY + 22;
+        }
+
+        function g1UpdateLivesUI() {
+            const el = document.getElementById('g1-lives');
+            const maxLives = g1.diff ? g1.diff.lives : 3;
+            el.textContent = '♥'.repeat(Math.max(0, g1.lives)) + '♡'.repeat(Math.max(0, maxLives - g1.lives));
+            el.setAttribute('aria-label', 'Życia: ' + g1.lives);
+        }
+
+        function g1Announce(msg) {
+            const el = document.getElementById('g1-status');
+            if (el) el.textContent = msg;
+        }
+
+        function g1Loop() {
+            if (!g1.running || g1.paused) return;
+            g1.frameCount++;
+            const ctx = g1.ctx;
+
+            // Player movement (keyboard)
+            const kspeed = 8;
+            if (g1.keysDown['ArrowLeft']) g1.playerX = Math.max(CATCH_W / 2 + 4, g1.playerX - kspeed);
+            if (g1.keysDown['ArrowRight']) g1.playerX = Math.min(CANVAS_W - CATCH_W / 2 - 4, g1.playerX + kspeed);
+
+            // Spawn rate: faster as score grows (zależy od poziomu trudności)
+            const df = g1.diff || G1_DIFF.normal;
+            const spawnRate = Math.max(df.spawnMin, df.spawnStart - Math.floor(g1.score / df.spawnDecay));
+            if (g1.frameCount % spawnRate === 0) g1Spawn();
+
+            // Move & check objects
+            const fallSpeed = g1.speed + g1.score * df.accel;
+            const toRemove = [];
+            g1.objects.forEach(o => {
+                o.y += fallSpeed;
+                if (g1CheckCollision(o)) {
+                    toRemove.push(o);
+                    if (o.bad) {
+                        g1.lives = Math.max(0, g1.lives - 1);
+                        g1UpdateLivesUI();
+                        g1Announce('Zepsuty sprzęt! Pozostało żyć: ' + g1.lives);
+                    } else {
+                        g1.score++;
+                        document.getElementById('g1-score').textContent = g1.score;
+                        document.getElementById('g1-score').setAttribute('aria-label', 'Wynik: ' + g1.score);
+                        if (g1.score % 10 === 0) g1Announce('Wynik: ' + g1.score + ' punktów!');
+                    }
+                } else if (o.y > CANVAS_H + ITEM_R + 10) {
+                    toRemove.push(o);
+                    if (!o.bad) {
+                        g1.lives = Math.max(0, g1.lives - 1);
+                        g1UpdateLivesUI();
+                        g1Announce('Sprzęt upadł! Pozostało żyć: ' + g1.lives);
+                    }
+                }
+            });
+            g1.objects = g1.objects.filter(o => !toRemove.includes(o));
+
+            // Render
+            g1DrawBackground();
+            g1.objects.forEach(o => g1DrawItem(o));
+            g1DrawPlayer();
+
+            if (g1.lives <= 0) { g1GameOver(); return; }
+            g1.animId = requestAnimationFrame(g1Loop);
+        }
+
+        function g1Start() {
+            const diff = G1_DIFF[g1SelDiff] || G1_DIFF.normal;
+            g1.diff = diff;
+            g1.running = true; g1.paused = false; g1.gameOver = false;
+            g1.score = 0; g1.lives = diff.lives; g1.objects = []; g1.frameCount = 0;
+            g1.playerX = CANVAS_W / 2; g1.speed = diff.speed;
+            document.getElementById('g1-score').textContent = '0';
+            document.getElementById('g1-score').setAttribute('aria-label', 'Wynik: 0');
+            const hiStart = localStorage.getItem(diff.hi) || '0';
+            document.getElementById('g1-hi').textContent = hiStart;
+            document.getElementById('g1-hi').setAttribute('aria-label', 'Rekord: ' + hiStart);
+            g1UpdateLivesUI();
+            document.getElementById('g1-start-btn').classList.add('hidden');
+            document.getElementById('g1-reset-btn').classList.remove('hidden');
+            document.querySelectorAll('.g1-diff-btn').forEach(b => { b.disabled = true; b.style.opacity = '0.5'; });
+            g1Announce('Gra rozpoczęta! Poziom: ' + diff.label + '. Łap sprzęt asystujący.');
+            g1.animId = requestAnimationFrame(g1Loop);
+        }
+
+        function g1GameOver() {
+            g1.running = false; g1.gameOver = true;
+            cancelAnimationFrame(g1.animId);
+            const hiKey = (g1.diff || G1_DIFF.normal).hi;
+            const hi = Math.max(g1.score, parseInt(localStorage.getItem(hiKey) || '0'));
+            localStorage.setItem(hiKey, hi);
+            const hiEl = document.getElementById('g1-hi');
+            hiEl.textContent = hi;
+            hiEl.setAttribute('aria-label', 'Rekord: ' + hi);
+            document.getElementById('g1-reset-btn').classList.remove('hidden');
+            document.getElementById('g1-start-btn').classList.add('hidden');
+            const ctx = g1.ctx;
+            // Overlay
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            // Card
+            ctx.fillStyle = 'rgba(255,255,255,0.97)';
+            ctx.beginPath();
+            ctx.roundRect(CANVAS_W / 2 - 165, CANVAS_H / 2 - 72, 330, 144, 20);
+            ctx.fill();
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 28px Lexend, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Koniec gry!', CANVAS_W / 2, CANVAS_H / 2 - 36);
+            ctx.fillStyle = '#1f5526';
+            ctx.font = 'bold 22px Lexend, sans-serif';
+            ctx.fillText('Wynik: ' + g1.score + ' pkt', CANVAS_W / 2, CANVAS_H / 2 + 2);
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '15px Lexend, sans-serif';
+            ctx.fillText('Rekord: ' + hi + ' pkt  ·  Spacja = nowa gra', CANVAS_W / 2, CANVAS_H / 2 + 38);
+            g1Announce('Koniec gry! Wynik: ' + g1.score + ' punktów. Rekord: ' + hi + '. Naciśnij Spację, żeby zagrać ponownie.');
+        }
+
+        function g1Reset() {
+            cancelAnimationFrame(g1.animId);
+            g1.running = false; g1.gameOver = false; g1.initialized = false;
+            g1.objects = []; g1.keysDown = {};
+            document.getElementById('g1-start-btn').classList.remove('hidden');
+            document.getElementById('g1-reset-btn').classList.add('hidden');
+            document.querySelectorAll('.g1-diff-btn').forEach(b => { b.disabled = false; b.style.opacity = ''; });
+            g1DrawIdle();
+        }
+
+        // Fullscreen
+        function g1Fullscreen() {
+            const panel = document.getElementById('game-0');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                (panel.requestFullscreen || panel.webkitRequestFullscreen).call(panel).catch(() => { });
+            } else {
+                (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+            }
+        }
+
+        function g1ResizeCanvas() {
+            const canvas = document.getElementById('catcher-canvas');
+            if (!canvas) return;
+            const dpr    = Math.min(window.devicePixelRatio || 1, 3);
+            const isFs   = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            let cssW, cssH;
+            if (isFs) {
+                const aspect = CANVAS_W / CANVAS_H;
+                const maxW = window.innerWidth * 0.98, maxH = window.innerHeight - 170;
+                let w = maxW, h = w / aspect;
+                if (h > maxH) { h = maxH; w = h * aspect; }
+                cssW = Math.floor(w); cssH = Math.floor(h);
+            } else {
+                cssW = CANVAS_W; cssH = CANVAS_H;
+            }
+            // Resize pixel buffer to match display size × dpr → sharp at any zoom
+            canvas.width  = Math.round(cssW * dpr);
+            canvas.height = Math.round(cssH * dpr);
+            canvas.style.width  = cssW + 'px';
+            canvas.style.height = cssH + 'px';
+            // Reapply transform (canvas resize resets context state)
+            const scale = cssW / CANVAS_W; // 1 in normal, >1 in fullscreen
+            const ctx = canvas.getContext('2d');
+            ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const btn = document.getElementById('g1-fs-btn');
+            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            if (btn) {
+                btn.setAttribute('aria-label', isFs ? 'Wyjdź z pełnego ekranu' : 'Przełącz pełny ekran');
+                btn.innerHTML = isFs
+                    ? '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>'
+                    : '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>';
+            }
+            setTimeout(() => {
+                g1ResizeCanvas();
+                if (g1.initialized && !g1.running) g1DrawIdle();
+            }, 120);
+        });
+        document.addEventListener('webkitfullscreenchange', () => document.dispatchEvent(new Event('fullscreenchange')));
+        window.addEventListener('resize', () => {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                g1ResizeCanvas();
+                mzResizeCanvas();
+            }
+        });
+
+        // Keyboard controls
+        document.addEventListener('keydown', e => {
+            // Spacebar — start or restart (game-0 must be visible)
+            if ((e.key === ' ' || e.key === 'Spacebar') && document.getElementById('game-0').classList.contains('active')) {
+                e.preventDefault();
+                if (!g1.running && !g1.gameOver) { g1Start(); return; }
+                if (g1.gameOver) { g1Reset(); setTimeout(g1Start, 80); return; }
+                if (g1.running) {
+                    // Toggle pause
+                    g1.paused = !g1.paused;
+                    if (!g1.paused) { g1.animId = requestAnimationFrame(g1Loop); g1Announce('Gra wznowiona'); }
+                    else { g1Announce('Pauza'); g1DrawPause(); }
+                }
+                return;
+            }
+            // F key = fullscreen (active game)
+            if (e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                if (document.getElementById('game-0').classList.contains('active')) g1Fullscreen();
+                if (document.getElementById('game-1').classList.contains('active')) memFullscreen();
+                if (document.getElementById('game-2').classList.contains('active')) quizFullscreen();
+                if (document.getElementById('game-3').classList.contains('active')) sortFullscreen();
+                if (document.getElementById('game-4').classList.contains('active')) mzFullscreen();
+                return;
+            }
+            // Arrow keys / WASD — maze movement
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'W', 'a', 'A', 's', 'S', 'd', 'D'].includes(e.key)) {
+                if (document.getElementById('game-4').classList.contains('active') && mzState.initialized) {
+                    e.preventDefault();
+                    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') mzMove(-1, 0);
+                    else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') mzMove(1, 0);
+                    else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') mzMove(0, -1);
+                    else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') mzMove(0, 1);
+                    return;
+                }
+            }
+            // 1–4 keys: quiz answers or sort categories
+            if (e.key >= '1' && e.key <= '4') {
+                const n = parseInt(e.key) - 1;
+                if (document.getElementById('game-2').classList.contains('active') && quizState.initialized && !quizState.answered) {
+                    e.preventDefault(); quizAnswer(n); return;
+                }
+                if (document.getElementById('game-3').classList.contains('active') && sortState.initialized) {
+                    e.preventDefault(); sortGuess(n); return;
+                }
+            }
+            // Enter / Space = next quiz question
+            if (e.key === 'Enter' || e.key === ' ') {
+                if (document.getElementById('game-2').classList.contains('active') && quizState.initialized && quizState.answered) {
+                    const btn = document.getElementById('quiz-next-btn');
+                    if (btn && !btn.classList.contains('hidden')) { e.preventDefault(); quizNext(); return; }
+                }
+            }
+            if (!g1.running || g1.paused) return;
+            g1.keysDown[e.key] = true;
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') e.preventDefault();
+        });
+        document.addEventListener('keyup', e => { g1.keysDown[e.key] = false; });
+
+        function g1DrawPause() {
+            const ctx = g1.ctx;
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            ctx.fillStyle = 'rgba(255,255,255,0.97)';
+            ctx.beginPath();
+            ctx.roundRect(CANVAS_W / 2 - 120, CANVAS_H / 2 - 44, 240, 88, 16);
+            ctx.fill();
+            ctx.fillStyle = '#1f5526';
+            ctx.font = 'bold 24px Lexend, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('⏸ Pauza', CANVAS_W / 2, CANVAS_H / 2 - 12);
+            ctx.font = '14px Lexend, sans-serif';
+            ctx.fillStyle = '#6b7280';
+            ctx.fillText('Spacja = wznów', CANVAS_W / 2, CANVAS_H / 2 + 22);
+        }
+
+        // Mouse control
+        document.getElementById('catcher-canvas').addEventListener('mousemove', e => {
+            if (!g1.running || g1.paused) return;
+            const rect = e.target.getBoundingClientRect();
+            const scaleX = CANVAS_W / rect.width;
+            g1.playerX = Math.max(CATCH_W / 2, Math.min(CANVAS_W - CATCH_W / 2, (e.clientX - rect.left) * scaleX));
+        });
+
+        // Touch control
+        document.getElementById('catcher-canvas').addEventListener('touchmove', e => {
+            if (!g1.running || g1.paused) return;
+            e.preventDefault();
+            const rect = e.target.getBoundingClientRect();
+            const scaleX = CANVAS_W / rect.width;
+            g1.playerX = Math.max(CATCH_W / 2, Math.min(CANVAS_W - CATCH_W / 2, (e.touches[0].clientX - rect.left) * scaleX));
+        }, { passive: false });
+
+        // Canvas inicjalizowany dopiero przy wyborze zakładki gry
+
+        // ============================================================
+        // GAME 2: Memory
+        // ============================================================
+        // Full catalog is the pool — each game randomly picks 8
+        const MEM_ALL = ALL_CATALOG.map(s => ({ img: s.src, label: s.label }));
+
+        const memState = { initialized: false, moves: 0, pairs: 0, flipped: [], lock: false, timerInterval: null, seconds: 0, pairCount: 8 };
+
+        function memShuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+        function memInit() {
+            memState.initialized = true;
+            clearInterval(memState.timerInterval);
+            memState.moves = 0; memState.pairs = 0; memState.flipped = []; memState.lock = false; memState.seconds = 0;
+            document.getElementById('mem-moves').textContent = '0';
+            document.getElementById('mem-time').textContent = '0:00';
+            document.getElementById('mem-pairs').textContent = '0/' + memState.pairCount;
+            document.getElementById('mem-win').classList.add('hidden');
+
+            // Randomly pick pairCount pairs from the full pool
+            const chosen = memShuffle([...MEM_ALL]).slice(0, memState.pairCount);
+            const cards = memShuffle([...chosen, ...chosen].map((p, i) => ({ ...p, uid: p.label + '_' + Math.floor(i / 2) })));
+
+            const grid = document.getElementById('mem-grid');
+            grid.innerHTML = '';
+            cards.forEach((card, idx) => {
+                const div = document.createElement('div');
+                div.className = 'mem-card';
+                div.setAttribute('role', 'button');
+                div.setAttribute('aria-label', 'Karta ' + (idx + 1) + ' – zakryta. Naciśnij Enter lub Spację, żeby odkryć.');
+                div.setAttribute('tabindex', '0');
+                div.dataset.val = card.label;
+                div.innerHTML = `
+                    <div class="mem-card-inner">
+                        <div class="mem-card-front" aria-hidden="true">
+                            <img src="images/ui/wspiernik.png" alt="" class="mem-wspiernik">
+                            <span class="mem-card-front-q">?</span>
+                        </div>
+                        <div class="mem-card-back">
+                            <img src="${card.img}" alt="${card.label}" class="mem-img" loading="lazy">
+                            <span class="mem-label">${card.label}</span>
+                        </div>
+                    </div>`;
+                div.addEventListener('click', () => memFlip(div));
+                div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); memFlip(div); } });
+                grid.appendChild(div);
+            });
+
+        }
+
+        function memStartTimer() {
+            if (memState.timerInterval) return;
+            memState.timerInterval = setInterval(() => {
+                memState.seconds++;
+                const m = Math.floor(memState.seconds / 60), s = memState.seconds % 60;
+                document.getElementById('mem-time').textContent = m + ':' + String(s).padStart(2, '0');
+            }, 1000);
+        }
+
+        function memFlip(card) {
+            if (memState.lock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            memStartTimer();
+            card.classList.add('flipped');
+            card.setAttribute('aria-label', 'Odkryta: ' + card.dataset.val);
+            memState.flipped.push(card);
+            if (memState.flipped.length === 2) {
+                memState.lock = true;
+                memState.moves++;
+                document.getElementById('mem-moves').textContent = memState.moves;
+                const [a, b] = memState.flipped;
+                if (a.dataset.val === b.dataset.val) {
+                    a.classList.add('matched'); b.classList.add('matched');
+                    a.setAttribute('aria-label', 'Dopasowana para: ' + a.dataset.val);
+                    b.setAttribute('aria-label', 'Dopasowana para: ' + b.dataset.val);
+                    memState.pairs++;
+                    document.getElementById('mem-pairs').textContent = memState.pairs + '/' + memState.pairCount;
+                    announce('Para znaleziona: ' + a.dataset.val + '. Znaleziono ' + memState.pairs + ' z ' + memState.pairCount + '.');
+                    memState.flipped = []; memState.lock = false;
+                    if (memState.pairs === memState.pairCount) memWin();
+                } else {
+                    announce('Nie pasują. Karty zostaną zakryte.');
+                    setTimeout(() => {
+                        a.classList.remove('flipped'); b.classList.remove('flipped');
+                        a.setAttribute('aria-label', 'Karta zakryta');
+                        b.setAttribute('aria-label', 'Karta zakryta');
+                        memState.flipped = []; memState.lock = false;
+                    }, 1000);
+                }
+            }
+        }
+
+        function memWin() {
+            clearInterval(memState.timerInterval);
+            const m = Math.floor(memState.seconds / 60), s = memState.seconds % 60;
+            document.getElementById('mem-result').textContent = 'Czas: ' + m + ':' + String(s).padStart(2, '0') + ' · Ruchy: ' + memState.moves;
+            document.getElementById('mem-win').classList.remove('hidden');
+            announce('Gratulacje! Wszystkie pary znalezione w ' + memState.moves + ' ruchach.');
+        }
+
+        // ============================================================
+        // GAME 3: Quiz
+        // ============================================================
+        // Full question pool — 10 are drawn randomly each game; answers shuffled
+        const QUIZ_POOL = [
+            {
+                q: 'Co oznacza skrót AAC?',
+                answer: 'Komunikacja Alternatywna i Wspomagająca',
+                distractors: ['Automatyczna Analiza Cyfrowa', 'Adaptacyjne Algorytmy Cyfrowe', 'Asystujące Aplikacje Cyfrowe'],
+                info: 'AAC (Augmentative and Alternative Communication) to Komunikacja Alternatywna i Wspomagająca – technologie wspierające porozumiewanie się osób niemówiących lub z trudnościami mowy.'
+            },
+            {
+                q: 'Ile głównych działów sprzętowych ma OWiT Toruń?',
+                answer: '4',
+                distractors: ['2', '3', '5'],
+                info: 'OWiT posiada 4 działy: Technologie Uniwersalne, Wsparcie Widzenia i Czytania, Wsparcie Słuchu oraz Komunikacja Alternatywna i Wspomaganie Motoryki.'
+            },
+            {
+                q: 'Jaki jest standardowy okres wypożyczenia sprzętu w OWiT?',
+                answer: '1 miesiąc',
+                distractors: ['1 tydzień', '3 miesiące', '6 miesięcy'],
+                info: 'Standardowy okres wypożyczenia wynosi 1 miesiąc, z możliwością przedłużenia jeśli nie ma kolejki oczekujących.'
+            },
+            {
+                q: 'Co to jest eye-tracker?',
+                answer: 'Urządzenie do sterowania komputerem ruchem oczu',
+                distractors: ['Specjalne okulary do czytania', 'Program do ćwiczenia wzroku', 'Aparat fotograficzny oka'],
+                info: 'Eye-tracker śledzi ruch gałek ocznych i pozwala sterować komputerem samym wzrokiem – dla osób z ograniczoną sprawnością rąk (SMA, ALS, porażenie mózgowe).'
+            },
+            {
+                q: 'Jak nazywa się urządzenie zamieniające tekst z ekranu na brajl dotykiem?',
+                answer: 'Monitor brajlowski',
+                distractors: ['Drukarka brajlowska', 'Skaner brajlowski', 'Klawiatura brajlowska'],
+                info: 'Monitor brajlowski (zwany też displayem brajlowskim) wyświetla tekst z ekranu jako uniesione punkty brajlowskie do odczytu dotykiem.'
+            },
+            {
+                q: 'Do czego służy pętla indukcyjna?',
+                answer: 'Przesyła dźwięk bezpośrednio do aparatu słuchowego z cewką T',
+                distractors: ['Ładuje aparaty słuchowe bezprzewodowo', 'Wzmacnia sygnał Wi-Fi dla głuchych', 'Wyświetla napisy na ekranie'],
+                info: 'Pętla indukcyjna (system T) eliminuje szum otoczenia i przesyła dźwięk bezpośrednio do aparatu słuchowego wyposażonego w cewkę T.'
+            },
+            {
+                q: 'Co to jest switch (przycisk dostępu)?',
+                answer: 'Adaptacyjny przycisk do obsługi komputera dla osób z ograniczoną motoryką',
+                distractors: ['Włącznik oświetlenia w sali rehabilitacyjnej', 'Router sieciowy dla szkół specjalnych', 'Mikrofon do komunikacji głosowej'],
+                info: 'Switch to duży przycisk adaptacyjny – pozwala sterować komputerem lub komunikatorem jednym ruchem ciała np. dłonią, stopą lub głową.'
+            },
+            {
+                q: 'Jaki sprzęt szczególnie wspiera osoby z dysleksją?',
+                answer: 'Syntezator mowy (TTS – Text to Speech)',
+                distractors: ['Monitor brajlowski', 'Pętla indukcyjna', 'Eye-tracker'],
+                info: 'Syntezator mowy czyta tekst na głos, co znacznie ułatwia czytanie i naukę osobom z dysleksją lub słabowidzącym.'
+            },
+            {
+                q: 'Skąd pochodzi finansowanie OWiT Toruń?',
+                answer: 'Z PFRON – Państwowego Funduszu Rehabilitacji Osób Niepełnosprawnych',
+                distractors: ['Z budżetu Miasta Toruń', 'Ze składek użytkowników', 'Z programu Erasmus+'],
+                info: 'OWiT Toruń jest finansowany ze środków PFRON. Wszystkie usługi są bezpłatne dla osób z orzeczeniem o niepełnosprawności.'
+            },
+            {
+                q: 'Jak nazywa się maskotka OWiT Toruń?',
+                answer: 'Wspiernik',
+                distractors: ['Tosia', 'Pomocnik', 'Cyfrowy Jurek'],
+                info: 'Wspiernik to piernikowy ludzik z słuchawkami i tabletem AAC – symbolizuje wsparcie technologiczne i jest znakiem rozpoznawczym OWiT Toruń.'
+            },
+            {
+                q: 'Co to jest OrCam MyEye?',
+                answer: 'Miniaturowa kamera czytająca tekst na głos dla niewidomych',
+                distractors: ['Okulary VR do rehabilitacji', 'Program do powiększania ekranu', 'Kamera do eye-trackingu'],
+                info: 'OrCam MyEye to urządzenie noszone na okularach – rozpoznaje tekst, twarze i produkty, a następnie mówi o nich do ucha użytkownika.'
+            },
+            {
+                q: 'Do której kategorii sprzętu należy Roger Clip-on Mic?',
+                answer: 'Wsparcie słuchu',
+                distractors: ['Komunikacja AAC', 'Technologie Uniwersalne', 'Wsparcie widzenia'],
+                info: 'Roger Clip-on Mic to mikrofon systemu Phonak Roger – przesyła głos nauczyciela lub rozmówcy bezpośrednio do aparatu słuchowego lub implantu.'
+            },
+            {
+                q: 'Co to jest Mówik?',
+                answer: 'Oprogramowanie AAC do komunikacji wspomagającej na tablet',
+                distractors: ['Syntezator mowy dla niewidomych', 'Aplikacja do nauki brajla', 'System FM do klasy'],
+                info: 'Mówik to polskie oprogramowanie AAC – na tablecie wyświetla symbole, którymi osoba niemówiąca może się porozumiewać.'
+            },
+            {
+                q: 'Jakie dokumenty są potrzebne do wypożyczenia sprzętu w OWiT?',
+                answer: 'Orzeczenie o niepełnosprawności i dokument tożsamości',
+                distractors: ['Tylko dowód osobisty', 'Skierowanie od lekarza i PESEL', 'Zaświadczenie ze szkoły i ubezpieczenie'],
+                info: 'Wystarczy aktualne orzeczenie o niepełnosprawności lub stopniu niepełnosprawności oraz dokument tożsamości.'
+            },
+            {
+                q: 'Co to jest BigTrack?',
+                answer: 'Duża kulkowa mysz komputerowa dla osób z ograniczoną motoryką rąk',
+                distractors: ['Specjalna klawiatura brajlowska', 'System śledzenia wzroku', 'Oprogramowanie do nawigacji GPS'],
+                info: 'BigTrack to trackball (mysz kulkowa) z bardzo dużą kulą – łatwy w obsłudze dla osób z drżeniem rąk, ograniczoną precyzją lub użytkowników wózków.'
+            },
+            {
+                q: 'Czym jest SymWriter / SymWord?',
+                answer: 'Edytorem tekstu ze wsparciem symbolicznym (piktogramy + tekst)',
+                distractors: ['Programem do projektowania stron AAC', 'Czytnikiem ekranu dla niewidomych', 'Systemem do zarządzania wypożyczalnią'],
+                info: 'SymWriter i SymWord to edytory wspierające pisanie i czytanie za pomocą piktogramów – pomagają osobom z niepełnosprawnością intelektualną lub afazją.'
+            },
+            {
+                q: 'Co to jest Boardmaker?',
+                answer: 'Program do tworzenia materiałów komunikacyjnych z symbolami AAC',
+                distractors: ['Aplikacja do nauki pisania brajlem', 'Oprogramowanie do eye-trackingu', 'System zarządzania katalogu sprzętu'],
+                info: 'Boardmaker to standard w terapii AAC – pozwala tworzyć tablice komunikacyjne, plansze zajęć i materiały edukacyjne ze standardowymi symbolami PCS.'
+            },
+            {
+                q: 'Do kogo kierowane są usługi OWiT Toruń?',
+                answer: 'Do osób z niepełnosprawnością, opiekunów, terapeutów i nauczycieli',
+                distractors: ['Wyłącznie do dzieci do 18. roku życia', 'Tylko do osób z niepełnosprawnością ruchową', 'Do lekarzy i fizjoterapeutów'],
+                info: 'OWiT obsługuje osoby z każdym rodzajem niepełnosprawności, ale chętnie przyjmuje też opiekunów, pedagogów specjalnych i logopedów.'
+            },
+            {
+                q: 'Co oznacza skrót TTS?',
+                answer: 'Text to Speech – zamiana tekstu na mowę',
+                distractors: ['Touch Tracking System – system śledzenia dotyku', 'Therapeutic Training Software – oprogramowanie terapeutyczne', 'Tactile Text Scanner – skaner tekstowy brajla'],
+                info: 'TTS (Text to Speech) to technologia odczytująca tekst na głos przez komputer lub urządzenie – kluczowa dla osób niewidomych, słabowidzących i z dysleksją.'
+            },
+            {
+                q: 'Co to jest OrbiTouch?',
+                answer: 'Klawiatura do obsługi bez unoszenia rąk, sterowana obrotem dwóch półkul',
+                distractors: ['Specjalna myszka do pracy w środowisku 3D', 'Klawisz duży dla osób z niedowładem palców', 'Kontroler gier dla osób na wózku'],
+                info: 'OrbiTouch to klawiatura ergonomiczna – użytkownik obraca dwie półkule bez unoszenia rąk, co jest idealne przy artretyzmie, RSI lub syndromie kanału nadgarstka.'
+            },
+            {
+                q: 'Jaki sprzęt należy do działu Wsparcie Widzenia i Czytania?',
+                answer: 'Powiększalnik wideo Ruby HD',
+                distractors: ['Roger Clip-on Mic', 'Adaptacyjny Kontroler Xbox', 'Mówik na tablecie'],
+                info: 'Powiększalniki wideo (Ruby, Da Vinci, Prodigi) należą do sprzętu tyflologicznego wspierającego osoby słabowidzące – dział Wsparcie Widzenia i Czytania.'
+            },
+            {
+                q: 'Ile kosztuje wypożyczenie sprzętu w OWiT Toruń?',
+                answer: 'Wypożyczenie jest całkowicie bezpłatne',
+                distractors: ['Zależy od wartości urządzenia', '10 zł za dobę', 'Jest płatne tylko dla instytucji'],
+                info: 'Wszystkie usługi OWiT Toruń (doradztwo, testowanie, wypożyczenie, szkolenie) są bezpłatne, dzięki finansowaniu przez PFRON.'
+            },
+            {
+                q: 'Co to jest czytnik ekranu (np. NVDA, JAWS)?',
+                answer: 'Program czytający tekst z ekranu dla osób niewidomych',
+                distractors: ['Lupa powiększająca obraz na monitorze', 'System do sterowania komputerem głosem', 'Aplikacja do tłumaczenia tekstu na język migowy'],
+                info: 'Czytnik ekranu odczytuje m.in. tekst, nazwy opcji i komunikaty systemowe we współpracy z syntezatorem mowy lub monitorem brajlowskim.'
+            },
+            {
+                q: 'Czym są technologie asystujące?',
+                answer: 'Urządzeniami lub programami ułatwiającymi codzienne funkcjonowanie osobom z niepełnosprawnościami',
+                distractors: ['Tylko nowoczesnymi wózkami inwalidzkimi', 'Grami wideo o tematyce medycznej', 'Robotami wykonującymi operacje chirurgiczne'],
+                info: 'Technologie asystujące to bardzo szerokie pojęcie, obejmujące zarówno proste lupy czy przyciski, jak i zaawansowane komunikatory.'
+            },
+            {
+                q: 'Dlaczego warto testować sprzęt w OWiT przed własnym zakupem?',
+                answer: 'Aby sprawdzić, czy urządzenie odpowiada indywidualnym potrzebom i uwarunkowaniom użytkownika',
+                distractors: ['Żeby uzyskać na nie zniżkę', 'Ponieważ wymaga tego prawo i dofinansowanie PFRON', 'Aby nauczyć się go od razu serwisować'],
+                info: 'Każda niepełnosprawność jest inna. Przetestowanie sprzętu przez dłuższy czas minimalizuje ryzyko nietrafionego zakupu.'
+            },
+            {
+                q: 'Czy opiekunowie prawni mogą wypożyczać sprzęt dla swoich podopiecznych w OWiT?',
+                answer: 'Tak, w imieniu osoby z niepełnosprawnością umowę może podpisać opiekun prawny lub pełnomocnik',
+                distractors: ['Nie, sprzęt może odebrać wyłącznie sam użytkownik', 'Tak, ale tylko w przypadku dzieci do 10 roku życia', 'Tylko za zgodą specjalnej komisji lekarskiej'],
+                info: 'Opiekunowie i członkowie rodzin bardzo często samodzielnie załatwiają formalności z myślą o bliskich, którzy np. nie wychodzą z domu.'
+            },
+            {
+                q: 'Czym jest urządzenie C-Eye (CyberOko)?',
+                answer: 'Systemem do oceny stanu zdrowia, rehabilitacji i komunikacji za pomocą wzroku',
+                distractors: ['Okularami powiększającymi dla słabowidzących', 'Programem do tłumaczenia języka migowego na tekst', 'Filtrem optymalizacji obrazu dla osób wrażliwych na światło'],
+                info: 'C-Eye to innowacyjny polski system pomagający m.in. w monitorowaniu stanu zdrowia, wybudzaniu ze śpiączki i nawiązaniu kontaktu z osobami w stanach minimalnej świadomości.'
+            },
+            {
+                q: 'Z pomocą jakiej klawiatury dzieci z trudnościami motorycznymi mogą w OWiT łatwiej uczyć się pisania?',
+                answer: 'Klawiatury Clevy z powiększonymi, kolorowymi klawiszami',
+                distractors: ['Standardowej klawiatury gamingowej', 'Zwykłej klawiatury bezprzewodowej i naklejek brajlowskich', 'Zaawansowanego monitora brajlowskiego'],
+                info: 'Klawiatura Clevy posiada znacznie większe przyciski o żywych kolorach. Zaprojektowana tak, aby minimalizować przypadkowe wciśnięcia dwóch klawiszy naraz.'
+            },
+            {
+                q: 'Czy w OWiT Toruń można wypożyczyć standardowy wózek inwalidzki?',
+                answer: 'Nie, OWiT posiada technologie wspierające komunikację czy widzenie, a nie typowy sprzęt ortopedyczny',
+                distractors: ['Tak, na miejscu dostępne są wózki w kilku konfiguracjach', 'Tak, ale pod warunkiem jednoczesnego wypożyczenia sprzętu AAC', 'Tak, jednak są one dostępne na szczególnych zasadach'],
+                info: 'W Ośrodkach Wsparcia i Testów (OWiT) główny nacisk kładziemy na technologie asystujące. Sprzęt typowo rehabilitacyjny czy ortopedyczny jest obsługiwany przez inne instytucje.'
+            },
+            {
+                q: 'Czym jest urządzenie Smart Drive?',
+                answer: 'Elektrycznym napędem dopinanym do wózka manualnego wspomagającym jazdę',
+                distractors: ['Pojazdem trójkołowym dla osób starszych ze słabym wzrokiem', 'Aplikacją do nawigacji głosowej stworzoną dla osób niewidomych', 'Nowoczesnym tabletem z pojemną pamięcią do instalacji programów AAC'],
+                info: 'Smart Drive znacznie ułatwia poruszanie się na wózku ręcznym, szczególnie osobom bez znacznej siły w ramionach – wydatnie wspomaga np. podjazdy w górę i chroni obręcz barkową.'
+            }
+        ];
+
+        const quizState = { initialized: false, idx: 0, score: 0, answered: false, questions: [] };
+
+        function quizShuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+        function quizBuild() {
+            // Pick 10 random questions and shuffle answers for each
+            return quizShuffle(QUIZ_POOL).slice(0, 10).map(raw => {
+                const opts = quizShuffle([raw.answer, ...raw.distractors]);
+                return { q: raw.q, opts, correctIdx: opts.indexOf(raw.answer), info: raw.info, correctText: raw.answer };
+            });
+        }
+
+        function quizInit() {
+            quizState.initialized = true;
+            quizState.questions = quizBuild();
+            quizState.idx = 0; quizState.score = 0; quizState.answered = false;
+            document.getElementById('quiz-end').classList.add('hidden');
+            document.getElementById('quiz-area').classList.remove('hidden');
+            quizShow();
+        }
+
+        function quizShow() {
+            const q = quizState.questions[quizState.idx];
+            quizState.answered = false;
+            const total = quizState.questions.length;
+            const pct = ((quizState.idx + 1) / total * 100);
+            document.getElementById('quiz-progress-bar').style.width = pct + '%';
+            document.getElementById('quiz-progress-bar').setAttribute('aria-valuenow', Math.round(pct));
+            document.getElementById('quiz-q-label').textContent = 'Pytanie ' + (quizState.idx + 1) + ' / ' + total;
+            document.getElementById('quiz-score-label').textContent = quizState.score + ' pkt';
+            document.getElementById('quiz-question').textContent = q.q;
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+            const opts = document.getElementById('quiz-options');
+            opts.innerHTML = '';
+            q.opts.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option w-full text-left px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 font-medium text-sm';
+                const num = i + 1;
+                btn.innerHTML = `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-gray-100 text-gray-600 font-bold text-xs mr-2 flex-shrink-0">${num}</span>${opt}`;
+                btn.setAttribute('aria-label', num + ': ' + opt);
+                btn.setAttribute('aria-keyshortcuts', String(num));
+                btn.onclick = () => quizAnswer(i);
+                opts.appendChild(btn);
+            });
+            // Keyboard: 1-4 to answer
+            announce('Pytanie ' + (quizState.idx + 1) + ': ' + q.q);
+        }
+
+        function quizAnswer(idx) {
+            if (quizState.answered) return;
+            quizState.answered = true;
+            const q = quizState.questions[quizState.idx];
+            const correct = idx === q.correctIdx;
+            if (correct) quizState.score++;
+            document.querySelectorAll('.quiz-option').forEach((b, i) => {
+                b.classList.add('disabled');
+                if (i === q.correctIdx) b.classList.add('correct');
+                else if (i === idx && !correct) b.classList.add('wrong');
+            });
+            const fb = document.getElementById('quiz-feedback');
+            fb.className = 'mt-4 p-4 rounded-xl text-sm leading-relaxed ' + (correct ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200');
+            fb.innerHTML = (correct
+                ? '<strong>✓ Poprawnie!</strong> '
+                : '<strong>✗ Błąd.</strong> Prawidłowa odpowiedź: <em>' + q.correctText + '</em>. ')
+                + q.info;
+            fb.classList.remove('hidden');
+            const nextBtn = document.getElementById('quiz-next-btn');
+            nextBtn.innerHTML = quizState.idx < quizState.questions.length - 1
+                ? 'Następne pytanie <i data-lucide="arrow-right" class="w-4 h-4"></i>'
+                : 'Zobacz wynik <i data-lucide="trophy" class="w-4 h-4"></i>';
+            nextBtn.classList.remove('hidden');
+            if (window.lucide) lucide.createIcons({ attrs: { 'aria-hidden': 'true' } });
+            announce((correct ? 'Poprawnie! ' : 'Błąd. Prawidłowa odpowiedź: ' + q.correctText + '. ') + q.info);
+        }
+
+        function quizNext() {
+            quizState.idx++;
+            if (quizState.idx >= quizState.questions.length) { quizEnd(); return; }
+            quizShow();
+        }
+
+        function quizEnd() {
+            document.getElementById('quiz-area').classList.add('hidden');
+            const s = quizState.score, total = quizState.questions.length;
+            const pct = Math.round(s / total * 100);
+            let emoji = '😕', title = 'Spróbuj jeszcze raz!', msg = 'Odwiedź nasz katalog, żeby dowiedzieć się więcej o sprzęcie.';
+            if (pct >= 90) { emoji = '🏆'; title = 'Mistrz wiedzy!'; msg = 'Znasz się na technologiach asystujących prawie jak nasi specjaliści!'; }
+            else if (pct >= 70) { emoji = '🎉'; title = 'Świetny wynik!'; msg = 'Bardzo dobrze! Kilka szczegółów jeszcze warto poznać.'; }
+            else if (pct >= 50) { emoji = '👍'; title = 'Nieźle!'; msg = 'Dobra baza wiedzy – podszkolisz szczegóły przy kolejnym podejściu.'; }
+            document.getElementById('quiz-end-emoji').textContent = emoji;
+            document.getElementById('quiz-end-title').textContent = title;
+            document.getElementById('quiz-end-score').textContent = s + ' / ' + total + ' poprawnych odpowiedzi (' + pct + '%)';
+            document.getElementById('quiz-end-msg').textContent = msg;
+            document.getElementById('quiz-end').classList.remove('hidden');
+            announce(title + '. Wynik: ' + s + ' na ' + total + ' pytań.');
+        }
+
+        // ============================================================
+        // GAME 4: Sortowanie Kategorii  (dane w data/games-catalog.js)
+        // ============================================================
+
+        function sortShuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+        const sortState = { initialized: false, items: [], idx: 0, correct: 0, wrong: 0 };
+        const SORT_CAT_NAMES = ['Technologie Uniwersalne', 'Wsparcie Widzenia i Czytania', 'Wsparcie Słuchu', 'Wsparcie motoryki i AAC'];
+
+        function sortInit() {
+            sortState.initialized = true;
+            // Pick 20 random items (5 per category, balanced)
+            const byCat = [0, 1, 2, 3].map(c => sortShuffle(SORT_ALL.filter(i => i.cat === c)).slice(0, 5));
+            sortState.items = sortShuffle(byCat.flat());
+            sortState.idx = 0; sortState.correct = 0; sortState.wrong = 0;
+            document.getElementById('sort-correct').textContent = '0';
+            document.getElementById('sort-wrong').textContent = '0';
+            document.getElementById('sort-left').textContent = sortState.items.length;
+            document.getElementById('sort-end').classList.add('hidden');
+            document.getElementById('sort-card-wrap').classList.remove('hidden');
+            document.getElementById('sort-boxes').classList.remove('hidden');
+            sortShowCard();
+        }
+
+        function sortShowCard() {
+            if (sortState.idx >= sortState.items.length) { sortEnd(); return; }
+            const item = sortState.items[sortState.idx];
+            const img = document.getElementById('sort-item-img');
+            img.src = item.img;
+            img.alt = item.name;
+            document.getElementById('sort-item-name').textContent = item.name;
+            document.getElementById('sort-item-cat').textContent = '';
+            document.getElementById('sort-left').textContent = sortState.items.length - sortState.idx;
+            announce('Urządzenie ' + (sortState.idx + 1) + ' z ' + sortState.items.length + ': ' + item.name + '. Do którego działu należy?');
+        }
+
+        function sortGuess(catIdx) {
+            if (sortState.idx >= sortState.items.length) return;
+            const item = sortState.items[sortState.idx];
+            const correct = catIdx === item.cat;
+            const boxes = document.querySelectorAll('.sort-box');
+            const box = boxes[catIdx];
+            if (correct) {
+                sortState.correct++;
+                document.getElementById('sort-correct').textContent = sortState.correct;
+                box.classList.add('correct-flash');
+                setTimeout(() => box.classList.remove('correct-flash'), 500);
+                announce('Poprawnie! ' + item.name + ' należy do: ' + SORT_CAT_NAMES[item.cat]);
+            } else {
+                sortState.wrong++;
+                document.getElementById('sort-wrong').textContent = sortState.wrong;
+                box.classList.add('wrong-flash');
+                // Show correct category on card
+                document.getElementById('sort-item-cat').textContent = '→ ' + SORT_CAT_NAMES[item.cat];
+                setTimeout(() => box.classList.remove('wrong-flash'), 500);
+                announce('Błąd! ' + item.name + ' należy do: ' + SORT_CAT_NAMES[item.cat]);
+            }
+            sortState.idx++;
+            setTimeout(sortShowCard, correct ? 500 : 900);
+        }
+
+        function sortEnd() {
+            document.getElementById('sort-card-wrap').classList.add('hidden');
+            document.getElementById('sort-boxes').classList.add('hidden');
+            const total = sortState.items.length, pct = Math.round(sortState.correct / total * 100);
+            let title = 'Dobra próba!', msg = 'Warto jeszcze poznać 4 działy OWiT – sprawdź katalog!';
+            if (pct >= 90) { title = 'Doskonale! 🏆'; msg = 'Znasz na pamięć wszystkie 4 działy sprzętu OWiT Toruń!'; }
+            else if (pct >= 70) { title = 'Bardzo dobrze!'; msg = 'Kilka urządzeń jeszcze Cię zaskakuje – ale podstawy masz!'; }
+            else if (pct >= 50) { title = 'Nieźle!'; msg = 'Możesz zajrzeć do katalogu, żeby lepiej poznać kategorie.'; }
+            document.getElementById('sort-end-title').textContent = title + ' ' + sortState.correct + '/' + total + ' (' + pct + '%)';
+            document.getElementById('sort-end-msg').textContent = msg;
+            document.getElementById('sort-end').classList.remove('hidden');
+            announce(title + '. Wynik sortowania: ' + sortState.correct + ' na ' + total + ' urządzeń.');
+        }
+
+        // ============================================================
+        // Fullscreen helpers for DOM-based games (Memory, Quiz, Sorting)
+        // ============================================================
+        function _fsToggle(elId) {
+            const el = document.getElementById(elId);
+            const isFs = document.fullscreenElement === el || document.webkitFullscreenElement === el;
+            if (isFs) {
+                (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+            } else {
+                const req = el.requestFullscreen || el.webkitRequestFullscreen;
+                if (req) req.call(el);
+            }
+        }
+        function memFullscreen() { _fsToggle('game-1'); }
+        function quizFullscreen() { _fsToggle('game-2'); }
+        function sortFullscreen() { _fsToggle('game-3'); }
+
+        // ============================================================
+        // GAME 5: Labirynt Dostępności
+        // ============================================================
+        const MZ_COLS = 15, MZ_ROWS = 11, MZ_CELL = 40;
+        const MZ_W = MZ_COLS * MZ_CELL, MZ_H = MZ_ROWS * MZ_CELL; // 600 × 440
+
+        const MZ_MAP = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,1,0,0,0,0,0,1,0,0,0,1],
+            [1,0,1,0,1,0,1,1,1,0,1,0,1,0,1],
+            [1,0,1,0,0,0,0,0,1,0,0,0,1,0,1],
+            [1,0,1,1,1,1,1,0,1,1,1,0,1,0,1],
+            [1,0,0,0,0,0,1,0,0,0,1,0,0,0,1],
+            [1,1,1,0,1,0,1,0,1,0,1,1,1,0,1],
+            [1,0,0,0,1,0,0,0,1,0,0,0,0,0,1],
+            [1,0,1,1,1,1,1,0,1,0,1,1,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        ];
+        const MZ_START = { r:9, c:1 }, MZ_GOAL = { r:1, c:13 };
+
+        // Stałe pozycje urządzeń (8 slotów) – zawartość losowa co grę
+        const MZ_DEV_SLOTS = [
+            {r:9,c:4},{r:9,c:8},{r:7,c:11},{r:5,c:9},
+            {r:3,c:11},{r:5,c:3},{r:1,c:7},{r:3,c:3},
+        ];
+
+        // Pula 12 urządzeń – co grę losuje się 8
+        const MZ_DEV_POOL = [
+            { src:'images/devices/bigtrack-wireless.jpg',   name:'BigTrack Wireless',       desc:'Trackball dla osób z ograniczoną sprawnością rąk' },
+            { src:'images/devices/eye-tracker-do-ipad.jpg', name:'Eye Tracker do iPada',    desc:'Sterowanie wzrokiem – tablet słucha Twoich oczu!' },
+            { src:'images/devices/klawiatura-clevy.jpg',    name:'Klawiatura Clevy',        desc:'Kolorowa klawiatura wspomagająca naukę pisania' },
+            { src:'images/devices/ruby-hd.jpg',             name:'Powiększalnik Ruby HD',   desc:'Elektroniczna lupa – czyta za Ciebie drobny druk' },
+            { src:'images/devices/brailliant-bi20x.jpg',    name:'Brailliant BI 20X',       desc:'Monitor brajlowski – czytanie dotykiem' },
+            { src:'images/devices/aftershokz-openmove.jpg', name:'AfterShokz OpenMove',     desc:'Słuchawki kostne – słyszysz i pozostajesz bezpieczny' },
+            { src:'images/devices/smart-drive.jpg',         name:'Smart Drive',             desc:'Elektryczny napęd do wózka inwalidzkiego' },
+            { src:'images/devices/mowik-2.jpg',             name:'Mówik 2.0',               desc:'Komunikator AAC – Twój głos, gdy słowa są trudne' },
+            { src:'images/devices/pceye-pceye-5.jpg',       name:'Tobii PCEye 5',           desc:'Eye-tracker do komputera – steruj wzrokiem' },
+            { src:'images/devices/ruby-7hd.jpg',            name:'Powiększalnik Ruby 7 HD', desc:'Przenośna lupa elektroniczna z 7-calowym ekranem' },
+            { src:'images/devices/mano-edu-lite.jpg',       name:'Mano Edu Lite',           desc:'Komunikator do nauki dla dzieci z niepełnosprawnościami' },
+            { src:'images/devices/sunu-band.jpg',           name:'Sunu Band',               desc:'Opaska z sonarem dla osób niewidomych' },
+        ];
+
+        // Typy utrudniaczy
+        const MZ_BAR_TYPES = [
+            { emoji:'🪜', label:'Schody',                msg:'Schody blokują wózek!',          penalty:3, fill:'#f97316', stroke:'#ea580c' },
+            { emoji:'🚧', label:'Brak rampy',            msg:'Brak podjazdu dla wózka!',       penalty:3, fill:'#ef4444', stroke:'#dc2626' },
+            { emoji:'⚠️', label:'Nierówna nawierzchnia', msg:'Nierówna nawierzchnia!',          penalty:2, fill:'#fb923c', stroke:'#f97316' },
+            { emoji:'🚪', label:'Wąskie drzwi',          msg:'Wąskie drzwi – ciężko przejść!', penalty:2, fill:'#f59e0b', stroke:'#d97706' },
+            { emoji:'🏚️', label:'Brak windy',            msg:'Brak windy – długa droga!',      penalty:4, fill:'#dc2626', stroke:'#b91c1c' },
+        ];
+
+        function mzShuffle(a) {
+            const b = [...a];
+            for (let i = b.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [b[i], b[j]] = [b[j], b[i]];
+            }
+            return b;
+        }
+
+        let mzState = {
+            initialized:false, ctx:null, animId:null,
+            pr:{r:9,c:1},
+            px:{x:MZ_CELL*1+MZ_CELL/2, y:MZ_CELL*9+MZ_CELL/2},
+            tx:{x:MZ_CELL*1+MZ_CELL/2, y:MZ_CELL*9+MZ_CELL/2},
+            moving:false, won:false,
+            steps:0, penaltyTotal:0,
+            devices:[], barriers:[],
+            lastCollected:null, lastBarrier:null,
+            infoTimer:0, barrierTimer:0,
+            imgs:{}, mascotImg:null, mascotOk:false,
+            touchStart:null,
+        };
+
+        // --- Setup / Init ---
+        function mzSetupCanvas() {
+            if (!mzState.ctx) mzState.ctx = document.getElementById('maze-canvas').getContext('2d');
+            mzResizeCanvas(); // sets buffer, CSS dims, transform and smoothing
+        }
+
+        function mzResizeCanvas() {
+            const canvas = document.getElementById('maze-canvas');
+            if (!canvas) return;
+            const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+            const inFs = fsEl && (fsEl.id === 'game-4' || fsEl.closest?.('#game-4'));
+            const dpr  = Math.min(window.devicePixelRatio || 1, 3);
+            let cssW, cssH;
+            if (inFs) {
+                const s = Math.min(
+                    (window.innerWidth  - 24)  / MZ_W,
+                    (window.innerHeight - 110) / MZ_H,
+                    3.5
+                );
+                cssW = Math.round(MZ_W * s);
+                cssH = Math.round(MZ_H * s);
+            } else {
+                cssW = MZ_W; cssH = MZ_H;
+            }
+            // Resize pixel buffer to match display size × dpr → sharp at any zoom
+            canvas.width  = Math.round(cssW * dpr);
+            canvas.height = Math.round(cssH * dpr);
+            canvas.style.width  = cssW + 'px';
+            canvas.style.height = cssH + 'px';
+            // Reapply transform (canvas resize resets context state)
+            const scale = cssW / MZ_W; // 1 normally, >1 in fullscreen
+            if (!mzState.ctx) mzState.ctx = canvas.getContext('2d');
+            mzState.ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+            mzState.ctx.imageSmoothingEnabled = true;
+            mzState.ctx.imageSmoothingQuality = 'high';
+        }
+
+        function mzPlaceBarriers(count) {
+            const occupied = new Set(
+                mzState.devices.map(d => `${d.r},${d.c}`)
+                    .concat([`${MZ_START.r},${MZ_START.c}`, `${MZ_GOAL.r},${MZ_GOAL.c}`])
+            );
+            // keep 3-cell buffer around start
+            for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++)
+                occupied.add(`${MZ_START.r+dr},${MZ_START.c+dc}`);
+
+            const valid = [];
+            for (let r = 0; r < MZ_ROWS; r++)
+                for (let c = 0; c < MZ_COLS; c++)
+                    if (MZ_MAP[r][c] === 0 && !occupied.has(`${r},${c}`)) valid.push({r,c});
+
+            return mzShuffle(valid).slice(0, count).map((pos, i) => ({
+                ...pos, ...MZ_BAR_TYPES[i % MZ_BAR_TYPES.length],
+                // pick a random type rather than sequential
+                ...MZ_BAR_TYPES[Math.floor(Math.random() * MZ_BAR_TYPES.length)],
+            }));
+        }
+
+        function mzInit() {
+            mzState.initialized = true;
+            mzState.won = false;
+            mzState.steps = 0;
+            mzState.penaltyTotal = 0;
+            mzState.pr = { ...MZ_START };
+            mzState.px = { x: MZ_START.c*MZ_CELL+MZ_CELL/2, y: MZ_START.r*MZ_CELL+MZ_CELL/2 };
+            mzState.tx = { ...mzState.px };
+            mzState.moving = false;
+            mzState.lastCollected = null;
+            mzState.lastBarrier = null;
+            mzState.infoTimer = 0;
+            mzState.barrierTimer = 0;
+
+            // Randomize devices: pick 8 from pool, assign to slots
+            const picked = mzShuffle([...MZ_DEV_POOL]).slice(0, MZ_DEV_SLOTS.length);
+            mzState.devices = MZ_DEV_SLOTS.map((slot, i) => ({ ...slot, ...picked[i], collected:false }));
+
+            // Preload images
+            mzState.devices.forEach(d => {
+                if (!mzState.imgs[d.src]) {
+                    const img = new Image();
+                    img.onload = () => { mzState.imgs[d.src] = img; };
+                    img.src = d.src;
+                }
+            });
+            if (!mzState.mascotImg) {
+                const img = new Image();
+                img.onload = () => { mzState.mascotImg = img; mzState.mascotOk = true; };
+                img.src = 'images/ui/wspiernik.png';
+            }
+
+            // Place barriers after devices are set
+            mzState.barriers = mzPlaceBarriers(4);
+
+            // Canvas
+            mzSetupCanvas();
+
+            // Touch
+            const canvas = document.getElementById('maze-canvas');
+            canvas.removeEventListener('touchstart', mzTouchStart);
+            canvas.removeEventListener('touchend',   mzTouchEnd);
+            canvas.addEventListener('touchstart', mzTouchStart, { passive:true });
+            canvas.addEventListener('touchend',   mzTouchEnd,   { passive:true });
+
+            // UI reset
+            document.getElementById('mz-restart-btn').classList.add('hidden');
+            document.getElementById('mz-win-overlay').classList.remove('active');
+            document.getElementById('mz-info-box').classList.add('hidden');
+            mzUpdateHUD();
+
+            if (mzState.animId) cancelAnimationFrame(mzState.animId);
+            mzState.animId = requestAnimationFrame(mzLoop);
+        }
+
+        function mzUpdateHUD() {
+            const n = mzState.devices.filter(d => d.collected).length;
+            document.getElementById('mz-collected').textContent = n;
+            document.getElementById('mz-collected').setAttribute('aria-label', 'Zebrane urządzenia: ' + n + ' z 8');
+            document.getElementById('mz-steps').textContent = mzState.steps;
+            document.getElementById('mz-penalty').textContent = mzState.penaltyTotal;
+        }
+
+        function mzCanMove(r, c) {
+            return r >= 0 && r < MZ_ROWS && c >= 0 && c < MZ_COLS && MZ_MAP[r][c] === 0;
+        }
+
+        function mzMove(dr, dc) {
+            if (mzState.moving || mzState.won) return;
+            const nr = mzState.pr.r + dr, nc = mzState.pr.c + dc;
+            if (!mzCanMove(nr, nc)) return;
+            mzState.pr.r = nr; mzState.pr.c = nc;
+            mzState.tx = { x: nc*MZ_CELL+MZ_CELL/2, y: nr*MZ_CELL+MZ_CELL/2 };
+            mzState.moving = true;
+            mzState.steps++;
+
+            // Collect device?
+            const dev = mzState.devices.find(d => d.r === nr && d.c === nc && !d.collected);
+            if (dev) {
+                dev.collected = true;
+                mzState.lastCollected = dev;
+                mzState.infoTimer = 220;
+                document.getElementById('mz-info-img').src = dev.src;
+                document.getElementById('mz-info-img').alt = dev.name;
+                document.getElementById('mz-info-name').textContent = '✓ ' + dev.name;
+                document.getElementById('mz-info-desc').textContent = dev.desc;
+                document.getElementById('mz-info-box').classList.remove('hidden');
+                document.getElementById('mz-info-box').style.display = 'inline-flex';
+                announce('Znaleziono: ' + dev.name + '. ' + dev.desc);
+            }
+
+            // Hit barrier?
+            const bar = mzState.barriers.find(b => b.r === nr && b.c === nc);
+            if (bar) {
+                mzState.steps        += bar.penalty;
+                mzState.penaltyTotal += bar.penalty;
+                mzState.lastBarrier   = bar;
+                mzState.barrierTimer  = 170;
+                // shake effect: player will be briefly displaced visually in mzDraw
+                mzState.shakeUntil = Date.now() + 400;
+                announce('Bariera: ' + bar.label + '! +'  + bar.penalty + ' kroków kary.');
+            }
+
+            if (nr === MZ_GOAL.r && nc === MZ_GOAL.c) mzState.won = true;
+            mzUpdateHUD();
+        }
+
+        // --- Game loop ---
+        function mzLoop() {
+            if (mzState.moving) {
+                const dx = mzState.tx.x - mzState.px.x;
+                const dy = mzState.tx.y - mzState.px.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const speed = mzState.lastBarrier && mzState.barrierTimer > 140 ? 3 : 6; // slow on barrier
+                if (dist < speed) {
+                    mzState.px.x = mzState.tx.x;
+                    mzState.px.y = mzState.tx.y;
+                    mzState.moving = false;
+                } else {
+                    mzState.px.x += (dx/dist)*speed;
+                    mzState.px.y += (dy/dist)*speed;
+                }
+            }
+            if (mzState.infoTimer  > 0) mzState.infoTimer--;
+            if (mzState.barrierTimer > 0) mzState.barrierTimer--;
+            mzDraw();
+            mzState.animId = requestAnimationFrame(mzLoop);
+        }
+
+        // --- Drawing ---
+        function mzDraw() {
+            const ctx = mzState.ctx;
+            ctx.fillStyle = '#f0fdf4';
+            ctx.fillRect(0, 0, MZ_W, MZ_H);
+
+            // Walls & floor
+            for (let r = 0; r < MZ_ROWS; r++) {
+                for (let c = 0; c < MZ_COLS; c++) {
+                    const x = c*MZ_CELL, y = r*MZ_CELL;
+                    if (MZ_MAP[r][c] === 1) {
+                        ctx.fillStyle = '#2b7333';
+                        ctx.beginPath(); ctx.roundRect(x+1,y+1,MZ_CELL-2,MZ_CELL-2,5); ctx.fill();
+                        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+                        ctx.beginPath(); ctx.roundRect(x+1,y+1,MZ_CELL-2,6,[5,5,0,0]); ctx.fill();
+                    } else {
+                        ctx.strokeStyle = '#bbf7d0'; ctx.lineWidth = 0.5;
+                        ctx.strokeRect(x, y, MZ_CELL, MZ_CELL);
+                    }
+                }
+            }
+
+            // Barriers (utrudniacze) – drawn before devices so devices appear on top
+            mzState.barriers.forEach(bar => {
+                const bx = bar.c*MZ_CELL, by2 = bar.r*MZ_CELL;
+                // pulsing red/orange tile
+                const pulse = 0.75 + 0.25 * Math.sin(Date.now()/300);
+                ctx.globalAlpha = pulse;
+                ctx.fillStyle = bar.fill;
+                ctx.beginPath(); ctx.roundRect(bx+3,by2+3,MZ_CELL-6,MZ_CELL-6,7); ctx.fill();
+                ctx.strokeStyle = bar.stroke; ctx.lineWidth = 1.5; ctx.stroke();
+                ctx.globalAlpha = 1;
+                ctx.font = '19px sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(bar.emoji, bx+MZ_CELL/2, by2+MZ_CELL/2);
+            });
+
+            // Goal tile (pulsing gold)
+            const gx = MZ_GOAL.c*MZ_CELL, gy = MZ_GOAL.r*MZ_CELL;
+            const gp = 0.88 + 0.12*Math.sin(Date.now()/350);
+            ctx.save();
+            ctx.translate(gx+MZ_CELL/2, gy+MZ_CELL/2); ctx.scale(gp,gp);
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath(); ctx.roundRect(-MZ_CELL/2+3,-MZ_CELL/2+3,MZ_CELL-6,MZ_CELL-6,8); ctx.fill();
+            ctx.font = '22px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.fillText('🏠', 0, 1);
+            ctx.restore();
+
+            // Device tiles (ułatwiacze – niebieskie)
+            mzState.devices.forEach(dev => {
+                if (dev.collected) return;
+                const dx = dev.c*MZ_CELL, dy = dev.r*MZ_CELL;
+                ctx.fillStyle = '#dbeafe';
+                ctx.beginPath(); ctx.roundRect(dx+3,dy+3,MZ_CELL-6,MZ_CELL-6,7); ctx.fill();
+                ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1.5; ctx.stroke();
+                const img = mzState.imgs[dev.src];
+                if (img) {
+                    const pad = 6;
+                    ctx.save();
+                    ctx.beginPath(); ctx.roundRect(dx+pad,dy+pad,MZ_CELL-pad*2,MZ_CELL-pad*2,4); ctx.clip();
+                    ctx.drawImage(img, dx+pad, dy+pad, MZ_CELL-pad*2, MZ_CELL-pad*2);
+                    ctx.restore();
+                } else {
+                    ctx.fillStyle='#3b82f6'; ctx.font='18px sans-serif';
+                    ctx.textAlign='center'; ctx.textBaseline='middle';
+                    ctx.fillText('⭐', dx+MZ_CELL/2, dy+MZ_CELL/2);
+                }
+            });
+
+            // Player (Wspiernik) – with shake on barrier hit
+            let px = mzState.px.x, py = mzState.px.y;
+            if (mzState.shakeUntil && Date.now() < mzState.shakeUntil) {
+                const t = (mzState.shakeUntil - Date.now()) / 400;
+                px += Math.sin(Date.now() / 30) * 4 * t;
+            }
+            const SZ = MZ_CELL - 4;
+            if (mzState.mascotOk && mzState.mascotImg) {
+                ctx.drawImage(mzState.mascotImg, px-SZ/2, py-SZ/2, SZ, SZ);
+            } else {
+                ctx.fillStyle='#45a94d'; ctx.beginPath(); ctx.arc(px,py,SZ/2,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle='#fff'; ctx.font='20px sans-serif';
+                ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('W',px,py);
+            }
+
+            // Toast: device collected
+            if (mzState.infoTimer > 0 && mzState.lastCollected) {
+                const alpha = Math.min(1, mzState.infoTimer / 20);
+                ctx.globalAlpha = alpha;
+                mzDrawToast(ctx, '✓ Zebrano: ' + mzState.lastCollected.name, '#1f5526', MZ_H-38);
+                ctx.globalAlpha = 1;
+            }
+
+            // Toast: barrier hit
+            if (mzState.barrierTimer > 0 && mzState.lastBarrier) {
+                const alpha = Math.min(1, mzState.barrierTimer / 20);
+                ctx.globalAlpha = alpha;
+                mzDrawToast(ctx,
+                    mzState.lastBarrier.emoji + ' ' + mzState.lastBarrier.msg +
+                    '  +' + mzState.lastBarrier.penalty + ' kroków',
+                    '#dc2626', 8);
+                ctx.globalAlpha = 1;
+            }
+
+            // Win overlay
+            if (mzState.won && !mzState.moving) {
+                mzDrawWin(ctx);
+            }
+        }
+
+        function mzDrawToast(ctx, text, bg, y) {
+            const bw = Math.min(MZ_W - 20, ctx.measureText(text).width + 32);
+            const bh = 28, bx = MZ_W/2 - bw/2;
+            ctx.fillStyle = bg;
+            ctx.beginPath(); ctx.roundRect(bx, y, bw, bh, 7); ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 11px Lexend, sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(text, MZ_W/2, y + bh/2);
+        }
+
+        function mzDrawWin(ctx) {
+            const collected = mzState.devices.filter(d => d.collected).length;
+            const total = mzState.devices.length;
+            const walked = mzState.steps - mzState.penaltyTotal;
+            const stars = collected === total && walked <= 30 ? '⭐⭐⭐'
+                        : collected >= total * 0.75 && walked <= 50 ? '⭐⭐'
+                        : '⭐';
+
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(0,0,MZ_W,MZ_H);
+            ctx.fillStyle = 'rgba(255,255,255,0.97)';
+            ctx.beginPath(); ctx.roundRect(MZ_W/2-175,MZ_H/2-115,350,230,20); ctx.fill();
+
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#1f5526'; ctx.font = 'bold 22px Lexend, sans-serif';
+            ctx.fillText('🎉 Dotarłeś do OWiT!', MZ_W/2, MZ_H/2-88);
+            ctx.font = '26px sans-serif'; ctx.fillText(stars, MZ_W/2, MZ_H/2-58);
+
+            ctx.font = '13px Lexend, sans-serif'; ctx.fillStyle = '#374151';
+            ctx.fillText('Urządzenia: ' + collected + ' / ' + total, MZ_W/2, MZ_H/2-28);
+            ctx.fillText('Kroki: ' + walked + '  |  Kary: +' + mzState.penaltyTotal + ' kroków', MZ_W/2, MZ_H/2-8);
+
+            const msgs = ['', 'Spróbuj zebrać więcej urządzeń!', 'Prawie wszystko – szukaj niebieskich kafli.', 'Brawo! Zebrałeś wszystkie urządzenia!'];
+            const msg  = collected === total ? msgs[3] : collected >= total*0.75 ? msgs[2] : msgs[1];
+            ctx.font = '11px Lexend, sans-serif'; ctx.fillStyle = '#6b7280';
+            ctx.fillText(msg, MZ_W/2, MZ_H/2+16);
+
+            // Activate HTML restart button
+            document.getElementById('mz-restart-btn').classList.remove('hidden');
+            document.getElementById('mz-win-overlay').classList.add('active');
+            if (window.lucide) lucide.createIcons({ attrs:{'aria-hidden':'true'} });
+            announce('Dotarłeś do OWiT! ' + stars + '. Urządzenia: ' + collected + '/' + total +
+                     '. Kroki: ' + walked + ', kary: +' + mzState.penaltyTotal + '. ' + msg);
+        }
+
+        function mzReset() {
+            document.getElementById('mz-restart-btn').classList.add('hidden');
+            document.getElementById('mz-win-overlay').classList.remove('active');
+            mzInit();
+        }
+
+        function mzFullscreen() { _fsToggle('game-4'); }
+
+        // Touch swipe
+        function mzTouchStart(e) {
+            mzState.touchStart = { x:e.touches[0].clientX, y:e.touches[0].clientY };
+        }
+        function mzTouchEnd(e) {
+            if (!mzState.touchStart) return;
+            const dx = e.changedTouches[0].clientX - mzState.touchStart.x;
+            const dy = e.changedTouches[0].clientY - mzState.touchStart.y;
+            mzState.touchStart = null;
+            if (Math.abs(dx) < 15 && Math.abs(dy) < 15) return;
+            if (Math.abs(dx) > Math.abs(dy)) mzMove(0, dx > 0 ? 1 : -1);
+            else mzMove(dy > 0 ? 1 : -1, 0);
+        }
+
+        // Re-init Lucide + resize canvas on fullscreen change
+        document.addEventListener('fullscreenchange', () => {
+            if (window.lucide) lucide.createIcons({ attrs:{'aria-hidden':'true'} });
+            mzResizeCanvas();
+        });
+        document.addEventListener('webkitfullscreenchange', () => {
+            mzResizeCanvas();
+        });
+    </script>
+
+    <script>
+        (function () { function f(e) { e.childNodes.forEach(function (n) { if (n.nodeType === 3) { n.nodeValue = n.nodeValue.replace(/ (i|w|z|a|o|u|że|do|na|od|po|za|ku|we|ze|bo|iż|to|co|ale|czy|lub|albo|oraz|też|lecz|więc|zaś|już|gdy) /g, ' $1\u00A0'); } else if (n.nodeType === 1 && !/^(SCRIPT|STYLE|CODE|PRE|CANVAS)$/.test(n.tagName)) { f(n); } }); } document.addEventListener('DOMContentLoaded', function () { document.querySelectorAll('p, li, h2, h3').forEach(f); }); })();
+    </script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script>
+        let isBreathing = false;
+        let breatheInterval;
+        let breathePhase = 'inhale';
+
+        function showSection(sec) {
+            const modeSelection = document.getElementById('mode-selection');
+            const sectionGry = document.getElementById('section-gry');
+            const sectionKolorowanki = document.getElementById('section-kolorowanki');
+            const sectionWykreslanki = document.getElementById('section-wykreslanki');
+            const sectionOddech = document.getElementById('section-oddech');
+
+            const all = [sectionGry, sectionKolorowanki, sectionWykreslanki, sectionOddech];
+            if (sec === 'selection') {
+                modeSelection.classList.remove('hidden');
+                modeSelection.removeAttribute('aria-hidden');
+                all.forEach(s => { s.classList.add('hidden'); s.setAttribute('aria-hidden', 'true'); });
+            } else {
+                modeSelection.classList.add('hidden');
+                modeSelection.setAttribute('aria-hidden', 'true');
+                all.forEach(s => { s.classList.add('hidden'); s.setAttribute('aria-hidden', 'true'); });
+                const map = { gry: sectionGry, kolorowanki: sectionKolorowanki, wykreslanki: sectionWykreslanki, oddech: sectionOddech };
+                if (map[sec]) { map[sec].classList.remove('hidden'); map[sec].removeAttribute('aria-hidden'); }
+                if (window.lucide) lucide.createIcons({ attrs: { 'aria-hidden': 'true' } });
+            }
+        }
+
+        function runBreatheCycle(circle, text) {
+            const img = document.getElementById('breathe-img');
+            if (breathePhase === 'inhale') {
+                text.innerText = 'Wdech...';
+                circle.style.transform = 'scale(1.5)';
+                circle.style.backgroundColor = '#3b82f6'; // blue-500
+                if(img) {
+                    img.src = 'images/ui/wspiernik-wdech.png';
+                    img.style.transform = 'scale(1.15)';
+                }
+                breathePhase = 'exhale';
+            } else {
+                text.innerText = 'Wydech...';
+                circle.style.transform = 'scale(1)';
+                circle.style.backgroundColor = '#86efac'; // green-300
+                if(img) {
+                    img.src = 'images/ui/wspiernik-wydech.png';
+                    img.style.transform = 'scale(1)';
+                }
+                breathePhase = 'inhale';
+            }
+        }
+
+        function toggleBreathe() {
+            const circle = document.getElementById('breathe-circle');
+            const text = document.getElementById('breathe-text');
+            const btn = document.getElementById('breathe-btn');
+            const img = document.getElementById('breathe-img');
+
+            if (isBreathing) {
+                clearInterval(breatheInterval);
+                isBreathing = false;
+                circle.style.transform = 'scale(1)';
+                circle.style.backgroundColor = '#86efac';
+                text.innerText = 'Gotowy?';
+                if(img) {
+                    img.src = 'images/ui/wspiernik-oddech.png';
+                    img.style.transform = 'scale(1)';
+                }
+                btn.innerHTML = '<i data-lucide="play" class="w-5 h-5"></i> Start';
+                if(window.lucide) window.lucide.createIcons();
+            } else {
+                isBreathing = true;
+                btn.innerHTML = '<i data-lucide="square" class="w-5 h-5"></i> Stop';
+                if(window.lucide) window.lucide.createIcons();
+                breathePhase = 'inhale';
+                runBreatheCycle(circle, text);
+                breatheInterval = setInterval(() => runBreatheCycle(circle, text), 4000);
+            }
+        }
+
+        function toggleBreatheFullScreen() {
+            const container = document.getElementById('breathe-container');
+            if (!document.fullscreenElement) {
+                if (container.requestFullscreen) container.requestFullscreen();
+                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+                else if (container.msRequestFullscreen) container.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.getElementById('breathe-fs-icon');
+            const wrapper = document.getElementById('breathe-wrapper');
+            if (document.fullscreenElement) {
+                if(icon) icon.setAttribute('data-lucide', 'minimize');
+                if(wrapper) wrapper.style.transform = 'scale(1.6)';
+            } else {
+                if(icon) icon.setAttribute('data-lucide', 'maximize');
+                if(wrapper) wrapper.style.transform = 'scale(1)';
+            }
+            if (window.lucide) window.lucide.createIcons();
+        });
+
+        if ("serviceWorker" in navigator) { navigator.serviceWorker.register("./sw.js").catch(() => { }); }
+    </script>
+</body>
+
+</html>
