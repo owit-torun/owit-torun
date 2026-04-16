@@ -925,7 +925,7 @@
 
             <!-- Hero usunięte -->
             <!-- Mode selection -->
-            <div id="mode-selection" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+            <div id="mode-selection" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-8">
                 <!-- Card 1: Gry -->
                 <button onclick="showSection('gry')"
                     class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
@@ -953,7 +953,16 @@
                     <span class="text-lg font-bold text-green-800 mb-1 block">Wykreślanki i krzyżówki</span>
                     <p class="text-sm text-gray-600">Wydrukuj i znajdź ukryte słowa lub rozwiąż krzyżówkę.</p>
                 </button>
-                <!-- Card 4: Oddech -->
+                <!-- Card 4: Tapety -->
+                <button onclick="showSection('tapety')"
+                    class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
+                    <img src="images/ui/wspiernik-oparty.png" alt="" aria-hidden="true"
+                        class="mx-auto h-36 object-contain mb-3 group-hover:scale-105 transition-transform"
+                        onerror="this.src='images/ui/wspiernik.png';">
+                    <span class="text-lg font-bold text-green-800 mb-1 block">Tapety</span>
+                    <p class="text-sm text-gray-600">Pobierz tapety ze Wspiernikiem na komputer lub telefon.</p>
+                </button>
+                <!-- Card 5: Oddech -->
                 <button onclick="showSection('oddech')"
                     class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
                     <img src="images/ui/wspiernik-oddech.png" alt="" aria-hidden="true"
@@ -1501,6 +1510,41 @@
                     </div>
                 </div>
             </div> <!-- zamyka section-kolorowanki -->
+
+            <div id="section-tapety" class="hidden">
+                <button onclick="showSection('selection')"
+                    class="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 rounded px-2 py-1 mt-4"><i
+                        data-lucide="arrow-left" class="w-4 h-4"></i> Wróć do wyboru</button>
+                <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:p-10 mb-8 mt-2">
+                    <div class="flex flex-col md:flex-row items-center gap-8">
+                        <div class="flex-shrink-0 w-full md:w-1/3 flex justify-center">
+                            <img src="images/ui/wspiernik-oparty.png" alt="Wspiernik mówi: Ustaw mnie sobie jako tapetę!" class="w-full object-contain" onerror="this.src='images/ui/wspiernik.png';">
+                        </div>
+                        <div class="flex-1 w-full">
+                            <div class="text-center md:text-left mb-8">
+                                <h2 class="text-2xl md:text-3xl font-bold text-green-800 mb-2 flex items-center justify-center md:justify-start gap-3">
+                                    <i data-lucide="monitor" class="w-8 h-8 text-green-600"></i> Tapety ze Wspiernikiem
+                                </h2>
+                                <p class="text-gray-600">Pobierz tapetę i ustaw Wspiernika jako tło ekranu na komputerze lub telefonie!</p>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <a href="tapety/tapeta-pc1.jpg" download
+                                    class="inline-flex flex-col items-center gap-3 p-4 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700"
+                                    aria-label="Pobierz tapetę na komputer">
+                                    <img src="tapety/tapeta-pc1.jpg" alt="Podgląd tapety na komputer" class="w-full rounded-xl object-cover aspect-video border border-gray-100">
+                                    <span class="font-bold text-sm text-center flex items-center gap-2"><i data-lucide="monitor" class="w-4 h-4"></i> Tapeta na komputer</span>
+                                </a>
+                                <a href="tapety/tapeta-tel1.jpg" download
+                                    class="inline-flex flex-col items-center gap-3 p-4 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700"
+                                    aria-label="Pobierz tapetę na telefon">
+                                    <img src="tapety/tapeta-tel1.jpg" alt="Podgląd tapety na telefon" class="w-full rounded-xl object-cover aspect-[9/16] max-h-80 border border-gray-100">
+                                    <span class="font-bold text-sm text-center flex items-center gap-2"><i data-lucide="smartphone" class="w-4 h-4"></i> Tapeta na telefon</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- zamyka section-tapety -->
 
             <div id="section-wykreslanki" class="hidden">
                 <button onclick="showSection('selection')"
@@ -3247,10 +3291,11 @@
             const modeSelection = document.getElementById('mode-selection');
             const sectionGry = document.getElementById('section-gry');
             const sectionKolorowanki = document.getElementById('section-kolorowanki');
+            const sectionTapety = document.getElementById('section-tapety');
             const sectionWykreslanki = document.getElementById('section-wykreslanki');
             const sectionOddech = document.getElementById('section-oddech');
 
-            const all = [sectionGry, sectionKolorowanki, sectionWykreslanki, sectionOddech];
+            const all = [sectionGry, sectionKolorowanki, sectionTapety, sectionWykreslanki, sectionOddech];
             if (sec === 'selection') {
                 modeSelection.classList.remove('hidden');
                 modeSelection.removeAttribute('aria-hidden');
@@ -3259,7 +3304,7 @@
                 modeSelection.classList.add('hidden');
                 modeSelection.setAttribute('aria-hidden', 'true');
                 all.forEach(s => { s.classList.add('hidden'); s.setAttribute('aria-hidden', 'true'); });
-                const map = { gry: sectionGry, kolorowanki: sectionKolorowanki, wykreslanki: sectionWykreslanki, oddech: sectionOddech };
+                const map = { gry: sectionGry, kolorowanki: sectionKolorowanki, tapety: sectionTapety, wykreslanki: sectionWykreslanki, oddech: sectionOddech };
                 if (map[sec]) { map[sec].classList.remove('hidden'); map[sec].removeAttribute('aria-hidden'); }
                 if (window.lucide) lucide.createIcons({ attrs: { 'aria-hidden': 'true' } });
             }
