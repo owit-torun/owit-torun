@@ -129,8 +129,30 @@
             color: #fff !important;
         }
 
-        body.a11y-high-contrast a {
+        body.a11y-high-contrast *:not(canvas):not(img):not(svg):not(path):not(circle) {
+            background-color: #000 !important;
             color: #ff0 !important;
+            border-color: #555 !important;
+        }
+
+        body.a11y-high-contrast a,
+        body.a11y-high-contrast a * {
+            color: #ff0 !important;
+            text-decoration: underline !important;
+        }
+
+        body.a11y-high-contrast button {
+            border: 1px solid #666 !important;
+        }
+
+        body.a11y-high-contrast .game-tab.active {
+            background: #222 !important;
+            border-color: #fff !important;
+        }
+
+        body.a11y-high-contrast #a11y-widget,
+        body.a11y-high-contrast #a11y-widget * {
+            background-color: #111 !important;
         }
 
         body.a11y-spacing * {
@@ -794,6 +816,7 @@
             border-radius: 12px;
             cursor: default;
             image-rendering: auto;
+            max-width: 100%;
         }
 
         #maze-wrap {
@@ -929,45 +952,45 @@
                 <!-- Card 1: Gry -->
                 <button onclick="showSection('gry')"
                     class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
-                    <img src="images/ui/wspiernik-play.png" alt="" aria-hidden="true"
+                    <img src="images/ui/wspiernik-play.webp" alt="" aria-hidden="true"
                         class="mx-auto h-36 object-contain mb-3 group-hover:scale-105 transition-transform"
-                        onerror="this.src='images/ui/wspiernik.png';">
+                        decoding="async" onerror="this.src='images/ui/wspiernik-play.png';">
                     <span class="text-lg font-bold text-green-800 mb-1 block">Gry przeglądarkowe</span>
                     <p class="text-sm text-gray-600">Łap sprzęt, sortuj, rozwiązuj quizy i trenuj pamięć z naszymi grami!</p>
                 </button>
                 <!-- Card 2: Kolorowanki -->
                 <button onclick="showSection('kolorowanki')"
                     class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
-                    <img src="images/ui/wspiernik-koloruje.png" alt="" aria-hidden="true"
+                    <img src="images/ui/wspiernik-koloruje.webp" alt="" aria-hidden="true"
                         class="mx-auto h-36 object-contain mb-3 group-hover:scale-105 transition-transform"
-                        onerror="this.src='images/ui/wspiernik.png';">
+                        decoding="async" onerror="this.src='images/ui/wspiernik-koloruje.png';">
                     <span class="text-lg font-bold text-green-800 mb-1 block">Kolorowanki</span>
                     <p class="text-sm text-gray-600">Wydrukuj i pokoloruj Wspiernika.</p>
                 </button>
                 <!-- Card 3: Wykreślanki -->
                 <button onclick="showSection('wykreslanki')"
                     class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
-                    <img src="images/ui/wspiernik-krzyzowki.png" alt="" aria-hidden="true"
+                    <img src="images/ui/wspiernik-krzyzowki.webp" alt="" aria-hidden="true"
                         class="mx-auto h-36 object-contain mb-3 group-hover:scale-105 transition-transform"
-                        onerror="this.src='images/ui/wspiernik.png';">
+                        decoding="async" onerror="this.src='images/ui/wspiernik-krzyzowki.png';">
                     <span class="text-lg font-bold text-green-800 mb-1 block">Wykreślanki i krzyżówki</span>
                     <p class="text-sm text-gray-600">Wydrukuj i znajdź ukryte słowa lub rozwiąż krzyżówkę.</p>
                 </button>
                 <!-- Card 4: Tapety -->
                 <button onclick="showSection('tapety')"
                     class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
-                    <img src="images/ui/wspiernik-oparty.png" alt="" aria-hidden="true"
+                    <img src="images/ui/wspiernik-tapety.webp" alt="" aria-hidden="true"
                         class="mx-auto h-36 object-contain mb-3 group-hover:scale-105 transition-transform"
-                        onerror="this.src='images/ui/wspiernik.png';">
+                        decoding="async" onerror="this.src='images/ui/wspiernik-tapety.png';">
                     <span class="text-lg font-bold text-green-800 mb-1 block">Tapety</span>
                     <p class="text-sm text-gray-600">Pobierz tapety ze Wspiernikiem na komputer lub telefon.</p>
                 </button>
                 <!-- Card 5: Oddech -->
                 <button onclick="showSection('oddech')"
                     class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-green-400 hover:shadow-md hover:-translate-y-1 transition-all text-center group focus:outline-none focus:ring-4 focus:ring-green-400">
-                    <img src="images/ui/wspiernik-oddech.png" alt="" aria-hidden="true"
+                    <img src="images/ui/wspiernik-oddech.webp" alt="" aria-hidden="true"
                         class="mx-auto h-36 object-contain mb-3 group-hover:scale-105 transition-transform"
-                        onerror="this.src='images/ui/wspiernik.png';">
+                        decoding="async" onerror="this.src='images/ui/wspiernik-oddech.png';">
                     <span class="text-lg font-bold text-green-800 mb-1 block">Ćwiczenia oddechowe</span>
                     <p class="text-sm text-gray-600">Skorzystaj z wirtualnego pomocnika do wyciszenia i relaksu.</p>
                 </button>
@@ -1010,9 +1033,9 @@
                 <!-- WELCOME: Ekran powitalny gier                           -->
                 <!-- ======================================================= -->
                 <div id="game-welcome" class="bg-white rounded-3xl border border-gray-100 shadow-sm p-10 text-center">
-                    <img src="images/ui/wspiernik-gra.png"
+                    <img src="images/ui/wspiernik-gra.webp"
                         alt="Wspiernik mówi: Jeśli chcesz się odprężyć możemy razem pograć. Wybierz jedną z gier powyżej, żeby rozpocząć. Powodzenia!"
-                        class="mx-auto w-full max-w-2xl h-auto">
+                        class="mx-auto w-full max-w-2xl h-auto" onerror="this.src='images/ui/wspiernik-gra.png';">
                 </div>
 
                 <!-- ======================================================= -->
@@ -1271,8 +1294,8 @@
                     <!-- Current card -->
                     <div id="sort-card-wrap" class="mx-auto mb-6 flex items-end justify-center"
                         style="max-width: min(400px, 95vw);">
-                        <img src="images/ui/wspiernik-oparty.png" alt="" aria-hidden="true"
-                            style="height:190px; width:auto; flex-shrink:0; object-fit:contain; margin-right:-14px; position:relative; z-index:10; filter:drop-shadow(0 2px 6px rgba(0,0,0,.15)); pointer-events:none; align-self:flex-end;">
+                        <img src="images/ui/wspiernik-oparty.webp" alt="" aria-hidden="true"
+                            style="height:190px; width:auto; flex-shrink:0; object-fit:contain; margin-right:-14px; position:relative; z-index:10; filter:drop-shadow(0 2px 6px rgba(0,0,0,.15)); pointer-events:none; align-self:flex-end;" onerror="this.src='images/ui/wspiernik-oparty.png';">
                         <div id="sort-card"
                             class="bg-white border-2 border-gray-200 rounded-2xl shadow-lg overflow-hidden"
                             style="flex:1; max-width:290px;">
@@ -1432,7 +1455,7 @@
                     <div class="flex flex-col md:flex-row items-center gap-8">
                         <!-- Lewy obrazek -->
                         <div class="flex-shrink-0 w-full md:w-1/3 flex justify-center">
-                            <img src="images/ui/wspiernik-pedzel.png" alt="Wspiernik mówi: Lubisz kolorować? Ja też! Wydrukuj sobie kolorowankę i pomalujmy razem!" class="w-full object-contain" onerror="this.src='images/ui/wspiernik.png';">
+                            <img src="images/ui/wspiernik-pedzel.webp" alt="Wspiernik mówi: Lubisz kolorować? Ja też! Wydrukuj sobie kolorowankę i pomalujmy razem!" class="w-full object-contain" onerror="this.src='images/ui/wspiernik-pedzel.png';">
                         </div>
                         <!-- Prawa treść -->
                         <div class="flex-1 w-full">
@@ -1448,61 +1471,61 @@
                         <a href="pdf/kolorowanki/kolorowanka1.pdf" target="_blank"
                             class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
                             aria-label="Wydrukuj kolorowankę nr 1">
-                            <img src="images/kolorowanki/kolorowanka1.png" alt="Podgląd kolorowanki 1" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100">
+                            <img src="images/kolorowanki/kolorowanka1.png" alt="Podgląd kolorowanki 1" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" loading="lazy">
                             <span class="font-bold text-sm text-center">Kolorowanka 1</span>
                         </a>
                         <a href="pdf/kolorowanki/kolorowanka2.pdf" target="_blank"
                             class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
                             aria-label="Wydrukuj kolorowankę nr 2">
-                            <img src="images/kolorowanki/kolorowanka2.png" alt="Podgląd kolorowanki 2" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100">
+                            <img src="images/kolorowanki/kolorowanka2.png" alt="Podgląd kolorowanki 2" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" loading="lazy">
                             <span class="font-bold text-sm text-center">Kolorowanka 2</span>
                         </a>
                         <a href="pdf/kolorowanki/kolorowanka3.pdf" target="_blank"
                             class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
                             aria-label="Wydrukuj kolorowankę nr 3">
-                            <img src="images/kolorowanki/kolorowanka3.png" alt="Podgląd kolorowanki 3" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100">
+                            <img src="images/kolorowanki/kolorowanka3.png" alt="Podgląd kolorowanki 3" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" loading="lazy">
                             <span class="font-bold text-sm text-center">Kolorowanka 3</span>
                         </a>
                         <a href="pdf/kolorowanki/kolorowanka4.pdf" target="_blank"
                             class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
                             aria-label="Wydrukuj kolorowankę nr 4">
-                            <img src="images/kolorowanki/kolorowanka4.png" alt="Podgląd kolorowanki 4" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100">
+                            <img src="images/kolorowanki/kolorowanka4.png" alt="Podgląd kolorowanki 4" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" loading="lazy">
                             <span class="font-bold text-sm text-center">Kolorowanka 4</span>
                         </a>
                         <a href="pdf/kolorowanki/kolorowanka5.pdf" target="_blank"
                             class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
                             aria-label="Wydrukuj kolorowankę nr 5">
-                            <img src="images/kolorowanki/kolorowanka5.png" alt="Podgląd kolorowanki 5" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100">
+                            <img src="images/kolorowanki/kolorowanka5.png" alt="Podgląd kolorowanki 5" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" loading="lazy">
                             <span class="font-bold text-sm text-center">Kolorowanka 5</span>
                         </a>
                         <a href="pdf/kolorowanki/kolorowanka6.pdf" target="_blank"
                             class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
                             aria-label="Wydrukuj kolorowankę nr 6">
-                            <img src="images/kolorowanki/kolorowanka6.png" alt="Podgląd kolorowanki 6" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" onerror="this.style.display='none'">
+                            <img src="images/kolorowanki/kolorowanka6.png" alt="Podgląd kolorowanki 6" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" loading="lazy" onerror="this.style.display='none'">
                             <span class="font-bold text-sm text-center">Kolorowanka 6</span>
                         </a>
                         <a href="pdf/kolorowanki/kolorowanka7.pdf" target="_blank"
                             class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
                             aria-label="Wydrukuj kolorowankę nr 7">
-                            <img src="images/kolorowanki/kolorowanka7.png" alt="Podgląd kolorowanki 7" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" onerror="this.style.display='none'">
+                            <img src="images/kolorowanki/kolorowanka7.png" alt="Podgląd kolorowanki 7" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" loading="lazy" onerror="this.style.display='none'">
                             <span class="font-bold text-sm text-center">Kolorowanka 7</span>
                         </a>
                         <a href="pdf/kolorowanki/kolorowanka8.pdf" target="_blank"
                             class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
                             aria-label="Wydrukuj kolorowankę nr 8">
-                            <img src="images/kolorowanki/kolorowanka8.png" alt="Podgląd kolorowanki 8" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" onerror="this.style.display='none'">
+                            <img src="images/kolorowanki/kolorowanka8.png" alt="Podgląd kolorowanki 8" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" loading="lazy" onerror="this.style.display='none'">
                             <span class="font-bold text-sm text-center">Kolorowanka 8</span>
                         </a>
                         <a href="pdf/kolorowanki/kolorowanka9.pdf" target="_blank"
                             class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
                             aria-label="Wydrukuj kolorowankę nr 9">
-                            <img src="images/kolorowanki/kolorowanka9.png" alt="Podgląd kolorowanki 9" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" onerror="this.style.display='none'">
+                            <img src="images/kolorowanki/kolorowanka9.png" alt="Podgląd kolorowanki 9" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" loading="lazy" onerror="this.style.display='none'">
                             <span class="font-bold text-sm text-center">Kolorowanka 9</span>
                         </a>
                         <a href="pdf/kolorowanki/kolorowanka10.pdf" target="_blank"
                             class="inline-flex flex-col items-center justify-between gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 w-full"
                             aria-label="Wydrukuj kolorowankę nr 10">
-                            <img src="images/kolorowanki/kolorowanka10.png" alt="Podgląd kolorowanki 10" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" onerror="this.style.display='none'">
+                            <img src="images/kolorowanki/kolorowanka10.png" alt="Podgląd kolorowanki 10" class="w-full rounded-lg object-cover aspect-[3/4] mb-1 border border-gray-100" loading="lazy" onerror="this.style.display='none'">
                             <span class="font-bold text-sm text-center">Kolorowanka 10</span>
                         </a>
                     </div>
@@ -1518,7 +1541,7 @@
                 <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:p-10 mb-8 mt-2">
                     <div class="flex flex-col md:flex-row items-center gap-8">
                         <div class="flex-shrink-0 w-full md:w-1/3 flex justify-center">
-                            <img src="images/ui/wspiernik-oparty.png" alt="Wspiernik mówi: Ustaw mnie sobie jako tapetę!" class="w-full object-contain" onerror="this.src='images/ui/wspiernik.png';">
+                            <img src="images/ui/wspiernik-tapety-2.webp" alt="Wspiernik mówi: Ustaw mnie sobie jako tapetę!" class="w-full object-contain" onerror="this.src='images/ui/wspiernik-tapety-2.png';">
                         </div>
                         <div class="flex-1 w-full">
                             <div class="text-center md:text-left mb-8">
@@ -1527,18 +1550,48 @@
                                 </h2>
                                 <p class="text-gray-600">Pobierz tapetę i ustaw Wspiernika jako tło ekranu na komputerze lub telefonie!</p>
                             </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <a href="tapety/tapeta-pc1.jpg" download
-                                    class="inline-flex flex-col items-center gap-3 p-4 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700"
-                                    aria-label="Pobierz tapetę na komputer">
-                                    <img src="tapety/tapeta-pc1.jpg" alt="Podgląd tapety na komputer" class="w-full rounded-xl object-cover aspect-video border border-gray-100">
-                                    <span class="font-bold text-sm text-center flex items-center gap-2"><i data-lucide="monitor" class="w-4 h-4"></i> Tapeta na komputer</span>
+                            <!-- Tapety na komputer -->
+                            <h3 class="text-base font-bold text-green-700 mb-2 flex items-center gap-2">
+                                <i data-lucide="monitor" class="w-4 h-4"></i> Na komputer
+                            </h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                                <a href="images/tapety/tapeta-pc1.jpg" download aria-label="Pobierz tapetę na komputer 1" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                    <img src="images/tapety/tapeta-pc1.jpg" alt="Tapeta na komputer 1" class="w-full rounded-lg object-cover aspect-video border border-gray-100" loading="lazy">
+                                    <span class="font-bold text-xs text-center">Tapeta 1</span>
                                 </a>
-                                <a href="tapety/tapeta-tel1.jpg" download
-                                    class="inline-flex flex-col items-center gap-3 p-4 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700"
-                                    aria-label="Pobierz tapetę na telefon">
-                                    <img src="tapety/tapeta-tel1.jpg" alt="Podgląd tapety na telefon" class="w-full rounded-xl object-cover aspect-[9/16] max-h-80 border border-gray-100">
-                                    <span class="font-bold text-sm text-center flex items-center gap-2"><i data-lucide="smartphone" class="w-4 h-4"></i> Tapeta na telefon</span>
+                                <a href="images/tapety/tapeta-pc2.jpg" download aria-label="Pobierz tapetę na komputer 2" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                    <img src="images/tapety/tapeta-pc2.jpg" alt="Tapeta na komputer 2" class="w-full rounded-lg object-cover aspect-video border border-gray-100" loading="lazy">
+                                    <span class="font-bold text-xs text-center">Tapeta 2</span>
+                                </a>
+                                <a href="images/tapety/tapeta-pc3.jpg" download aria-label="Pobierz tapetę na komputer 3" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                    <img src="images/tapety/tapeta-pc3.jpg" alt="Tapeta na komputer 3" class="w-full rounded-lg object-cover aspect-video border border-gray-100" loading="lazy">
+                                    <span class="font-bold text-xs text-center">Tapeta 3</span>
+                                </a>
+                                <a href="images/tapety/tapeta-pc4.jpg" download aria-label="Pobierz tapetę na komputer 4" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                    <img src="images/tapety/tapeta-pc4.jpg" alt="Tapeta na komputer 4" class="w-full rounded-lg object-cover aspect-video border border-gray-100" loading="lazy">
+                                    <span class="font-bold text-xs text-center">Tapeta 4</span>
+                                </a>
+                            </div>
+                            <!-- Tapety na telefon -->
+                            <h3 class="text-base font-bold text-green-700 mb-2 flex items-center gap-2">
+                                <i data-lucide="smartphone" class="w-4 h-4"></i> Na telefon
+                            </h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <a href="images/tapety/tapeta-tel1.jpg" download aria-label="Pobierz tapetę na telefon 1" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                    <img src="images/tapety/tapeta-tel1.jpg" alt="Tapeta na telefon 1" class="w-full rounded-lg object-cover aspect-[9/16] max-h-52 border border-gray-100" loading="lazy">
+                                    <span class="font-bold text-xs text-center">Tapeta 1</span>
+                                </a>
+                                <a href="images/tapety/tapeta-tel2.jpg" download aria-label="Pobierz tapetę na telefon 2" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                    <img src="images/tapety/tapeta-tel2.jpg" alt="Tapeta na telefon 2" class="w-full rounded-lg object-cover aspect-[9/16] max-h-52 border border-gray-100" loading="lazy">
+                                    <span class="font-bold text-xs text-center">Tapeta 2</span>
+                                </a>
+                                <a href="images/tapety/tapeta-tel3.jpg" download aria-label="Pobierz tapetę na telefon 3" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                    <img src="images/tapety/tapeta-tel3.jpg" alt="Tapeta na telefon 3" class="w-full rounded-lg object-cover aspect-[9/16] max-h-52 border border-gray-100" loading="lazy">
+                                    <span class="font-bold text-xs text-center">Tapeta 3</span>
+                                </a>
+                                <a href="images/tapety/tapeta-tel4.jpg" download aria-label="Pobierz tapetę na telefon 4" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                    <img src="images/tapety/tapeta-tel4.jpg" alt="Tapeta na telefon 4" class="w-full rounded-lg object-cover aspect-[9/16] max-h-52 border border-gray-100" loading="lazy">
+                                    <span class="font-bold text-xs text-center">Tapeta 4</span>
                                 </a>
                             </div>
                         </div>
@@ -1553,7 +1606,7 @@
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 lg:p-8 mt-4">
                     <div class="flex flex-col md:flex-row items-center gap-8">
                         <div class="flex-shrink-0 w-full md:w-1/3 flex justify-center">
-                            <img src="images/ui/wspiernik-krzyzowki-2.png" alt="Wspiernik mówi: Wolisz krzyżówki czy wykreślanki? Pobierz i wydrukuj co tylko chcesz!" class="w-full object-contain" onerror="this.src='images/ui/wspiernik.png';">
+                            <img src="images/ui/wspiernik-krzyzowki-2.webp" alt="Wspiernik mówi: Wolisz krzyżówki czy wykreślanki? Pobierz i wydrukuj co tylko chcesz!" class="w-full object-contain" onerror="this.src='images/ui/wspiernik-krzyzowki-2.png';">
                         </div>
                         <div class="flex-1 w-full">
                             <div class="mb-4">
@@ -1564,7 +1617,8 @@
                             </div>
 
                             <!-- Łatwy -->
-                            <h3 class="text-base font-bold text-green-700 mb-2 mt-4">Łatwy</h3>
+                            <h3 class="text-base font-bold text-green-700 mb-1 mt-4">Łatwy</h3>
+                            <p class="text-xs text-gray-500 mb-2">Słowa ukryte poziomo i pionowo.</p>
                             <div class="flex flex-wrap gap-3 mb-4">
                                 <a href="pdf/wykreslanki/easy-10x10.pdf" target="_blank"
                                     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
@@ -1584,7 +1638,8 @@
                             </div>
 
                             <!-- Średni -->
-                            <h3 class="text-base font-bold text-yellow-600 mb-2">Średni</h3>
+                            <h3 class="text-base font-bold text-yellow-600 mb-1 mt-2">Średni</h3>
+                            <p class="text-xs text-gray-500 mb-2">Słowa ukryte również na ukos.</p>
                             <div class="flex flex-wrap gap-3 mb-4">
                                 <a href="pdf/wykreslanki/medium-10x10.pdf" target="_blank"
                                     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
@@ -1604,7 +1659,8 @@
                             </div>
 
                             <!-- Trudny -->
-                            <h3 class="text-base font-bold text-red-600 mb-2">Trudny</h3>
+                            <h3 class="text-base font-bold text-red-600 mb-1 mt-2">Trudny</h3>
+                            <p class="text-xs text-gray-500 mb-2">Słowa ukryte we wszystkich kierunkach, również wspak.</p>
                             <div class="flex flex-wrap gap-3">
                                 <a href="pdf/wykreslanki/hard-10x10.pdf" target="_blank"
                                     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700 font-semibold text-sm"
@@ -1667,7 +1723,7 @@
                     <div id="breathe-wrapper" class="flex justify-center items-center my-12 h-64 relative max-w-sm mx-auto" style="transition: transform 0.5s ease-in-out;">
                         <div id="breathe-circle" class="w-48 h-48 rounded-full bg-green-200 opacity-40 absolute" style="transition: transform 4s ease-in-out, background-color 4s ease-in-out; transform: scale(1);"></div>
                         <div class="z-10 relative flex flex-col items-center">
-                            <img id="breathe-img" src="images/ui/wspiernik-oddech.png" class="h-32 mb-2 object-contain drop-shadow-md" style="transition: transform 4s ease-in-out; transform: scale(1);" alt="Grafika wspiernika" onerror="this.src='images/ui/wspiernik.png';">
+                            <img id="breathe-img" src="images/ui/wspiernik-oddech.webp" class="h-32 mb-2 object-contain drop-shadow-md" style="transition: transform 4s ease-in-out; transform: scale(1);" alt="Grafika wspiernika" onerror="this.src='images/ui/wspiernik-oddech.png';">
                             <span id="breathe-text" class="font-bold text-green-800 text-lg absolute -bottom-6 bg-white/80 px-4 py-1 rounded-full shadow-sm">Gotowy?</span>
                         </div>
                     </div>
@@ -1680,12 +1736,12 @@
                 </div>
             </div>
 
-            <!-- Back link -->
-            <div class="mt-8 flex flex-wrap gap-4 justify-center">
-                <a href="index.html"
+            <!-- Back link – widoczny tylko gdy otwarta jest jakaś sekcja -->
+            <div id="main-back-link" class="hidden mt-8 flex flex-wrap gap-4 justify-center">
+                <button onclick="showSection('selection')"
                     class="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50 text-gray-700 hover:text-green-700 font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>Wróć na stronę główną
-                </a>
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>Wróć do wyboru aktywności
+                </button>
                 <a href="katalog.html"
                     class="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50 text-gray-700 hover:text-green-700 font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm">
                     <i data-lucide="book-open" class="w-4 h-4"></i>Katalog sprzętu
@@ -1807,7 +1863,7 @@
         document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { const mob = document.getElementById('mob-menu'); if (mob && !mob.classList.contains('hidden')) toggleMobileMenu(); const panel = document.getElementById('a11y-panel'); if (panel && !panel.classList.contains('hidden')) toggleA11yPanel(); } });
 
         // --- Tab switching ---
-        function switchGame(idx) {
+        function switchGame(idx, noPush) {
             const welcome = document.getElementById('game-welcome');
             if (welcome) welcome.style.display = 'none';
             document.querySelectorAll('.game-tab').forEach((t, i) => {
@@ -1823,6 +1879,7 @@
             if (idx === 2 && !quizState.initialized) quizInit();
             if (idx === 3 && !sortState.initialized) sortInit();
             if (idx === 4 && !mzState.initialized) mzInit();
+            if (!noPush) history.pushState({ section: 'gry', game: idx }, '', '#gry-' + idx);
         }
 
         // --- A11y ---
@@ -1878,7 +1935,7 @@
         // ============================================================
         // GAME 1: Łapacz Sprzętu
         // ============================================================
-        const g1Images = ALL_CATALOG.map(s => { const o = { img: new Image(), label: s.label, ok: false }; o.img.onload = () => o.ok = true; o.img.src = s.src; return o; });
+        let g1Images = []; // ładowane leniwie przy pierwszym otwarciu gry
 
         // Logical canvas dimensions (points, not pixels)
         const CANVAS_W = 520, CANVAS_H = 460;
@@ -1932,11 +1989,14 @@
             const img = new Image();
             img.onload = () => { g1.mascot = img; g1.mascotOk = true; if (g1.initialized) g1DrawIdle(); };
             img.onerror = () => { g1.mascotOk = false; };
-            img.src = 'images/ui/wspiernik-pudelko.png';
+            img.src = 'images/ui/wspiernik-pudelko.webp';
         })();
 
         // Set up HiDPI canvas – call once, reuse g1.ctx for all drawing
         function g1SetupCanvas() {
+            if (g1Images.length === 0) {
+                g1Images = ALL_CATALOG.map(s => { const o = { img: new Image(), label: s.label, ok: false }; o.img.onload = () => o.ok = true; o.img.src = s.src; return o; });
+            }
             g1.ctx = document.getElementById('catcher-canvas').getContext('2d');
             g1ResizeCanvas(); // sets buffer size, CSS dims, transform and smoothing
         }
@@ -2097,8 +2157,8 @@
             const spawnRate = Math.max(df.spawnMin, df.spawnStart - Math.floor(g1.score / df.spawnDecay));
             if (g1.frameCount % spawnRate === 0) g1Spawn();
 
-            // Move & check objects
-            const fallSpeed = g1.speed + g1.score * df.accel;
+            // Move & check objects – stała prędkość przez całą grę
+            const fallSpeed = g1.speed;
             const toRemove = [];
             g1.objects.forEach(o => {
                 o.y += fallSpeed;
@@ -2220,7 +2280,10 @@
                 if (h > maxH) { h = maxH; w = h * aspect; }
                 cssW = Math.floor(w); cssH = Math.floor(h);
             } else {
-                cssW = CANVAS_W; cssH = CANVAS_H;
+                const wrap = document.getElementById('catcher-wrap');
+                const availW = wrap && wrap.clientWidth > 0 ? Math.min(wrap.clientWidth, CANVAS_W) : CANVAS_W;
+                const s = availW / CANVAS_W;
+                cssW = Math.floor(CANVAS_W * s); cssH = Math.floor(CANVAS_H * s);
             }
             // Resize pixel buffer to match display size × dpr → sharp at any zoom
             canvas.width  = Math.round(cssW * dpr);
@@ -2251,10 +2314,8 @@
         });
         document.addEventListener('webkitfullscreenchange', () => document.dispatchEvent(new Event('fullscreenchange')));
         window.addEventListener('resize', () => {
-            if (document.fullscreenElement || document.webkitFullscreenElement) {
-                g1ResizeCanvas();
-                mzResizeCanvas();
-            }
+            g1ResizeCanvas();
+            mzResizeCanvas();
         });
 
         // Keyboard controls
@@ -2388,7 +2449,7 @@
                 div.innerHTML = `
                     <div class="mem-card-inner">
                         <div class="mem-card-front" aria-hidden="true">
-                            <img src="images/ui/wspiernik.png" alt="" class="mem-wspiernik">
+                            <img src="images/ui/wspiernik.webp" alt="" class="mem-wspiernik" onerror="this.src='images/ui/wspiernik.png';">
                             <span class="mem-card-front-q">?</span>
                         </div>
                         <div class="mem-card-back">
@@ -2926,7 +2987,10 @@
                 cssW = Math.round(MZ_W * s);
                 cssH = Math.round(MZ_H * s);
             } else {
-                cssW = MZ_W; cssH = MZ_H;
+                const wrap = document.getElementById('maze-wrap');
+                const availW = wrap && wrap.clientWidth > 0 ? Math.min(wrap.clientWidth, MZ_W) : MZ_W;
+                const s = availW / MZ_W;
+                cssW = Math.round(MZ_W * s); cssH = Math.round(MZ_H * s);
             }
             // Resize pixel buffer to match display size × dpr → sharp at any zoom
             canvas.width  = Math.round(cssW * dpr);
@@ -3287,7 +3351,7 @@
         let breatheInterval;
         let breathePhase = 'inhale';
 
-        function showSection(sec) {
+        function showSection(sec, noPush) {
             const modeSelection = document.getElementById('mode-selection');
             const sectionGry = document.getElementById('section-gry');
             const sectionKolorowanki = document.getElementById('section-kolorowanki');
@@ -3296,19 +3360,39 @@
             const sectionOddech = document.getElementById('section-oddech');
 
             const all = [sectionGry, sectionKolorowanki, sectionTapety, sectionWykreslanki, sectionOddech];
+            const backLink = document.getElementById('main-back-link');
             if (sec === 'selection') {
                 modeSelection.classList.remove('hidden');
                 modeSelection.removeAttribute('aria-hidden');
                 all.forEach(s => { s.classList.add('hidden'); s.setAttribute('aria-hidden', 'true'); });
+                if (backLink) backLink.classList.add('hidden');
+                if (!noPush) history.pushState({ section: 'selection' }, '', location.pathname + location.search);
             } else {
                 modeSelection.classList.add('hidden');
                 modeSelection.setAttribute('aria-hidden', 'true');
                 all.forEach(s => { s.classList.add('hidden'); s.setAttribute('aria-hidden', 'true'); });
                 const map = { gry: sectionGry, kolorowanki: sectionKolorowanki, tapety: sectionTapety, wykreslanki: sectionWykreslanki, oddech: sectionOddech };
                 if (map[sec]) { map[sec].classList.remove('hidden'); map[sec].removeAttribute('aria-hidden'); }
+                if (backLink) backLink.classList.remove('hidden');
                 if (window.lucide) lucide.createIcons({ attrs: { 'aria-hidden': 'true' } });
+                if (!noPush) history.pushState({ section: sec }, '', '#' + sec);
             }
         }
+
+        window.addEventListener('popstate', function (e) {
+            const state = e.state;
+            if (!state || state.section === 'selection') {
+                showSection('selection', true);
+            } else if (state.section === 'gry' && state.game !== undefined) {
+                showSection('gry', true);
+                switchGame(state.game, true);
+            } else if (state.section) {
+                showSection(state.section, true);
+            }
+        });
+
+        // Inicjalizacja stanu historii przy załadowaniu strony
+        history.replaceState({ section: 'selection' }, '', location.pathname + location.search);
 
         function runBreatheCycle(circle, text) {
             const img = document.getElementById('breathe-img');
@@ -3317,7 +3401,7 @@
                 circle.style.transform = 'scale(1.5)';
                 circle.style.backgroundColor = '#3b82f6'; // blue-500
                 if(img) {
-                    img.src = 'images/ui/wspiernik-wdech.png';
+                    img.src = 'images/ui/wspiernik-wdech.webp';
                     img.style.transform = 'scale(1.15)';
                 }
                 breathePhase = 'exhale';
@@ -3326,7 +3410,7 @@
                 circle.style.transform = 'scale(1)';
                 circle.style.backgroundColor = '#86efac'; // green-300
                 if(img) {
-                    img.src = 'images/ui/wspiernik-wydech.png';
+                    img.src = 'images/ui/wspiernik-wydech.webp';
                     img.style.transform = 'scale(1)';
                 }
                 breathePhase = 'inhale';
@@ -3346,7 +3430,7 @@
                 circle.style.backgroundColor = '#86efac';
                 text.innerText = 'Gotowy?';
                 if(img) {
-                    img.src = 'images/ui/wspiernik-oddech.png';
+                    img.src = 'images/ui/wspiernik-oddech.webp';
                     img.style.transform = 'scale(1)';
                 }
                 btn.innerHTML = '<i data-lucide="play" class="w-5 h-5"></i> Start';

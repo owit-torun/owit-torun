@@ -2619,6 +2619,7 @@
             const on = document.body.classList.contains('high-contrast');
             setA11yBadge('a11y-contrast', on);
             localStorage.setItem('a11y-contrast', on);
+            localStorage.setItem('owit-contrast', on); // wspólny klucz z pozostałymi stronami
             updateA11yCount();
         }
 
@@ -2669,7 +2670,7 @@
             document.documentElement.style.fontSize = '16px';
             const lbl = document.getElementById('font-size-label');
             if (lbl) lbl.textContent = 'Domyślny (16px)';
-            ['a11y-contrast', 'a11y-dyslexic', 'a11y-spacing', 'a11y-stop-motion', 'a11y-grayscale', 'a11y-font-size', 'dark-mode']
+            ['a11y-contrast', 'owit-contrast', 'a11y-dyslexic', 'a11y-spacing', 'a11y-stop-motion', 'a11y-grayscale', 'a11y-font-size', 'dark-mode']
                 .forEach(k => localStorage.removeItem(k));
             updateA11yCount();
         }
@@ -3328,6 +3329,7 @@
         (function restoreA11y() {
             const map = {
                 'a11y-contrast': () => { document.body.classList.add('high-contrast'); setA11yBadge('a11y-contrast', true); },
+                'owit-contrast': () => { document.body.classList.add('high-contrast'); setA11yBadge('a11y-contrast', true); },
                 'a11y-dyslexic': () => { document.body.classList.add('a11y-dyslexic'); setA11yBadge('a11y-dyslexic', true); },
                 'a11y-spacing': () => { document.body.classList.add('a11y-spacing'); setA11yBadge('a11y-spacing', true); },
                 'a11y-stop-motion': () => { document.body.classList.add('a11y-stop-motion'); setA11yBadge('a11y-motion', true); },
