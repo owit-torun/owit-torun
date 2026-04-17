@@ -2980,9 +2980,9 @@
                                     <h2 class="text-3xl md:text-4xl font-bold mb-3">${department.departmentTitle}</h2>
                                     <p class="text-white/80 print:text-gray-600 text-base md:text-lg">${department.departmentDesc}</p>
                                 </div>
-                                <button onclick="printDept(${department.originalIndex})" class="print:hidden shrink-0 flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white border border-white/40 px-3 py-2 md:px-4 rounded-xl font-semibold transition-colors text-sm cursor-pointer whitespace-nowrap" aria-label="Drukuj dział: ${department.departmentTitle}">
+                                <button onclick="printDept(${department.originalIndex})" class="print:hidden shrink-0 hidden md:flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white border border-white/40 px-4 rounded-xl font-semibold transition-colors text-sm cursor-pointer whitespace-nowrap py-2" aria-label="Drukuj dział: ${department.departmentTitle}">
                                     <i data-lucide="printer" class="w-4 h-4"></i>
-                                    <span class="hidden md:inline">Drukuj dział</span>
+                                    Drukuj dział
                                 </button>
                             </div>
                         </div>

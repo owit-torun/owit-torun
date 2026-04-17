@@ -110,6 +110,9 @@
     const btn = document.getElementById('mobile-menu-btn');
     const isHidden = menu.classList.toggle('hidden');
     btn.setAttribute('aria-expanded', String(!isHidden));
+    // Ukryj widget dostępności gdy menu jest otwarte, żeby nie zasłaniał elementów listy
+    const a11yWidget = document.getElementById('a11y-widget');
+    if (a11yWidget) a11yWidget.classList.toggle('hidden', !isHidden);
   };
 
   window.closeMobileMenu = function () {
