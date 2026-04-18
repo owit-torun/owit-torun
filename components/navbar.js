@@ -79,12 +79,14 @@
       </div>
 
       <!-- Menu mobilne -->
-      <div id="mob-menu" class="hidden lg:hidden mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div id="mob-menu" class="hidden lg:hidden mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden" style="max-height:calc(100dvh - 110px);overflow-y:auto;">
         <ul class="p-3 space-y-1" role="list">
           <li><a href="${pre + '#o-nas'}" onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="info" class="w-4 h-4"></i>O nas</a></li>
           ${mobileLink(isHome ? '#katalog' : 'katalog.html', 'package', 'Katalog sprzętu')}
           <li><a href="${pre + '#zespol'}" onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="users" class="w-4 h-4"></i>Zespół</a></li>
           ${mobileLink('faq.html', 'help-circle', 'FAQ')}
+          ${mobileLink('gry.html', 'gamepad-2', 'Strefa relaksu')}
+          <li><a href="${pre + '#kontakt'}" onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="phone" class="w-4 h-4"></i>Kontakt</a></li>
           ${mobileLink('jak-wypozyczac.html', 'clipboard-list', 'Jak wypożyczyć')}
           ${mobileLink('technologie-asystujace.html', 'cpu', 'Technologie asystujące')}
           <li role="presentation"><span class="block px-4 py-2 mt-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Baza wiedzy / Do pobrania</span></li>
@@ -92,8 +94,6 @@
           <li><a href="${pre + '#do-pobrania'}" onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="download" class="w-4 h-4"></i>Do pobrania</a></li>
           ${mobileLink('przydatne-linki.html', 'link', 'Przydatne linki')}
           ${mobileLink('media.html', 'image', 'Dla mediów')}
-          <li><a href="${pre + '#kontakt'}" onclick="toggleMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-700 font-medium transition-colors text-sm"><i data-lucide="phone" class="w-4 h-4"></i>Kontakt</a></li>
-          ${mobileLink('gry.html', 'gamepad-2', 'Strefa relaksu')}
         </ul>
       </div>
     </nav>

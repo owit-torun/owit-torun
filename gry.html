@@ -126,28 +126,28 @@
         /* --- Accessibility --- */
         body.a11y-high-contrast {
             background: #000 !important;
-            color: #fff !important;
+            color: #ff0 !important;
         }
 
-        body.a11y-high-contrast *:not(canvas):not(img):not(svg):not(path):not(circle) {
+        body.a11y-high-contrast * {
             background-color: #000 !important;
             color: #ff0 !important;
-            border-color: #555 !important;
+            border-color: #ff0 !important;
         }
 
         body.a11y-high-contrast a,
         body.a11y-high-contrast a * {
-            color: #ff0 !important;
+            color: #0ff !important;
             text-decoration: underline !important;
         }
 
         body.a11y-high-contrast button {
-            border: 1px solid #666 !important;
+            border: 2px solid #ff0 !important;
         }
 
         body.a11y-high-contrast .game-tab.active {
             background: #222 !important;
-            border-color: #fff !important;
+            border-color: #ff0 !important;
         }
 
         body.a11y-high-contrast #a11y-widget,
@@ -842,7 +842,8 @@
 
         /* fullscreen */
         #game-4:fullscreen,
-        #game-4:-webkit-full-screen {
+        #game-4:-webkit-full-screen,
+        #game-4.mz-fake-fullscreen {
             background: #111827;
             display: flex !important;
             flex-direction: column;
@@ -852,23 +853,35 @@
             border-radius: 0 !important;
             padding: 12px !important;
         }
+        #game-4.mz-fake-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100dvh !important;
+            z-index: 9999 !important;
+        }
         #game-4:fullscreen #maze-wrap,
-        #game-4:-webkit-full-screen #maze-wrap {
+        #game-4:-webkit-full-screen #maze-wrap,
+        #game-4.mz-fake-fullscreen #maze-wrap {
             max-width: none;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         #game-4:fullscreen #maze-canvas,
-        #game-4:-webkit-full-screen #maze-canvas {
+        #game-4:-webkit-full-screen #maze-canvas,
+        #game-4.mz-fake-fullscreen #maze-canvas {
             border-radius: 10px;
         }
         #game-4:fullscreen .mz-hud,
-        #game-4:-webkit-full-screen .mz-hud {
+        #game-4:-webkit-full-screen .mz-hud,
+        #game-4.mz-fake-fullscreen .mz-hud {
             color: #f3f4f6;
         }
         #game-4:fullscreen .mz-hud .text-gray-500,
-        #game-4:-webkit-full-screen .mz-hud .text-gray-500 {
+        #game-4:-webkit-full-screen .mz-hud .text-gray-500,
+        #game-4.mz-fake-fullscreen .mz-hud .text-gray-500 {
             color: #9ca3af !important;
         }
 
@@ -1555,19 +1568,19 @@
                                 <i data-lucide="monitor" class="w-4 h-4"></i> Na komputer
                             </h3>
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                                <a href="images/tapety/tapeta-pc1.jpg" download aria-label="Pobierz tapetę na komputer 1" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                <a href="images/tapety/tapeta-pc1.jpg" target="_blank" rel="noopener" aria-label="Otwórz tapetę na komputer 1 w nowej karcie" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
                                     <img src="images/tapety/tapeta-pc1.jpg" alt="Tapeta na komputer 1" class="w-full rounded-lg object-cover aspect-video border border-gray-100" loading="lazy">
                                     <span class="font-bold text-xs text-center">Tapeta 1</span>
                                 </a>
-                                <a href="images/tapety/tapeta-pc2.jpg" download aria-label="Pobierz tapetę na komputer 2" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                <a href="images/tapety/tapeta-pc2.jpg" target="_blank" rel="noopener" aria-label="Otwórz tapetę na komputer 2 w nowej karcie" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
                                     <img src="images/tapety/tapeta-pc2.jpg" alt="Tapeta na komputer 2" class="w-full rounded-lg object-cover aspect-video border border-gray-100" loading="lazy">
                                     <span class="font-bold text-xs text-center">Tapeta 2</span>
                                 </a>
-                                <a href="images/tapety/tapeta-pc3.jpg" download aria-label="Pobierz tapetę na komputer 3" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                <a href="images/tapety/tapeta-pc3.jpg" target="_blank" rel="noopener" aria-label="Otwórz tapetę na komputer 3 w nowej karcie" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
                                     <img src="images/tapety/tapeta-pc3.jpg" alt="Tapeta na komputer 3" class="w-full rounded-lg object-cover aspect-video border border-gray-100" loading="lazy">
                                     <span class="font-bold text-xs text-center">Tapeta 3</span>
                                 </a>
-                                <a href="images/tapety/tapeta-pc4.jpg" download aria-label="Pobierz tapetę na komputer 4" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                <a href="images/tapety/tapeta-pc4.jpg" target="_blank" rel="noopener" aria-label="Otwórz tapetę na komputer 4 w nowej karcie" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
                                     <img src="images/tapety/tapeta-pc4.jpg" alt="Tapeta na komputer 4" class="w-full rounded-lg object-cover aspect-video border border-gray-100" loading="lazy">
                                     <span class="font-bold text-xs text-center">Tapeta 4</span>
                                 </a>
@@ -1577,19 +1590,19 @@
                                 <i data-lucide="smartphone" class="w-4 h-4"></i> Na telefon
                             </h3>
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <a href="images/tapety/tapeta-tel1.jpg" download aria-label="Pobierz tapetę na telefon 1" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                <a href="images/tapety/tapeta-tel1.jpg" target="_blank" rel="noopener" aria-label="Otwórz tapetę na telefon 1 w nowej karcie" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
                                     <img src="images/tapety/tapeta-tel1.jpg" alt="Tapeta na telefon 1" class="w-full rounded-lg object-cover aspect-[9/16] max-h-52 border border-gray-100" loading="lazy">
                                     <span class="font-bold text-xs text-center">Tapeta 1</span>
                                 </a>
-                                <a href="images/tapety/tapeta-tel2.jpg" download aria-label="Pobierz tapetę na telefon 2" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                <a href="images/tapety/tapeta-tel2.jpg" target="_blank" rel="noopener" aria-label="Otwórz tapetę na telefon 2 w nowej karcie" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
                                     <img src="images/tapety/tapeta-tel2.jpg" alt="Tapeta na telefon 2" class="w-full rounded-lg object-cover aspect-[9/16] max-h-52 border border-gray-100" loading="lazy">
                                     <span class="font-bold text-xs text-center">Tapeta 2</span>
                                 </a>
-                                <a href="images/tapety/tapeta-tel3.jpg" download aria-label="Pobierz tapetę na telefon 3" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                <a href="images/tapety/tapeta-tel3.jpg" target="_blank" rel="noopener" aria-label="Otwórz tapetę na telefon 3 w nowej karcie" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
                                     <img src="images/tapety/tapeta-tel3.jpg" alt="Tapeta na telefon 3" class="w-full rounded-lg object-cover aspect-[9/16] max-h-52 border border-gray-100" loading="lazy">
                                     <span class="font-bold text-xs text-center">Tapeta 3</span>
                                 </a>
-                                <a href="images/tapety/tapeta-tel4.jpg" download aria-label="Pobierz tapetę na telefon 4" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
+                                <a href="images/tapety/tapeta-tel4.jpg" target="_blank" rel="noopener" aria-label="Otwórz tapetę na telefon 4 w nowej karcie" class="inline-flex flex-col items-center gap-2 p-3 rounded-2xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all text-gray-700 hover:text-green-700">
                                     <img src="images/tapety/tapeta-tel4.jpg" alt="Tapeta na telefon 4" class="w-full rounded-lg object-cover aspect-[9/16] max-h-52 border border-gray-100" loading="lazy">
                                     <span class="font-bold text-xs text-center">Tapeta 4</span>
                                 </a>
@@ -2975,7 +2988,8 @@
             const canvas = document.getElementById('maze-canvas');
             if (!canvas) return;
             const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
-            const inFs = fsEl && (fsEl.id === 'game-4' || fsEl.closest?.('#game-4'));
+            const game4 = document.getElementById('game-4');
+            const inFs = (fsEl && (fsEl.id === 'game-4' || fsEl.closest?.('#game-4'))) || game4?.classList.contains('mz-fake-fullscreen');
             const dpr  = Math.min(window.devicePixelRatio || 1, 3);
             let cssW, cssH;
             if (inFs) {
@@ -3315,7 +3329,33 @@
             mzInit();
         }
 
-        function mzFullscreen() { _fsToggle('game-4'); }
+        function mzFullscreen() {
+            const el = document.getElementById('game-4');
+            const isNativeFs = document.fullscreenElement === el || document.webkitFullscreenElement === el;
+            const isFakeFs = el.classList.contains('mz-fake-fullscreen');
+            if (isFakeFs) {
+                el.classList.remove('mz-fake-fullscreen');
+                document.body.style.overflow = '';
+                setTimeout(mzResizeCanvas, 50);
+                return;
+            }
+            if (isNativeFs) {
+                (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+                return;
+            }
+            const req = el.requestFullscreen || el.webkitRequestFullscreen;
+            if (req) {
+                req.call(el).then(() => setTimeout(mzResizeCanvas, 50)).catch(() => {
+                    el.classList.add('mz-fake-fullscreen');
+                    document.body.style.overflow = 'hidden';
+                    setTimeout(mzResizeCanvas, 50);
+                });
+            } else {
+                el.classList.add('mz-fake-fullscreen');
+                document.body.style.overflow = 'hidden';
+                setTimeout(mzResizeCanvas, 50);
+            }
+        }
 
         // Touch swipe
         function mzTouchStart(e) {
