@@ -3711,6 +3711,15 @@
                 acroForm.set(PDFName.of('NeedAppearances'), PDFBool.True);
                 merged.catalog.set(PDFName.of('AcroForm'), acroForm);
 
+                // Auto-wypełnij pole pracownika OWiT imieniem zalogowanego użytkownika
+                if (currentUserName) {
+                    try {
+                        const form = merged.getForm();
+                        const owit = form.getTextField('pracownik_owit');
+                        if (owit) owit.setText(currentUserName);
+                    } catch (_) { /* pole może nie istnieć w wybranych dokumentach */ }
+                }
+
                 const mergedBytes = await merged.save({ updateFieldAppearances: false });
                 const blob = new Blob([mergedBytes], { type: 'application/pdf' });
                 const a = document.createElement('a');
