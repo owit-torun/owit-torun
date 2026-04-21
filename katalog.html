@@ -1013,6 +1013,13 @@
                             <span class="hidden md:inline" id="loginLabel">Panel Pracownika</span><span
                                 class="md:hidden" id="loginLabelMobile">Pracownik</span>
                         </button>
+                        <button id="myRentalsBtn" onclick="openMyRentalsModal()"
+                            class="hidden items-center gap-2 bg-green-50 text-green-800 hover:bg-green-100 border border-green-300 hover:border-green-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
+                            aria-label="Moje wypożyczenia">
+                            <i data-lucide="package-check" class="w-4 h-4"></i>
+                            <span class="hidden md:inline">Moje wypożyczenia</span>
+                            <span id="myRentalsBadge" class="hidden min-w-[1.25rem] h-5 bg-green-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"></span>
+                        </button>
                         <button id="addGearBtn" onclick="openAddGearModal()"
                             class="hidden items-center gap-2 bg-green-700 text-white hover:bg-green-800 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer">
                             <i data-lucide="package-plus" class="w-4 h-4"></i>
@@ -1159,6 +1166,34 @@
                     <div id="loginError" role="alert" aria-live="assertive"
                         class="hidden text-red-600 text-sm mt-2 font-medium"></div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MOJE WYPOŻYCZENIA -->
+    <div id="myRentalsModal"
+        class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4 print:hidden backdrop-blur-sm"
+        role="dialog" aria-modal="true" aria-labelledby="myRentalsModalTitle">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-green-50/60">
+                <h3 id="myRentalsModalTitle" class="text-xl font-bold flex items-center gap-2 text-green-800">
+                    <i data-lucide="package-check" class="text-green-700"></i> Moje wypożyczenia
+                </h3>
+                <button type="button" onclick="closeMyRentalsModal()" aria-label="Zamknij okno wypożyczeń"
+                    class="text-gray-400 hover:text-gray-600 cursor-pointer p-1 rounded transition-colors">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto flex-grow bg-white">
+                <div id="myRentalsLegend" class="flex flex-wrap gap-2 mb-4 text-xs font-semibold">
+                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500"></span>Przeterminowane</span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-orange-400"></span>Zwrot ≤3 dni</span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400"></span>Zwrot ≤7 dni</span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500"></span>Zwrot &gt;7 dni</span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-gray-400"></span>Brak daty zwrotu</span>
+                </div>
+                <ul id="myRentalsList" class="space-y-2" aria-label="Lista moich wypożyczeń"></ul>
+                <p id="myRentalsEmpty" class="hidden text-center text-gray-500 py-8 text-sm">Nie masz aktualnie żadnych zarejestrowanych wypożyczeń.</p>
             </div>
         </div>
     </div>
@@ -1540,9 +1575,10 @@
             'One Step Reader': 'oprogramowanie',
             'Clear Reader+': 'lektorat',
             'Euler Science': 'oprogramowanie',
+            'ABBYY FineReader 15': 'oprogramowanie',
             // Klawiatury powiększone
             'Klawiatura ASTRA': 'klawiatura',
-            'EZ-See': 'klawiatura',
+            'KlawiaturaEZ-See': 'klawiatura',
             // Asystenci i nawigacja
             'Smart Vision 2': 'smartfon',
             'Victor Reader Stream': 'odtwarzacz',
@@ -1557,7 +1593,7 @@
             'Thomson HQ HED4508': 'słuchawki',
             'Roger Clip-on Mic': 'mikrofon',
             'Phonak Roger Neckloop': 'pętla indukcyjna',
-            'Edumic - mikrofon zdalny': 'mikrofon',
+            'EduMic': 'mikrofon',
             // Eye-tracking
             'Tobii Dynavox PCEye 5': 'eye-tracker',
             'Mocowanie do PCEye': 'akcesorium',
@@ -1645,6 +1681,7 @@
             inventoryData = snapshot.val() || {};
             const wasReady = _inventoryReady;
             _inventoryReady = true;
+            updateMyRentalsBadge();
             if (!wasReady) {
                 _renderWhenReady(); // pierwsze załadowanie: czekaj aż custom też będzie
             } else if (_customReady && document.getElementById('catalog-container')) {
@@ -1688,6 +1725,9 @@
                     document.getElementById('addGearBtn').classList.add('hidden');
                     document.getElementById('addGearBtn').classList.remove('flex');
                 }
+                document.getElementById('myRentalsBtn').classList.remove('hidden');
+                document.getElementById('myRentalsBtn').classList.add('flex');
+                updateMyRentalsBadge();
                 // Renderuj tylko gdy dane już załadowane (unikamy pustego renderowania przed danymi)
                 if (_inventoryReady && _customReady && document.getElementById('catalog-container')) {
                     renderCatalog();
@@ -1701,6 +1741,8 @@
                 document.getElementById('loginLabelMobile').innerText = "Pracownik";
                 document.getElementById('addGearBtn').classList.add('hidden');
                 document.getElementById('addGearBtn').classList.remove('flex');
+                document.getElementById('myRentalsBtn').classList.add('hidden');
+                document.getElementById('myRentalsBtn').classList.remove('flex');
                 if (_inventoryReady && _customReady && document.getElementById('catalog-container')) {
                     renderCatalog();
                 }
@@ -1746,6 +1788,115 @@
             errEl.textContent = '';
             errEl.classList.add('hidden');
             if (_loginModalTrigger) { _loginModalTrigger.focus(); _loginModalTrigger = null; }
+        }
+
+        // MOJE WYPOŻYCZENIA
+        let _myRentalsModalTrigger = null;
+
+        function openMyRentalsModal() {
+            _myRentalsModalTrigger = document.activeElement;
+            renderMyRentals();
+            const modal = document.getElementById('myRentalsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.addEventListener('keydown', _myRentalsModalFocusTrap);
+            setTimeout(() => { const btn = modal.querySelector('button[aria-label="Zamknij okno wypożyczeń"]'); if (btn) btn.focus(); }, 100);
+        }
+
+        function _myRentalsModalFocusTrap(e) {
+            const modal = document.getElementById('myRentalsModal');
+            const focusable = Array.from(modal.querySelectorAll('button, input, [tabindex]:not([tabindex="-1"])')).filter(el => !el.disabled);
+            if (!focusable.length) return;
+            const first = focusable[0], last = focusable[focusable.length - 1];
+            if (e.key === 'Tab') {
+                if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
+                else { if (document.activeElement === last) { e.preventDefault(); first.focus(); } }
+            }
+            if (e.key === 'Escape') closeMyRentalsModal();
+        }
+
+        function closeMyRentalsModal() {
+            const modal = document.getElementById('myRentalsModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.removeEventListener('keydown', _myRentalsModalFocusTrap);
+            if (_myRentalsModalTrigger) { _myRentalsModalTrigger.focus(); _myRentalsModalTrigger = null; }
+        }
+
+        function _getMyRentals() {
+            if (!currentUserEmail) return [];
+            const results = [];
+            for (const dbKey of Object.keys(inventoryData)) {
+                const inv = inventoryData[dbKey];
+                if (!inv || inv.hidden) continue;
+                (inv.rentals || []).forEach((rental, idx) => {
+                    if (rental && rental.addedBy === currentUserEmail) {
+                        results.push({ dbKey, index: idx, name: getItemName(dbKey), date: rental.date || '', personName: rental.name || '' });
+                    }
+                });
+            }
+            results.sort((a, b) => {
+                if (!a.date && !b.date) return a.name.localeCompare(b.name, 'pl');
+                if (!a.date) return 1;
+                if (!b.date) return -1;
+                return new Date(a.date) - new Date(b.date);
+            });
+            return results;
+        }
+
+        function _getRentalStatus(dateStr) {
+            if (!dateStr) return { label: 'Brak daty zwrotu', dot: 'bg-gray-400', badge: 'bg-gray-100 text-gray-600 border-gray-300', overdue: false };
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const d = new Date(dateStr);
+            const diff = Math.round((d - today) / 86400000);
+            if (diff < 0) return { label: 'Przeterminowane (' + Math.abs(diff) + (Math.abs(diff) === 1 ? ' dzień' : ' dni') + ')', dot: 'bg-red-500', badge: 'bg-red-100 text-red-700 border-red-300', overdue: true };
+            if (diff === 0) return { label: 'Zwrot dziś!', dot: 'bg-orange-400', badge: 'bg-orange-100 text-orange-700 border-orange-300', overdue: false };
+            if (diff <= 3) return { label: 'Zwrot za ' + diff + (diff === 1 ? ' dzień' : ' dni'), dot: 'bg-orange-400', badge: 'bg-orange-100 text-orange-700 border-orange-300', overdue: false };
+            if (diff <= 7) return { label: 'Zwrot za ' + diff + ' dni', dot: 'bg-yellow-400', badge: 'bg-yellow-100 text-yellow-700 border-yellow-300', overdue: false };
+            return { label: 'Zwrot za ' + diff + ' dni', dot: 'bg-green-500', badge: 'bg-green-100 text-green-700 border-green-300', overdue: false };
+        }
+
+        function renderMyRentals() {
+            const list = document.getElementById('myRentalsList');
+            const empty = document.getElementById('myRentalsEmpty');
+            if (!list) return;
+            const rentals = _getMyRentals();
+            if (rentals.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+            list.innerHTML = rentals.map(r => {
+                const status = _getRentalStatus(r.date);
+                const dateFormatted = r.date ? new Date(r.date).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+                const rowBg = status.overdue ? 'border-red-200 bg-red-50/50' : 'border-gray-100 bg-gray-50/40';
+                return `<li class="flex items-center gap-3 p-3 rounded-lg border ${rowBg}">
+                    <span class="shrink-0 w-3 h-3 rounded-full ${status.dot}" aria-hidden="true"></span>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-gray-800 text-sm leading-tight">${r.name}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Termin zwrotu: <span class="font-medium text-gray-700">${dateFormatted}</span></p>
+                    </div>
+                    <span class="shrink-0 text-xs font-semibold px-2 py-1 rounded-full border ${status.badge} whitespace-nowrap">${status.label}</span>
+                </li>`;
+            }).join('');
+        }
+
+        function updateMyRentalsBadge() {
+            const btn = document.getElementById('myRentalsBtn');
+            const badge = document.getElementById('myRentalsBadge');
+            if (!btn || !badge || !currentUserEmail) return;
+            const count = _getMyRentals().length;
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
+            const modal = document.getElementById('myRentalsModal');
+            if (modal && !modal.classList.contains('hidden')) renderMyRentals();
         }
 
         function submitLogin(e) {
@@ -2304,7 +2455,7 @@
                         icon: "keyboard",
                         items: [
                             { name: "Klawiatura ASTRA", desc: "Pełnowymiarowa klawiatura o ultrawysokim kontraście z wielkimi, białymi znakami na czarnych klawiszach. Zapobiega zmęczeniu oczu.", features: ["Wysoki kontrast", "Stacjonarne"], imageUrl: "images/devices/klawiatura-astra-czarna.jpg" },
-                            { name: "EZ-See", desc: "Klawiatura stworzona z myślą o osobach słabowidzących. Posiada wyraźne, powiększone czcionki w jaskrawych, łatwych do zauważenia kolorach.", features: ["Wysoki kontrast", "Dla seniora"], imageUrl: "images/devices/ez-see.jpg" }
+                            { name: "Klawiatura EZ-See", desc: "Klawiatura stworzona z myślą o osobach słabowidzących. Posiada wyraźne, powiększone czcionki w jaskrawych, łatwych do zauważenia kolorach.", features: ["Wysoki kontrast", "Dla seniora"], imageUrl: "images/devices/ez-see.jpg" }
                         ]
                     },
                     {
@@ -2336,7 +2487,7 @@
                             { name: "Thomson HQ HED4508", desc: "Specjalistyczne słuchawki do telewizora dla osób niedosłyszących. Oferują wzmocnienie dialogów oraz niezależną regulację głośności dla lewego i prawego ucha.", features: ["Wsparcie słuchu", "Bezprzewodowe (Bluetooth)", "Dla seniora"], imageUrl: "images/devices/thomson-hq-hed4508.jpg" },
                             { name: "Roger Clip-on Mic", desc: "Bezprzewodowy, dyskretny mikrofon kierunkowy przypinany do ubrania. Znacząco poprawia rozumienie mowy w hałasie i na odległość, współpracując z aparatami słuchowymi.", features: ["Wsparcie słuchu", "Bezprzewodowe (Bluetooth)", "Mobilne / Przenośne"], imageUrl: "images/devices/roger-clip-on-mic.jpg" },
                             { name: "Phonak Roger Neckloop", desc: "Zaawansowana pętla indukcyjna współpracująca z systemem cyfrowych mikrofonów bezprzewodowych Phonak Roger. Zapewnia krystalicznie czysty dźwięk prosto do ucha.", features: ["Wsparcie słuchu", "Mobilne / Przenośne"], imageUrl: "images/devices/phonak-roger-neckloop.jpg" },
-                            { name: "Edumic - mikrofon zdalny", desc: "Edukacyjny mikrofon zdalny dla nauczycieli. Transmituje głos prosto do aparatów słuchowych ucznia, minimalizując negatywny wpływ hałasu i pogłosu w klasie.", features: ["Wsparcie słuchu", "Edukacja i Terapia", "Mobilne / Przenośne"], imageUrl: "images/devices/edumic-mikrofon-zdalny.jpg" }
+                            { name: "EduMic", desc: "Edukacyjny mikrofon zdalny dla nauczycieli. Transmituje głos prosto do aparatów słuchowych ucznia, minimalizując negatywny wpływ hałasu i pogłosu w klasie.", features: ["Wsparcie słuchu", "Edukacja i Terapia", "Mobilne / Przenośne"], imageUrl: "images/devices/edumic-mikrofon-zdalny.jpg" }
                         ]
                     }
                 ]
