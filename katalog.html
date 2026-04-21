@@ -978,7 +978,7 @@
     <section class="pt-28 pb-6 px-4 md:px-8 print:hidden">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 md:p-10">
-                <div class="flex flex-col md:flex-row items-start gap-6">
+                <div class="flex items-start gap-6">
                     <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
                         <i data-lucide="package" class="w-8 h-8 text-green-700"></i>
                     </div>
@@ -1003,40 +1003,46 @@
                                 <i data-lucide="phone" class="w-3.5 h-3.5"></i>Umów wizytę
                             </a>
                         </div>
-                    </div>
-                    <!-- Przyciski admina -->
-                    <div class="flex flex-wrap items-center gap-2 flex-shrink-0 self-start">
-                        <button onclick="promptEmployeeLogin()"
-                            class="flex items-center gap-2 bg-gray-100 text-gray-700 hover:bg-green-50 hover:text-green-700 px-4 py-2 rounded-xl font-semibold transition-colors text-sm border border-gray-200 hover:border-green-300 cursor-pointer"
-                            aria-label="Zaloguj do Panelu">
-                            <i data-lucide="lock" class="w-4 h-4"></i>
-                            <span class="hidden md:inline" id="loginLabel">Panel Pracownika</span><span
-                                class="md:hidden" id="loginLabelMobile">Pracownik</span>
-                        </button>
-                        <button id="myRentalsBtn" onclick="openMyRentalsModal()"
-                            class="hidden items-center gap-2 bg-green-50 text-green-800 hover:bg-green-100 border border-green-300 hover:border-green-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
-                            aria-label="Moje wypożyczenia">
-                            <i data-lucide="package-check" class="w-4 h-4"></i>
-                            <span class="hidden md:inline">Moje wypożyczenia</span>
-                            <span id="myRentalsBadge" class="hidden min-w-[1.25rem] h-5 bg-green-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"></span>
-                        </button>
-                        <button id="addGearBtn" onclick="openAddGearModal()"
-                            class="hidden items-center gap-2 bg-green-700 text-white hover:bg-green-800 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer">
-                            <i data-lucide="package-plus" class="w-4 h-4"></i>
-                            <span class="hidden md:inline">Dodaj sprzęt</span>
-                        </button>
-                        <button onclick="printSelected()"
-                            class="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl font-semibold transition-colors shadow-sm cursor-pointer text-sm"
-                            aria-label="Drukuj tylko wybrane produkty">
-                            <i data-lucide="printer" class="w-4 h-4"></i>
-                            <span>Drukuj wybrane (<span id="selectedCount">0</span>)</span>
-                        </button>
-                        <button onclick="printAll()"
-                            class="flex items-center gap-2 bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50 text-gray-700 hover:text-green-700 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
-                            aria-label="Drukuj cały katalog">
-                            <i data-lucide="printer" class="w-4 h-4"></i>
-                            <span>Drukuj wszystko</span>
-                        </button>
+                        <!-- Przyciski pracownika / admina -->
+                        <div class="flex flex-wrap items-center gap-2 mt-5">
+                            <button onclick="promptEmployeeLogin()"
+                                class="flex items-center gap-2 bg-gray-100 text-gray-700 hover:bg-green-50 hover:text-green-700 px-4 py-2 rounded-xl font-semibold transition-colors text-sm border border-gray-200 hover:border-green-300 cursor-pointer"
+                                aria-label="Zaloguj do Panelu">
+                                <i data-lucide="lock" class="w-4 h-4"></i>
+                                <span class="hidden md:inline" id="loginLabel">Panel Pracownika</span><span
+                                    class="md:hidden" id="loginLabelMobile">Pracownik</span>
+                            </button>
+                            <button id="myRentalsBtn" onclick="openMyRentalsModal()"
+                                class="hidden items-center gap-2 bg-green-50 text-green-800 hover:bg-green-100 border border-green-300 hover:border-green-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
+                                aria-label="Moje wypożyczenia">
+                                <i data-lucide="package-check" class="w-4 h-4"></i>
+                                <span class="hidden md:inline">Moje wypożyczenia</span>
+                                <span id="myRentalsBadge" class="hidden min-w-[1.25rem] h-5 bg-green-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"></span>
+                            </button>
+                            <button id="docsGeneratorBtn" onclick="openDocsGeneratorModal()"
+                                class="hidden items-center gap-2 bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-300 hover:border-blue-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
+                                aria-label="Generator dokumentów wypożyczenia">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                                <span class="hidden md:inline">Dokumenty</span>
+                            </button>
+                            <button id="addGearBtn" onclick="openAddGearModal()"
+                                class="hidden items-center gap-2 bg-green-700 text-white hover:bg-green-800 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer">
+                                <i data-lucide="package-plus" class="w-4 h-4"></i>
+                                <span class="hidden md:inline">Dodaj sprzęt</span>
+                            </button>
+                            <button onclick="printSelected()"
+                                class="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl font-semibold transition-colors shadow-sm cursor-pointer text-sm"
+                                aria-label="Drukuj tylko wybrane produkty">
+                                <i data-lucide="printer" class="w-4 h-4"></i>
+                                <span>Drukuj wybrane (<span id="selectedCount">0</span>)</span>
+                            </button>
+                            <button onclick="printAll()"
+                                class="flex items-center gap-2 bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50 text-gray-700 hover:text-green-700 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
+                                aria-label="Drukuj cały katalog">
+                                <i data-lucide="printer" class="w-4 h-4"></i>
+                                <span>Drukuj wszystko</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1194,6 +1200,86 @@
                 </div>
                 <ul id="myRentalsList" class="space-y-2" aria-label="Lista moich wypożyczeń"></ul>
                 <p id="myRentalsEmpty" class="hidden text-center text-gray-500 py-8 text-sm">Nie masz aktualnie żadnych zarejestrowanych wypożyczeń.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GENERATOR DOKUMENTÓW WYPOŻYCZENIA -->
+    <div id="docsGeneratorModal"
+        class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4 print:hidden backdrop-blur-sm"
+        role="dialog" aria-modal="true" aria-labelledby="docsGeneratorModalTitle">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-blue-50/60">
+                <h3 id="docsGeneratorModalTitle" class="text-xl font-bold flex items-center gap-2 text-blue-800">
+                    <i data-lucide="file-text" class="text-blue-700"></i> Generator dokumentów
+                </h3>
+                <button type="button" onclick="closeDocsGeneratorModal()" aria-label="Zamknij okno generatora dokumentów"
+                    class="text-gray-400 hover:text-gray-600 cursor-pointer p-1 rounded transition-colors">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto flex-grow bg-white space-y-3">
+                <p class="text-sm text-gray-500">Zaznacz dokumenty potrzebne do wypożyczenia. Zostanie wygenerowany jeden PDF z edytowalnymi polami — dane wpisane w jednym miejscu uzupełnią się we wszystkich dokumentach.</p>
+                <ul class="space-y-2" id="docsChecklist">
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-wniosek-ozn')">
+                        <input type="checkbox" id="doc-wniosek-ozn" value="wniosek-ozn.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                        <label for="doc-wniosek-ozn" class="cursor-pointer">
+                            <div class="font-semibold text-sm text-gray-800">Wniosek — OzN</div>
+                            <div class="text-xs text-gray-500">Wniosek o użyczenie TA dla osoby z niepełnosprawnością</div>
+                        </label>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-wniosek-oozn')">
+                        <input type="checkbox" id="doc-wniosek-oozn" value="wniosek-oozn.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                        <label for="doc-wniosek-oozn" class="cursor-pointer">
+                            <div class="font-semibold text-sm text-gray-800">Wniosek — OOzN</div>
+                            <div class="text-xs text-gray-500">Wniosek dla opiekuna/przedstawiciela osoby z niepełnosprawnością</div>
+                        </label>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-umowa')">
+                        <input type="checkbox" id="doc-umowa" value="umowa.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                        <label for="doc-umowa" class="cursor-pointer">
+                            <div class="font-semibold text-sm text-gray-800">Umowa o nieodpłatne wypożyczenie</div>
+                            <div class="text-xs text-gray-500">Umowa z osobą wypożyczającą TA</div>
+                        </label>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-protokol-przekazania')">
+                        <input type="checkbox" id="doc-protokol-przekazania" value="protokol-przekazania-urzadzenia.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                        <label for="doc-protokol-przekazania" class="cursor-pointer">
+                            <div class="font-semibold text-sm text-gray-800">Protokół przekazania urządzenia</div>
+                            <div class="text-xs text-gray-500">Potwierdzenie wydania sprzętu z listą wyposażenia</div>
+                        </label>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-dane-beneficjenta')">
+                        <input type="checkbox" id="doc-dane-beneficjenta" value="dane-beneficjenta.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                        <label for="doc-dane-beneficjenta" class="cursor-pointer">
+                            <div class="font-semibold text-sm text-gray-800">Dane beneficjenta PFRON</div>
+                            <div class="text-xs text-gray-500">Karta z danymi wymaganymi przez PFRON</div>
+                        </label>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-rodo')">
+                        <input type="checkbox" id="doc-rodo" value="rodo.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                        <label for="doc-rodo" class="cursor-pointer">
+                            <div class="font-semibold text-sm text-gray-800">Zgoda RODO</div>
+                            <div class="text-xs text-gray-500 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3 inline"></i> Dokument bez pól — dołączany jako strona do podpisania</div>
+                        </label>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-protokol-odbioru')">
+                        <input type="checkbox" id="doc-protokol-odbioru" value="protokol-odbioru.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                        <label for="doc-protokol-odbioru" class="cursor-pointer">
+                            <div class="font-semibold text-sm text-gray-800">Protokół odbioru</div>
+                            <div class="text-xs text-gray-500">Wypełniany przy zwrocie sprzętu</div>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/60 flex items-center justify-between gap-3">
+                <p id="docsGeneratorStatus" class="text-xs text-gray-500 flex-1"></p>
+                <button type="button" onclick="generateDocsPack()"
+                    class="flex items-center gap-2 bg-blue-700 text-white hover:bg-blue-800 px-5 py-2.5 rounded-xl font-semibold transition-colors text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    id="docsGeneratorSubmitBtn">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Generuj i pobierz PDF
+                </button>
             </div>
         </div>
     </div>
@@ -1727,6 +1813,8 @@
                 }
                 document.getElementById('myRentalsBtn').classList.remove('hidden');
                 document.getElementById('myRentalsBtn').classList.add('flex');
+                document.getElementById('docsGeneratorBtn').classList.remove('hidden');
+                document.getElementById('docsGeneratorBtn').classList.add('flex');
                 updateMyRentalsBadge();
                 // Renderuj tylko gdy dane już załadowane (unikamy pustego renderowania przed danymi)
                 if (_inventoryReady && _customReady && document.getElementById('catalog-container')) {
@@ -1743,6 +1831,8 @@
                 document.getElementById('addGearBtn').classList.remove('flex');
                 document.getElementById('myRentalsBtn').classList.add('hidden');
                 document.getElementById('myRentalsBtn').classList.remove('flex');
+                document.getElementById('docsGeneratorBtn').classList.add('hidden');
+                document.getElementById('docsGeneratorBtn').classList.remove('flex');
                 if (_inventoryReady && _customReady && document.getElementById('catalog-container')) {
                     renderCatalog();
                 }
@@ -3507,6 +3597,129 @@
     </script>
     <script src="components/navbar.js"></script>
     <script src="components/footer.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script>
+        // ── Generator dokumentów wypożyczenia ──────────────────────────────
+        const PDF_BASE = 'pdf/wypozyczenie/';
+
+        function openDocsGeneratorModal() {
+            const modal = document.getElementById('docsGeneratorModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('docsGeneratorStatus').textContent = '';
+            modal.addEventListener('keydown', _docsModalKeyHandler);
+        }
+
+        function closeDocsGeneratorModal() {
+            const modal = document.getElementById('docsGeneratorModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.removeEventListener('keydown', _docsModalKeyHandler);
+            document.getElementById('docsGeneratorBtn').focus();
+        }
+
+        function _docsModalKeyHandler(e) {
+            if (e.key === 'Escape') closeDocsGeneratorModal();
+        }
+
+        function toggleDocCheck(id) {
+            const cb = document.getElementById(id);
+            cb.checked = !cb.checked;
+        }
+
+        async function generateDocsPack() {
+            const checkboxes = document.querySelectorAll('#docsChecklist input[type=checkbox]:checked');
+            if (checkboxes.length === 0) {
+                document.getElementById('docsGeneratorStatus').textContent = 'Zaznacz co najmniej jeden dokument.';
+                return;
+            }
+
+            const btn = document.getElementById('docsGeneratorSubmitBtn');
+            const status = document.getElementById('docsGeneratorStatus');
+            btn.disabled = true;
+            status.textContent = 'Generowanie…';
+
+            if (window.location.protocol === 'file:') {
+                status.textContent = 'Otwórz katalog przez serwer HTTP (nie bezpośrednio z dysku) żeby używać generatora.';
+                btn.disabled = false;
+                return;
+            }
+
+            try {
+                const { PDFDocument, PDFName, PDFArray, PDFDict, PDFRef, PDFBool } = PDFLib;
+                const merged = await PDFDocument.create();
+
+                for (const cb of checkboxes) {
+                    const url = PDF_BASE + cb.value;
+                    let bytes;
+                    try {
+                        const r = await fetch(url);
+                        if (!r.ok) throw new Error(`HTTP ${r.status}: ${cb.value}`);
+                        bytes = await r.arrayBuffer();
+                    } catch (fetchErr) {
+                        throw new Error(`Nie można pobrać pliku "${cb.value}". Upewnij się że pliki PDF są na serwerze (${fetchErr.message}).`);
+                    }
+                    const src = await PDFDocument.load(bytes, { ignoreEncryption: true });
+                    const pages = await merged.copyPages(src, src.getPageIndices());
+                    pages.forEach(p => merged.addPage(p));
+                }
+
+                // Odbuduj AcroForm — skanuj strony w poszukiwaniu widgetów formularzy
+                const ctx = merged.context;
+                const widgetRefs = [];
+                const ANNOTS = PDFName.of('Annots');
+                const SUBTYPE = PDFName.of('Subtype');
+                const PARENT = PDFName.of('Parent');
+
+                for (let i = 0; i < merged.getPageCount(); i++) {
+                    const pageNode = merged.getPage(i).node;
+                    const annotsRaw = pageNode.get(ANNOTS);
+                    if (!annotsRaw) continue;
+                    const annotsArr = annotsRaw instanceof PDFArray
+                        ? annotsRaw
+                        : ctx.lookupMaybe(annotsRaw, PDFArray);
+                    if (!annotsArr) continue;
+
+                    for (let j = 0; j < annotsArr.size(); j++) {
+                        const annotEntry = annotsArr.get(j);
+                        const annotDict = annotEntry instanceof PDFRef
+                            ? ctx.lookupMaybe(annotEntry, PDFDict)
+                            : (annotEntry instanceof PDFDict ? annotEntry : null);
+                        if (!annotDict) continue;
+                        const subtype = annotDict.get(SUBTYPE);
+                        if (!subtype || subtype.toString() !== '/Widget') continue;
+                        // Tylko pola najwyższego poziomu (bez /Parent)
+                        if (!annotDict.has(PARENT) && annotEntry instanceof PDFRef) {
+                            widgetRefs.push(annotEntry);
+                        }
+                    }
+                }
+
+                // Utwórz tablicę Fields i słownik AcroForm
+                const fieldsArr = PDFArray.withContext(ctx);
+                widgetRefs.forEach(r => fieldsArr.push(r));
+                const acroForm = PDFDict.withContext(ctx);
+                acroForm.set(PDFName.of('Fields'), fieldsArr);
+                acroForm.set(PDFName.of('NeedAppearances'), PDFBool.True);
+                merged.catalog.set(PDFName.of('AcroForm'), acroForm);
+
+                const mergedBytes = await merged.save({ updateFieldAppearances: false });
+                const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `dokumenty-wypozyczenia-${new Date().toISOString().slice(0, 10)}.pdf`;
+                a.click();
+                URL.revokeObjectURL(a.href);
+
+                status.textContent = `Pobrano pakiet (${checkboxes.length} dok.).`;
+            } catch (err) {
+                status.textContent = 'Błąd: ' + err.message;
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js').catch(() => { });
