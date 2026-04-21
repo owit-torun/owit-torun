@@ -1799,6 +1799,11 @@
                 isEmployeeMode = true;
                 currentUserEmail = user.email;
                 currentUserName = (user.displayName || user.email.split('@')[0]).replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).trim();
+                // Pobierz pełne imię i nazwisko z teamsMapping w Firebase DB
+                const emailKey = user.email.replace(/[@.]/g, '_');
+                database.ref('teamsMapping/' + emailKey + '/teamsName').once('value').then(snap => {
+                    if (snap.val()) currentUserName = snap.val();
+                });
                 document.getElementById('loginLabel').innerText = "Wyloguj (" + (user.displayName || user.email) + ")";
                 document.getElementById('loginLabelMobile').innerText = "Wyloguj";
 
