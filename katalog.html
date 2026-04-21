@@ -2331,13 +2331,19 @@
                         ? `<button onclick="removeRental('${dbKey}', ${idx})" title="Usuń wpis wypożyczenia" aria-label="Usuń wpis wypożyczenia" class="text-white bg-red-400 font-bold px-2 py-1 text-xs hover:bg-red-500 rounded ml-1 transition-colors">✕</button>`
                         : `<span title="Wpis dodany przez innego pracownika" class="text-gray-300 font-bold px-2 py-1 text-xs rounded ml-1 cursor-not-allowed select-none">✕</span>`;
                     html += `
-                    <div class="flex gap-1 items-center mt-2 bg-white p-1 rounded border border-gray-200 shadow-sm">
-                        <input type="text" placeholder="Imię/PUP" value="${r.name || ''}" onchange="updateRental('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – wypożyczenie ${displayIdx + 1}" class="w-1/2 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none">
-                        <div class="flex flex-col w-1/3">
-                            <span class="text-[9px] text-gray-400 leading-tight px-1">Plan. data zwrotu</span>
-                            <input type="date" value="${r.date || ''}" onchange="updateRental('${dbKey}', ${idx}, 'date', this.value)" aria-label="Planowana data zwrotu – wypożyczenie ${displayIdx + 1}" class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono">
+                    <div class="flex flex-col gap-1 mt-2 bg-white p-1 rounded border border-gray-200 shadow-sm">
+                        <div class="flex gap-1 items-center">
+                            <input type="text" placeholder="Imię/PUP" value="${r.name || ''}" onchange="updateRental('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – wypożyczenie ${displayIdx + 1}" class="w-1/2 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none">
+                            <div class="flex flex-col w-1/3">
+                                <span class="text-[9px] text-gray-400 leading-tight px-1">Plan. data zwrotu</span>
+                                <input type="date" value="${r.date || ''}" onchange="updateRental('${dbKey}', ${idx}, 'date', this.value)" aria-label="Planowana data zwrotu – wypożyczenie ${displayIdx + 1}" class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono">
+                            </div>
+                            ${deleteBtn}
                         </div>
-                        ${deleteBtn}
+                        <div class="flex flex-col">
+                            <span class="text-[9px] text-gray-400 leading-tight px-1">Kod urządzenia</span>
+                            <input type="text" placeholder="XXX-00" value="${r.deviceCode || ''}" onchange="updateRental('${dbKey}', ${idx}, 'deviceCode', this.value)" aria-label="Kod urządzenia – wypożyczenie ${displayIdx + 1}" class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono">
+                        </div>
                     </div>`;
                 });
 
