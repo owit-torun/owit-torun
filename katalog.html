@@ -3820,6 +3820,7 @@
                 // Odbuduj AcroForm — skanuj strony w poszukiwaniu widgetów formularzy
                 const ctx = merged.context;
                 const widgetRefs = [];
+                const rootSet = new Set();
                 const ANNOTS = PDFName.of('Annots');
                 const SUBTYPE = PDFName.of('Subtype');
                 const PARENT = PDFName.of('Parent');
@@ -3841,19 +3842,55 @@
                         if (!annotDict) continue;
                         const subtype = annotDict.get(SUBTYPE);
                         if (!subtype || subtype.toString() !== '/Widget') continue;
+                        
                         // Usuń stare appearance streams — zepsute referencje fontów po scaleniu
                         // powodują że PDFium na Windows pokazuje puste pole po odkliknięciu
                         annotDict.delete(PDFName.of('AP'));
-                        // Tylko pola najwyższego poziomu (bez /Parent)
-                        if (!annotDict.has(PARENT) && annotEntry instanceof PDFRef) {
-                            widgetRefs.push(annotEntry);
+                        
+                        // ZNAJDŹ GŁÓWNE POLE (ROOT) DLA WIDGETU
+                        let rootRef = annotEntry;
+                        let rootDict = annotDict;
+                        while (rootDict.has(PARENT)) {
+                            const pRef = rootDict.get(PARENT);
+                            if (pRef instanceof PDFRef) {
+                                rootRef = pRef;
+                                rootDict = ctx.lookupMaybe(pRef, PDFDict) || rootDict;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        if (rootRef instanceof PDFRef) {
+                            const refStr = rootRef.toString();
+                            if (!rootSet.has(refStr)) {
+                                rootSet.add(refStr);
+                                widgetRefs.push(rootRef);
+                            }
                         }
                     }
                 }
 
                 // Utwórz tablicę Fields i słownik AcroForm
                 const fieldsArr = PDFArray.withContext(ctx);
-                widgetRefs.forEach(r => fieldsArr.push(r));
+                const seenRootNames = new Set();
+
+                widgetRefs.forEach((r, idx) => {
+                    const dict = ctx.lookupMaybe(r, PDFDict);
+                    const t = dict.get(PDFName.of('T'));
+                    if (t) {
+                        const name = t.decodeText ? t.decodeText() : (t.value || '');
+                        if (seenRootNames.has(name)) {
+                            // Tymczasowa zmiana nazwy, by pdf-lib nie wyrzucał błędu "multiple fields with name..."
+                            const dummyName = name + '_dup_' + idx;
+                            dict.set(PDFName.of('T'), PDFLib.PDFString.of(dummyName));
+                            dict.set(PDFName.of('_OriginalT'), t);
+                        } else {
+                            seenRootNames.add(name);
+                        }
+                    }
+                    fieldsArr.push(r);
+                });
+
 
                 // Osadź czcionkę – niezbędne dla Windows (PDFium nie renderuje pól bez zasobu czcionki)
                 const helvetica = await merged.embedFont(PDFLib.StandardFonts.Helvetica);
@@ -3883,6 +3920,16 @@
                 try {
                     form.updateFieldAppearances(helvetica);
                 } catch (_) { /* ignoruj błędy pojedynczych pól (checkboxy, podpisy) */ }
+
+                // Przywróć oryginalne nazwy zduplikowanych pól przed zapisem (żeby Acrobat je synchronizował)
+                for (let k = 0; k < fieldsArr.size(); k++) {
+                    const dict = ctx.lookupMaybe(fieldsArr.get(k), PDFDict);
+                    const origT = dict.get(PDFName.of('_OriginalT'));
+                    if (origT) {
+                        dict.set(PDFName.of('T'), origT);
+                        dict.delete(PDFName.of('_OriginalT'));
+                    }
+                }
 
                 const mergedBytes = await merged.save({ updateFieldAppearances: false });
                 const blob = new Blob([mergedBytes], { type: 'application/pdf' });
