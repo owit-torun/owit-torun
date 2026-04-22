@@ -1135,6 +1135,27 @@
         </div>
     </div>
 
+    <!-- MODAL POTWIERDZENIA -->
+    <div id="confirmModal"
+        class="hidden fixed inset-0 bg-black/50 z-[60] items-center justify-center p-4 print:hidden backdrop-blur-sm"
+        role="alertdialog" aria-modal="true" aria-labelledby="confirmModalTitle" aria-describedby="confirmModalMsg">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-2 bg-red-50/50">
+                <i data-lucide="alert-triangle" class="text-red-600 w-5 h-5 flex-shrink-0"></i>
+                <h3 id="confirmModalTitle" class="text-base font-bold text-red-800">Potwierdzenie</h3>
+            </div>
+            <div class="px-6 py-5">
+                <p id="confirmModalMsg" class="text-gray-700 text-sm leading-relaxed"></p>
+            </div>
+            <div class="px-6 pb-5 flex justify-end gap-3">
+                <button type="button" id="confirmModalCancel"
+                    class="px-5 py-2 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 border border-gray-200 transition-colors cursor-pointer">Anuluj</button>
+                <button type="button" id="confirmModalOk"
+                    class="px-5 py-2 rounded-lg font-bold text-white bg-red-600 hover:bg-red-700 shadow transition-colors cursor-pointer">Tak, potwierdź</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL LOGOWANIA -->
     <div id="loginModal"
         class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4 print:hidden backdrop-blur-sm"
@@ -1845,12 +1866,31 @@
         });
 
         // FUNKCJE PRACOWNICZE
+        // Zastępuje natywne confirm() — Firefox blokuje dialogi systemowe w niektórych kontekstach
+        function showConfirm(message, onConfirm) {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confirmModalMsg').textContent = message;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+            const okBtn = document.getElementById('confirmModalOk');
+            const cancelBtn = document.getElementById('confirmModalCancel');
+            function close() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                okBtn.replaceWith(okBtn.cloneNode(true));
+                cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+            }
+            document.getElementById('confirmModalOk').addEventListener('click', () => { close(); onConfirm(); });
+            document.getElementById('confirmModalCancel').addEventListener('click', close);
+        }
+
         let _loginModalTrigger = null;
         function promptEmployeeLogin() {
             if (isEmployeeMode) {
-                if (confirm("Jesteś zalogowany jako " + currentUserEmail + ". Czy chcesz się wylogować z systemu?")) {
+                showConfirm("Jesteś zalogowany jako " + currentUserEmail + ". Czy chcesz się wylogować z systemu?", () => {
                     auth.signOut().then(() => alert("Odłączono pomyślnie."));
-                }
+                });
                 return;
             }
             _loginModalTrigger = document.activeElement;
@@ -2215,7 +2255,7 @@
         }
 
         function removeRental(dbKey, index) {
-            if (confirm("Czy na pewno chcesz usunąć to wypożyczenie (sprzęt wrócił)?")) {
+            showConfirm("Czy na pewno chcesz usunąć to wypożyczenie (sprzęt wrócił)?", () => {
                 const rentals = inventoryData[dbKey].rentals || [];
                 rentals.splice(index, 1);
                 database.ref(`inventory/${dbKey}/rentals`).set(rentals)
@@ -2257,7 +2297,7 @@
                         }
                     })
                     .catch(e => alert("Błąd: " + e.message));
-            }
+            });
         }
 
         function addQueue(dbKey) {
@@ -2272,20 +2312,18 @@
         }
 
         function removeQueue(dbKey, index) {
-            if (confirm("Czy usunąć tę osobę z kolejki?")) {
+            showConfirm("Czy usunąć tę osobę z kolejki?", () => {
                 const q = inventoryData[dbKey].queueArr || [];
                 q.splice(index, 1);
                 database.ref(`inventory/${dbKey}/queueArr`).set(q).catch(e => alert("Błąd: " + e.message));
-            }
+            });
         }
 
         function hideGear(dbKey) {
-            if (confirm("UWAGA OSTATECZNA: Czy na pewno chcesz trwale usunąć ten przedmiot z katalogu dla wszystkich użytkowników?")) {
-                // Ukrywamy globalnie w bazie stałych plików
+            showConfirm("UWAGA OSTATECZNA: Czy na pewno chcesz trwale usunąć ten przedmiot z katalogu dla wszystkich użytkowników?", () => {
                 database.ref('inventory/' + dbKey + '/hidden').set(true).catch(e => alert("Błąd: " + e.message));
-                // Usuwamy również obiekt jeśli był w ogóle dodany do chmury customowych plików
                 database.ref('custom_catalog/' + dbKey).remove().catch(e => console.log("Nie był w custom, ok."));
-            }
+            });
         }
 
         function generateInventoryUI(item) {
