@@ -1890,7 +1890,7 @@
         function promptEmployeeLogin() {
             if (isEmployeeMode) {
                 showConfirm("Jesteś zalogowany jako " + currentUserEmail + ". Czy chcesz się wylogować z systemu?", () => {
-                    auth.signOut().then(() => alert("Odłączono pomyślnie."));
+                    auth.signOut();
                 });
                 return;
             }
@@ -2022,7 +2022,8 @@
             const btn = document.getElementById('myRentalsBtn');
             const badge = document.getElementById('myRentalsBadge');
             if (!btn || !badge || !currentUserEmail) return;
-            const count = _getMyRentals().length;
+            const rentals = _getMyRentals();
+            const count = rentals.length;
             if (count > 0) {
                 badge.textContent = count;
                 badge.classList.remove('hidden');
@@ -2031,6 +2032,19 @@
                 badge.classList.add('hidden');
                 badge.classList.remove('flex');
             }
+            // Miganie przycisku gdy jakiś termin ≤7 dni lub przeterminowany
+            const urgent = rentals.some(r => {
+                if (!r.date) return false;
+                const diff = Math.round((new Date(r.date) - new Date().setHours(0,0,0,0)) / 86400000);
+                return diff <= 7;
+            });
+            btn.classList.toggle('animate-pulse', urgent);
+            btn.classList.toggle('bg-red-50',    urgent);
+            btn.classList.toggle('text-red-800',  urgent);
+            btn.classList.toggle('border-red-300',urgent);
+            btn.classList.toggle('bg-green-50',  !urgent);
+            btn.classList.toggle('text-green-800',!urgent);
+            btn.classList.toggle('border-green-300',!urgent);
             const modal = document.getElementById('myRentalsModal');
             if (modal && !modal.classList.contains('hidden')) renderMyRentals();
         }
