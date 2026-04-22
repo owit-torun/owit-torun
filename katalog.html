@@ -3749,9 +3749,19 @@
                 // Utwórz tablicę Fields i słownik AcroForm
                 const fieldsArr = PDFArray.withContext(ctx);
                 widgetRefs.forEach(r => fieldsArr.push(r));
+
+                // Osadź czcionkę – niezbędne dla Windows (PDFium nie renderuje pól bez zasobu czcionki)
+                const helvetica = await merged.embedFont(PDFLib.StandardFonts.Helvetica);
+                const fontDict = PDFDict.withContext(ctx);
+                fontDict.set(PDFName.of('Helv'), helvetica.ref);
+                const drDict = PDFDict.withContext(ctx);
+                drDict.set(PDFName.of('Font'), fontDict);
+
                 const acroForm = PDFDict.withContext(ctx);
                 acroForm.set(PDFName.of('Fields'), fieldsArr);
                 acroForm.set(PDFName.of('NeedAppearances'), PDFBool.True);
+                acroForm.set(PDFName.of('DR'), drDict);
+                acroForm.set(PDFName.of('DA'), PDFLib.PDFString.of('/Helv 11 Tf 0 g'));
                 merged.catalog.set(PDFName.of('AcroForm'), acroForm);
 
                 // Auto-wypełnij pole pracownika OWiT imieniem zalogowanego użytkownika
