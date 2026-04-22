@@ -3939,8 +3939,8 @@
                                 
                                 if (lly !== null && ury !== null) {
                                     const height = Math.abs(ury - lly);
-                                    if (height > 15) {
-                                        const newUry = ury > lly ? lly + 15 : lly - 15;
+                                    if (height > 20) {
+                                        const newUry = ury > lly ? lly + 20 : lly - 20;
                                         rArray.set(3, PDFNumber.of(newUry));
                                     }
                                 }
