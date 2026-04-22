@@ -3813,7 +3813,7 @@
             }
 
             try {
-                const { PDFDocument, PDFName, PDFArray, PDFDict, PDFRef, PDFBool } = PDFLib;
+                const { PDFDocument, PDFName, PDFArray, PDFDict, PDFRef, PDFBool, PDFNumber, PDFString } = PDFLib;
                 const merged = await PDFDocument.create();
 
                 const selectedFiles = [...checkboxes].map(cb => cb.value);
@@ -3912,6 +3912,40 @@
                         if (rootRef) {
                             fieldRefsSet.add(rootRef);
                         }
+
+                        // KOREKTA DYNAMICZNEGO WYMIAROWANIA POLA:
+                        // By pole mogło naturalnie zmniejszać czcionkę, gdy w dacie brakuje miejsca
+                        // na szerokość, musimy mieć włączone Auto-skalowanie (wielkość '0'). 
+                        // Jednak Auto-skalowanie bez limitu tworzyłoby gigantyczne czcionki dla krótkich
+                        // słów tam, gdzie okienko w PDF jest po prostu zbyt wysokie od góry.
+                        // Rozwiązanie: obniżamy wirtualny sufit takich okienek widżetów do max 15 punktów
+                        // (o ile nie są multiline - notatkami).
+                        const rootDict = rootRef ? ctx.lookupMaybe(rootRef, PDFDict) : currentDict;
+                        let isMultiline = false;
+                        if (rootDict) {
+                            const ff = rootDict.get(PDFName.of('Ff'));
+                            const ffNum = ff instanceof PDFNumber ? (typeof ff.asNumber === 'function' ? ff.asNumber() : ff.value) : 0;
+                            if (ffNum & (1 << 12)) isMultiline = true;
+                        }
+
+                        if (!isMultiline) {
+                            const rectArrRaw = annotDict.get(PDFName.of('Rect'));
+                            const rArray = rectArrRaw instanceof PDFArray ? rectArrRaw : ctx.lookupMaybe(rectArrRaw, PDFArray);
+                            if (rArray && rArray.size() === 4) {
+                                const llo = ctx.lookupMaybe(rArray.get(1), PDFNumber);
+                                const uro = ctx.lookupMaybe(rArray.get(3), PDFNumber);
+                                const lly = llo ? (typeof llo.asNumber === 'function' ? llo.asNumber() : llo.value) : null;
+                                const ury = uro ? (typeof uro.asNumber === 'function' ? uro.asNumber() : uro.value) : null;
+                                
+                                if (lly !== null && ury !== null) {
+                                    const height = Math.abs(ury - lly);
+                                    if (height > 15) {
+                                        const newUry = ury > lly ? lly + 15 : lly - 15;
+                                        rArray.set(3, PDFNumber.of(newUry));
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -3930,18 +3964,19 @@
                 acroForm.set(PDFName.of('Fields'), fieldsArr);
                 acroForm.set(PDFName.of('NeedAppearances'), PDFBool.True);
                 acroForm.set(PDFName.of('DR'), drDict);
-                acroForm.set(PDFName.of('DA'), PDFLib.PDFString.of('/Helv 9 Tf 0 g'));
+                acroForm.set(PDFName.of('DA'), PDFString.of('/Helv 0 Tf 0 g'));
                 merged.catalog.set(PDFName.of('AcroForm'), acroForm);
 
                 const form = merged.getForm();
                 
-                // Ujednolicenie wielkości czcionki dla wszystkich pól tekstowych (rozmiar 9)
-                // Używamy "brute-force" na obiektach dict, gdyż standardowe setFontSize w pdf-lib przepuszcza auto-sizing przy zepsutych korzeniach
+                // Ujednolicenie wielkości czcionki dla wszystkich pól tekstowych na Auto-Size (rozmiar 0)
+                // Wraz ze skróconym wyżej 'Rect' daje to efekt optymalny: dynamiczne ścieśnianie wg długości,
+                // bez wybuchu rozmiaru w górę.
                 try {
                     const textFields = form.getTextFields();
                     textFields.forEach(f => {
                         try {
-                            const daStr = PDFLib.PDFString.of('/Helv 9 Tf 0 g');
+                            const daStr = PDFString.of('/Helv 0 Tf 0 g');
                             f.acroField.dict.set(PDFLib.PDFName.of('DA'), daStr);
                             
                             // Wyzerowanie ewentualnych styli widżetów dzieci (by poprawnie odziedziczyły narzuconą "9-tkę")
