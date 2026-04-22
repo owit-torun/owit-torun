@@ -4026,23 +4026,35 @@
                     }
                 }
 
-                // Aktualizacja oryginalnego słownika AcroForm z zachowaniem czcionek (DR) i oryginalnego DA
-                const origAcroFormRaw = merged.catalog.get(PDFName.of('AcroForm'));
-                const origAcroForm = origAcroFormRaw instanceof PDFRef ? ctx.lookupMaybe(origAcroFormRaw, PDFDict) : origAcroFormRaw;
-                if (origAcroForm instanceof PDFDict) {
-                    origAcroForm.set(PDFName.of('Fields'), fieldsArr);
-                    // Opcjonalny fallback: osadź Helveticę na wypadek gdyby brakowało natywnych fontów 
-                    const helvetica = await merged.embedFont(PDFLib.StandardFonts.Helvetica);
-                    const drDictRaw = origAcroForm.get(PDFName.of('DR'));
-                    const drDict = drDictRaw instanceof PDFRef ? ctx.lookupMaybe(drDictRaw, PDFDict) : drDictRaw;
-                    if (drDict instanceof PDFDict) {
-                        const fontDictRaw = drDict.get(PDFName.of('Font'));
-                        const fontDict = fontDictRaw instanceof PDFRef ? ctx.lookupMaybe(fontDictRaw, PDFDict) : fontDictRaw;
-                        if (fontDict instanceof PDFDict) {
-                             fontDict.set(PDFName.of('Helv'), helvetica.ref);
-                        }
-                    }
-                }
+                // Osadzenie popularnych czcionek, z których mogą korzystać poszczególne pola.
+                // Dzięki zmapowaniu aliasów (Helv, Arial, F1), pdf-lib nie zignoruje lokalnego rozmiaru
+                // czcionki danego widżetu przy wyliczaniu Appearance Streams (AP)!
+                const helvetica = await merged.embedFont(PDFLib.StandardFonts.Helvetica);
+                const times = await merged.embedFont(PDFLib.StandardFonts.TimesRoman);
+                const courier = await merged.embedFont(PDFLib.StandardFonts.Courier);
+
+                const fontDict = PDFDict.withContext(ctx);
+                fontDict.set(PDFName.of('Helv'), helvetica.ref);
+                fontDict.set(PDFName.of('Helvetica'), helvetica.ref);
+                fontDict.set(PDFName.of('Arial'), helvetica.ref);
+                fontDict.set(PDFName.of('Ti'), times.ref);
+                fontDict.set(PDFName.of('Cour'), courier.ref);
+                fontDict.set(PDFName.of('F1'), helvetica.ref);
+                fontDict.set(PDFName.of('F2'), helvetica.ref);
+                fontDict.set(PDFName.of('F3'), helvetica.ref);
+                fontDict.set(PDFName.of('F4'), helvetica.ref);
+                
+                const drDict = PDFDict.withContext(ctx);
+                drDict.set(PDFName.of('Font'), fontDict);
+
+                // Rekonstrukcja głównego słownika AcroForm. Ponieważ merged to nowy dokument,
+                // z założenia nie ma on własnego AcroForm, stąd musimy utworzyć go w locie.
+                const acroForm = PDFDict.withContext(ctx);
+                acroForm.set(PDFName.of('Fields'), fieldsArr);
+                acroForm.set(PDFName.of('NeedAppearances'), PDFBool.True);
+                acroForm.set(PDFName.of('DR'), drDict);
+                acroForm.set(PDFName.of('DA'), PDFLib.PDFString.of('/Helv 11 Tf 0 g')); // Twardy Fallback ostateczny
+                merged.catalog.set(PDFName.of('AcroForm'), acroForm);
 
                 // Auto-wypełnij pole pracownika OWiT imieniem zalogowanego użytkownika
                 const form = merged.getForm();
