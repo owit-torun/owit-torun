@@ -3677,12 +3677,72 @@
         function toggleDocCheck(id) {
             const cb = document.getElementById(id);
             cb.checked = !cb.checked;
-            // Pokaż ostrzeżenie gdy wybrano dane-beneficjenta + ozn (bez oozn)
-            const ozn   = document.getElementById('doc-wniosek-ozn')?.checked;
-            const oozn  = document.getElementById('doc-wniosek-oozn')?.checked;
-            const benef = document.getElementById('doc-dane-beneficjenta')?.checked;
-            const warn  = document.getElementById('dane-beneficjenta-warn');
-            if (warn) warn.classList.toggle('hidden', !(benef && ozn && !oozn));
+
+            // Wzajemne wykluczanie wniosek-ozn / wniosek-oozn
+            const oznCb  = document.getElementById('doc-wniosek-ozn');
+            const ooznCb = document.getElementById('doc-wniosek-oozn');
+            if (id === 'doc-wniosek-ozn' && cb.checked) {
+                ooznCb.checked = false;
+                ooznCb.disabled = true;
+                ooznCb.closest('li').classList.add('opacity-40', 'pointer-events-none');
+            } else if (id === 'doc-wniosek-ozn' && !cb.checked) {
+                ooznCb.disabled = false;
+                ooznCb.closest('li').classList.remove('opacity-40', 'pointer-events-none');
+            }
+            if (id === 'doc-wniosek-oozn' && cb.checked) {
+                oznCb.checked = false;
+                oznCb.disabled = true;
+                oznCb.closest('li').classList.add('opacity-40', 'pointer-events-none');
+            } else if (id === 'doc-wniosek-oozn' && !cb.checked) {
+                oznCb.disabled = false;
+                oznCb.closest('li').classList.remove('opacity-40', 'pointer-events-none');
+            }
+
+            // Usuń ostrzeżenie (nie jest już potrzebne — mapowanie odbywa się automatycznie)
+            const warn = document.getElementById('dane-beneficjenta-warn');
+            if (warn) warn.classList.add('hidden');
+        }
+
+        // Przemapowuje pola AcroForm w PDF przed scaleniem (collect-then-apply)
+        async function renamePdfFields(pdfBytes, renames) {
+            const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+            const ctx = pdfDoc.context;
+            const acroFormEntry = pdfDoc.catalog.get(PDFName.of('AcroForm'));
+            if (!acroFormEntry) return pdfBytes;
+            const acroForm = acroFormEntry instanceof PDFRef
+                ? ctx.lookupMaybe(acroFormEntry, PDFDict) : acroFormEntry;
+            if (!acroForm) return pdfBytes;
+            const fieldsEntry = acroForm.get(PDFName.of('Fields'));
+            if (!fieldsEntry) return pdfBytes;
+            const topFields = fieldsEntry instanceof PDFRef
+                ? ctx.lookupMaybe(fieldsEntry, PDFArray) : fieldsEntry;
+            if (!topFields) return pdfBytes;
+
+            const toRename = [];
+            function walk(arr) {
+                for (let i = 0; i < arr.size(); i++) {
+                    const entry = arr.get(i);
+                    const dict = entry instanceof PDFRef
+                        ? ctx.lookupMaybe(entry, PDFDict)
+                        : (entry instanceof PDFDict ? entry : null);
+                    if (!dict) continue;
+                    const t = dict.get(PDFName.of('T'));
+                    if (t) {
+                        const name = t.decodeText ? t.decodeText() : (t.value || '');
+                        if (renames[name]) toRename.push([dict, renames[name]]);
+                    }
+                    const kids = dict.get(PDFName.of('Kids'));
+                    if (kids) {
+                        const kArr = kids instanceof PDFRef ? ctx.lookupMaybe(kids, PDFArray) : kids;
+                        if (kArr) walk(kArr);
+                    }
+                }
+            }
+            walk(topFields);
+            for (const [dict, newName] of toRename) {
+                dict.set(PDFName.of('T'), PDFLib.PDFString.of(newName));
+            }
+            return await pdfDoc.save();
         }
 
         async function generateDocsPack() {
@@ -3707,6 +3767,22 @@
                 const { PDFDocument, PDFName, PDFArray, PDFDict, PDFRef, PDFBool } = PDFLib;
                 const merged = await PDFDocument.create();
 
+                const selectedFiles = [...checkboxes].map(cb => cb.value);
+                const isOzn  = selectedFiles.includes('wniosek-ozn.pdf');
+                const isOozn = selectedFiles.includes('wniosek-oozn.pdf');
+
+                // Mapowanie pól dane-beneficjenta dla przypadku ozn (OzN jest wypożyczającym)
+                const BENEF_OZN_RENAMES = {
+                    'ozn_imie_nazwisko': 'imie_nazwisko',
+                    'ozn_pesel':         'pesel',
+                    'ozn_telefon':       'telefon',
+                    'ozn_adres':         'adres',
+                    'ozn_email':         'email',
+                    'imie_nazwisko':     'opiekun_imie',
+                    'pesel':             'opiekun_pesel',
+                    'telefon':           'opiekun_telefon',
+                };
+
                 for (const cb of checkboxes) {
                     const url = PDF_BASE + cb.value;
                     let bytes;
@@ -3716,6 +3792,11 @@
                         bytes = await r.arrayBuffer();
                     } catch (fetchErr) {
                         throw new Error(`Nie można pobrać pliku "${cb.value}". Upewnij się że pliki PDF są na serwerze (${fetchErr.message}).`);
+                    }
+
+                    // Dla wniosku ozn (bez opiekuna) przemapuj dane-beneficjenta in-memory
+                    if (cb.value === 'dane-beneficjenta.pdf' && isOzn && !isOozn) {
+                        bytes = await renamePdfFields(bytes, BENEF_OZN_RENAMES);
                     }
                     const src = await PDFDocument.load(bytes, { ignoreEncryption: true });
                     const pages = await merged.copyPages(src, src.getPageIndices());
