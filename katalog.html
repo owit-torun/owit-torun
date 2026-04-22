@@ -4002,11 +4002,17 @@
                         
                         if (w.rootRef.toString() === w.annotEntry.toString()) {
                             // Ten widget był hybrydą. Teraz będzie już tylko i wyłącznie dzieckiem.
-                            // Kasujemy z niego metadane Pola (takie jak T i V), bo dziedziczy je od Mastera.
+                            // Kasujemy z niego metadane Pola (takie jak T, V, FT), bo dziedziczy je od Mastera.
                             w.annotDict.delete(T_NAME);
                             w.annotDict.delete(PDFName.of('V'));
-                            w.annotDict.delete(PDFName.of('DA'));
                             w.annotDict.delete(PDFName.of('Ff'));
+                            // WAŻNE: FT (Field Type) musi być usunięty, inaczej Acrobat uzna go za zepsute pod-pole!
+                            w.annotDict.delete(PDFName.of('FT'));
+                            w.annotDict.delete(PDFName.of('TU'));
+                            w.annotDict.delete(PDFName.of('TM'));
+                            w.annotDict.delete(PDFName.of('DV'));
+                            w.annotDict.delete(PDFName.of('Opt'));
+                            // WAŻNE: Nie usuwamy 'DA' (Font) ani 'Q' (Wyśrodkowanie)!
                         }
                         
                         w.annotDict.set(PARENT, masterRef);
@@ -4020,20 +4026,23 @@
                     }
                 }
 
-
-                // Osadź czcionkę – niezbędne dla Windows (PDFium nie renderuje pól bez zasobu czcionki)
-                const helvetica = await merged.embedFont(PDFLib.StandardFonts.Helvetica);
-                const fontDict = PDFDict.withContext(ctx);
-                fontDict.set(PDFName.of('Helv'), helvetica.ref);
-                const drDict = PDFDict.withContext(ctx);
-                drDict.set(PDFName.of('Font'), fontDict);
-
-                const acroForm = PDFDict.withContext(ctx);
-                acroForm.set(PDFName.of('Fields'), fieldsArr);
-                acroForm.set(PDFName.of('NeedAppearances'), PDFBool.True);
-                acroForm.set(PDFName.of('DR'), drDict);
-                acroForm.set(PDFName.of('DA'), PDFLib.PDFString.of('/Helv 11 Tf 0 g'));
-                merged.catalog.set(PDFName.of('AcroForm'), acroForm);
+                // Aktualizacja oryginalnego słownika AcroForm z zachowaniem czcionek (DR) i oryginalnego DA
+                const origAcroFormRaw = merged.catalog.get(PDFName.of('AcroForm'));
+                const origAcroForm = origAcroFormRaw instanceof PDFRef ? ctx.lookupMaybe(origAcroFormRaw, PDFDict) : origAcroFormRaw;
+                if (origAcroForm instanceof PDFDict) {
+                    origAcroForm.set(PDFName.of('Fields'), fieldsArr);
+                    // Opcjonalny fallback: osadź Helveticę na wypadek gdyby brakowało natywnych fontów 
+                    const helvetica = await merged.embedFont(PDFLib.StandardFonts.Helvetica);
+                    const drDictRaw = origAcroForm.get(PDFName.of('DR'));
+                    const drDict = drDictRaw instanceof PDFRef ? ctx.lookupMaybe(drDictRaw, PDFDict) : drDictRaw;
+                    if (drDict instanceof PDFDict) {
+                        const fontDictRaw = drDict.get(PDFName.of('Font'));
+                        const fontDict = fontDictRaw instanceof PDFRef ? ctx.lookupMaybe(fontDictRaw, PDFDict) : fontDictRaw;
+                        if (fontDict instanceof PDFDict) {
+                             fontDict.set(PDFName.of('Helv'), helvetica.ref);
+                        }
+                    }
+                }
 
                 // Auto-wypełnij pole pracownika OWiT imieniem zalogowanego użytkownika
                 const form = merged.getForm();
