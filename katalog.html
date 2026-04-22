@@ -3753,7 +3753,8 @@
 
         // Przemapowuje pola AcroForm w PDF przed scaleniem (collect-then-apply)
         async function renamePdfFields(pdfBytes, renames) {
-            const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+            const { PDFDocument, PDFName, PDFArray, PDFDict, PDFRef } = PDFLib;
+            const pdfDoc = await PDFDocument.load(pdfBytes);
             const ctx = pdfDoc.context;
             const acroFormEntry = pdfDoc.catalog.get(PDFName.of('AcroForm'));
             if (!acroFormEntry) return pdfBytes;
