@@ -3739,6 +3739,9 @@
                         if (!annotDict) continue;
                         const subtype = annotDict.get(SUBTYPE);
                         if (!subtype || subtype.toString() !== '/Widget') continue;
+                        // Usuń stare appearance streams — zepsute referencje fontów po scaleniu
+                        // powodują że PDFium na Windows pokazuje puste pole po odkliknięciu
+                        annotDict.delete(PDFName.of('AP'));
                         // Tylko pola najwyższego poziomu (bez /Parent)
                         if (!annotDict.has(PARENT) && annotEntry instanceof PDFRef) {
                             widgetRefs.push(annotEntry);
