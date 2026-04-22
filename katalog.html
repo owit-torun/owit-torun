@@ -3967,7 +3967,8 @@
                                 const pageAnnots = merged.getPage(p).node.get(ANNOTS);
                                 if (pageAnnots && pageAnnots instanceof PDFArray) {
                                     for(let aIdx = 0; aIdx < pageAnnots.size(); aIdx++) {
-                                        if (pageAnnots.get(aIdx) === w.rootRef) {
+                                        const pRef = pageAnnots.get(aIdx);
+                                        if (pRef instanceof PDFRef && pRef.toString() === w.rootRef.toString()) {
                                             pageAnnots.set(aIdx, cloneRef);
                                         }
                                     }
@@ -3977,12 +3978,15 @@
                         
                         // Dodanie obecnego (oryginalnego) widgetu do kids? 
                         // Użyliśmy klonowania dla pierwotnego, więc nie musimy dodawać w.annotEntry jeśli rootRef === annotEntry.
-                        if (w.rootRef !== w.annotEntry) {
+                        if (w.rootRef.toString() !== w.annotEntry.toString()) {
                             // Jeśli w.annotEntry oryginalnie miało parenta (np. był to drugostronicowy element w Wniosku)
                             // Dodajemy go normalnie do Kids u rootRef.
                             w.annotDict.set(PARENT, w.rootRef);
                             let found = false;
-                            for (let k = 0; k < kids.size(); k++) { if (kids.get(k) === w.annotEntry) found = true; }
+                            for (let k = 0; k < kids.size(); k++) { 
+                                const kr = kids.get(k);
+                                if (kr instanceof PDFRef && kr.toString() === w.annotEntry.toString()) found = true; 
+                            }
                             if (!found) kids.push(w.annotEntry);
                         }
 
@@ -3992,7 +3996,7 @@
                         const masterDict = ctx.lookupMaybe(masterRef, PDFDict);
                         const kids = masterDict.get(KIDS);
                         
-                        if (w.rootRef === w.annotEntry) {
+                        if (w.rootRef.toString() === w.annotEntry.toString()) {
                             // Ten widget był hybrydą. Teraz będzie już tylko i wyłącznie dzieckiem.
                             // Kasujemy z niego metadane Pola (takie jak T i V), bo dziedziczy je od Mastera.
                             w.annotDict.delete(T_NAME);
@@ -4004,7 +4008,10 @@
                         w.annotDict.set(PARENT, masterRef);
                         
                         let found = false;
-                        for (let k = 0; k < kids.size(); k++) { if (kids.get(k) === w.annotEntry) found = true; }
+                        for (let k = 0; k < kids.size(); k++) { 
+                            const kr = kids.get(k);
+                            if (kr instanceof PDFRef && kr.toString() === w.annotEntry.toString()) found = true; 
+                        }
                         if (!found) kids.push(w.annotEntry);
                     }
                 }
