@@ -1275,6 +1275,7 @@
                         <label for="doc-dane-beneficjenta" class="cursor-pointer">
                             <div class="font-semibold text-sm text-gray-800">Dane beneficjenta PFRON</div>
                             <div class="text-xs text-gray-500">Karta z danymi wymaganymi przez PFRON</div>
+                            <div id="dane-beneficjenta-warn" class="hidden mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">⚠️ Przy wniosku OzN (bez opiekuna) sekcja danych OzN wymaga ręcznego uzupełnienia</div>
                         </label>
                     </li>
                     <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-rodo')">
@@ -3676,6 +3677,12 @@
         function toggleDocCheck(id) {
             const cb = document.getElementById(id);
             cb.checked = !cb.checked;
+            // Pokaż ostrzeżenie gdy wybrano dane-beneficjenta + ozn (bez oozn)
+            const ozn   = document.getElementById('doc-wniosek-ozn')?.checked;
+            const oozn  = document.getElementById('doc-wniosek-oozn')?.checked;
+            const benef = document.getElementById('doc-dane-beneficjenta')?.checked;
+            const warn  = document.getElementById('dane-beneficjenta-warn');
+            if (warn) warn.classList.toggle('hidden', !(benef && ozn && !oozn));
         }
 
         async function generateDocsPack() {
@@ -3768,13 +3775,19 @@
                 merged.catalog.set(PDFName.of('AcroForm'), acroForm);
 
                 // Auto-wypełnij pole pracownika OWiT imieniem zalogowanego użytkownika
+                const form = merged.getForm();
                 if (currentUserName) {
                     try {
-                        const form = merged.getForm();
                         const owit = form.getTextField('pracownik_owit');
                         if (owit) owit.setText(currentUserName);
                     } catch (_) { /* pole może nie istnieć w wybranych dokumentach */ }
                 }
+
+                // Wygeneruj appearance streams dla wszystkich pól (fix Windows/PDFium)
+                // NeedAppearances nie wystarczy — PDFium wymaga gotowych AP streams
+                try {
+                    form.updateFieldAppearances(helvetica);
+                } catch (_) { /* ignoruj błędy pojedynczych pól (checkboxy, podpisy) */ }
 
                 const mergedBytes = await merged.save({ updateFieldAppearances: false });
                 const blob = new Blob([mergedBytes], { type: 'application/pdf' });
