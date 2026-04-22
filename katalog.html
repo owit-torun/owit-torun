@@ -3964,8 +3964,12 @@
                             
                             // Podmień na stronach stary masterRef na nowy cloneRef (widget wizualny)
                             for (let p = 0; p < merged.getPageCount(); p++) {
-                                const pageAnnots = merged.getPage(p).node.get(ANNOTS);
-                                if (pageAnnots && pageAnnots instanceof PDFArray) {
+                                const pageAnnotsRaw = merged.getPage(p).node.get(ANNOTS);
+                                const pageAnnots = pageAnnotsRaw instanceof PDFArray 
+                                    ? pageAnnotsRaw 
+                                    : ctx.lookupMaybe(pageAnnotsRaw, PDFArray);
+                                    
+                                if (pageAnnots) {
                                     for(let aIdx = 0; aIdx < pageAnnots.size(); aIdx++) {
                                         const pRef = pageAnnots.get(aIdx);
                                         if (pRef instanceof PDFRef && pRef.toString() === w.rootRef.toString()) {
