@@ -1017,7 +1017,8 @@
                                 aria-label="Moje wypożyczenia">
                                 <i data-lucide="package-check" class="w-4 h-4"></i>
                                 <span class="hidden md:inline">Moje wypożyczenia</span>
-                                <span id="myRentalsBadge" class="hidden min-w-[1.25rem] h-5 bg-green-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"></span>
+                                <span id="myRentalsBadge"
+                                    class="hidden min-w-[1.25rem] h-5 bg-green-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"></span>
                             </button>
                             <button id="docsGeneratorBtn" onclick="openDocsGeneratorModal()"
                                 class="hidden items-center gap-2 bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-300 hover:border-blue-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
@@ -1139,7 +1140,8 @@
     <div id="confirmModal"
         class="hidden fixed inset-0 bg-black/50 z-[60] items-center justify-center p-4 print:hidden backdrop-blur-sm"
         role="alertdialog" aria-modal="true" aria-labelledby="confirmModalTitle" aria-describedby="confirmModalMsg">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden border border-gray-100">
+        <div
+            class="bg-white rounded-xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden border border-gray-100">
             <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-2 bg-red-50/50">
                 <i data-lucide="alert-triangle" class="text-red-600 w-5 h-5 flex-shrink-0"></i>
                 <h3 id="confirmModalTitle" class="text-base font-bold text-red-800">Potwierdzenie</h3>
@@ -1151,7 +1153,8 @@
                 <button type="button" id="confirmModalCancel"
                     class="px-5 py-2 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 border border-gray-200 transition-colors cursor-pointer">Anuluj</button>
                 <button type="button" id="confirmModalOk"
-                    class="px-5 py-2 rounded-lg font-bold text-white bg-red-600 hover:bg-red-700 shadow transition-colors cursor-pointer">Tak, potwierdź</button>
+                    class="px-5 py-2 rounded-lg font-bold text-white bg-red-600 hover:bg-red-700 shadow transition-colors cursor-pointer">Tak,
+                    potwierdź</button>
             </div>
         </div>
     </div>
@@ -1201,7 +1204,8 @@
     <div id="myRentalsModal"
         class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4 print:hidden backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-labelledby="myRentalsModalTitle">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden border border-gray-100">
+        <div
+            class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden border border-gray-100">
             <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-green-50/60">
                 <h3 id="myRentalsModalTitle" class="text-xl font-bold flex items-center gap-2 text-green-800">
                     <i data-lucide="package-check" class="text-green-700"></i> Moje wypożyczenia
@@ -1213,14 +1217,20 @@
             </div>
             <div class="p-5 overflow-y-auto flex-grow bg-white">
                 <div id="myRentalsLegend" class="flex flex-wrap gap-2 mb-4 text-xs font-semibold">
-                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500"></span>Przeterminowane</span>
-                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-orange-400"></span>Zwrot ≤3 dni</span>
-                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400"></span>Zwrot ≤7 dni</span>
-                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500"></span>Zwrot &gt;7 dni</span>
-                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-gray-400"></span>Brak daty zwrotu</span>
+                    <span class="flex items-center gap-1"><span
+                            class="inline-block w-2.5 h-2.5 rounded-full bg-red-500"></span>Przeterminowane</span>
+                    <span class="flex items-center gap-1"><span
+                            class="inline-block w-2.5 h-2.5 rounded-full bg-orange-400"></span>Zwrot ≤3 dni</span>
+                    <span class="flex items-center gap-1"><span
+                            class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400"></span>Zwrot ≤7 dni</span>
+                    <span class="flex items-center gap-1"><span
+                            class="inline-block w-2.5 h-2.5 rounded-full bg-green-500"></span>Zwrot &gt;7 dni</span>
+                    <span class="flex items-center gap-1"><span
+                            class="inline-block w-2.5 h-2.5 rounded-full bg-gray-400"></span>Brak daty zwrotu</span>
                 </div>
                 <ul id="myRentalsList" class="space-y-2" aria-label="Lista moich wypożyczeń"></ul>
-                <p id="myRentalsEmpty" class="hidden text-center text-gray-500 py-8 text-sm">Nie masz aktualnie żadnych zarejestrowanych wypożyczeń.</p>
+                <p id="myRentalsEmpty" class="hidden text-center text-gray-500 py-8 text-sm">Nie masz aktualnie żadnych
+                    zarejestrowanych wypożyczeń.</p>
             </div>
         </div>
     </div>
@@ -1229,64 +1239,88 @@
     <div id="docsGeneratorModal"
         class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4 print:hidden backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-labelledby="docsGeneratorModalTitle">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden border border-gray-100">
+        <div
+            class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden border border-gray-100">
             <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-blue-50/60">
                 <h3 id="docsGeneratorModalTitle" class="text-xl font-bold flex items-center gap-2 text-blue-800">
                     <i data-lucide="file-text" class="text-blue-700"></i> Generator dokumentów
                 </h3>
-                <button type="button" onclick="closeDocsGeneratorModal()" aria-label="Zamknij okno generatora dokumentów"
+                <button type="button" onclick="closeDocsGeneratorModal()"
+                    aria-label="Zamknij okno generatora dokumentów"
                     class="text-gray-400 hover:text-gray-600 cursor-pointer p-1 rounded transition-colors">
                     <i data-lucide="x"></i>
                 </button>
             </div>
             <div class="p-5 overflow-y-auto flex-grow bg-white space-y-3">
-                <p class="text-sm text-gray-500">Zaznacz dokumenty potrzebne do wypożyczenia. Zostanie wygenerowany jeden PDF z edytowalnymi polami — dane wpisane w jednym miejscu uzupełnią się we wszystkich dokumentach.</p>
+                <p class="text-sm text-gray-500">Zaznacz dokumenty potrzebne do wypożyczenia. Zostanie wygenerowany
+                    jeden PDF z edytowalnymi polami — dane wpisane w jednym miejscu uzupełnią się we wszystkich
+                    dokumentach.</p>
                 <ul class="space-y-2" id="docsChecklist">
-                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-wniosek-ozn')">
-                        <input type="checkbox" id="doc-wniosek-ozn" value="wniosek-ozn.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                        onclick="toggleDocCheck('doc-wniosek-ozn')">
+                        <input type="checkbox" id="doc-wniosek-ozn" value="wniosek-ozn.pdf"
+                            class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
                         <label for="doc-wniosek-ozn" class="cursor-pointer">
                             <div class="font-semibold text-sm text-gray-800">Wniosek — OzN</div>
-                            <div class="text-xs text-gray-500">Wniosek o użyczenie TA dla osoby z niepełnosprawnością</div>
+                            <div class="text-xs text-gray-500">Wniosek o użyczenie TA dla osoby z niepełnosprawnością
+                            </div>
                         </label>
                     </li>
-                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-wniosek-oozn')">
-                        <input type="checkbox" id="doc-wniosek-oozn" value="wniosek-oozn.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                        onclick="toggleDocCheck('doc-wniosek-oozn')">
+                        <input type="checkbox" id="doc-wniosek-oozn" value="wniosek-oozn.pdf"
+                            class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
                         <label for="doc-wniosek-oozn" class="cursor-pointer">
                             <div class="font-semibold text-sm text-gray-800">Wniosek — OOzN</div>
-                            <div class="text-xs text-gray-500">Wniosek dla opiekuna/przedstawiciela osoby z niepełnosprawnością</div>
+                            <div class="text-xs text-gray-500">Wniosek dla opiekuna/przedstawiciela osoby z
+                                niepełnosprawnością</div>
                         </label>
                     </li>
-                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-umowa')">
-                        <input type="checkbox" id="doc-umowa" value="umowa.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                        onclick="toggleDocCheck('doc-umowa')">
+                        <input type="checkbox" id="doc-umowa" value="umowa.pdf"
+                            class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
                         <label for="doc-umowa" class="cursor-pointer">
                             <div class="font-semibold text-sm text-gray-800">Umowa o nieodpłatne wypożyczenie</div>
                             <div class="text-xs text-gray-500">Umowa z osobą wypożyczającą TA</div>
                         </label>
                     </li>
-                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-protokol-przekazania')">
-                        <input type="checkbox" id="doc-protokol-przekazania" value="protokol-przekazania-urzadzenia.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                        onclick="toggleDocCheck('doc-protokol-przekazania')">
+                        <input type="checkbox" id="doc-protokol-przekazania" value="protokol-przekazania-urzadzenia.pdf"
+                            class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
                         <label for="doc-protokol-przekazania" class="cursor-pointer">
                             <div class="font-semibold text-sm text-gray-800">Protokół przekazania urządzenia</div>
                             <div class="text-xs text-gray-500">Potwierdzenie wydania sprzętu z listą wyposażenia</div>
                         </label>
                     </li>
-                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-dane-beneficjenta')">
-                        <input type="checkbox" id="doc-dane-beneficjenta" value="dane-beneficjenta.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                        onclick="toggleDocCheck('doc-dane-beneficjenta')">
+                        <input type="checkbox" id="doc-dane-beneficjenta" value="dane-beneficjenta.pdf"
+                            class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
                         <label for="doc-dane-beneficjenta" class="cursor-pointer">
                             <div class="font-semibold text-sm text-gray-800">Dane beneficjenta PFRON</div>
                             <div class="text-xs text-gray-500">Karta z danymi wymaganymi przez PFRON</div>
-                            <div id="dane-beneficjenta-warn" class="hidden mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">⚠️ Przy wniosku OzN (bez opiekuna) sekcja danych OzN wymaga ręcznego uzupełnienia</div>
+                            <div id="dane-beneficjenta-warn"
+                                class="hidden mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                                ⚠️ Przy wniosku OzN (bez opiekuna) sekcja danych OzN wymaga ręcznego uzupełnienia</div>
                         </label>
                     </li>
-                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-rodo')">
-                        <input type="checkbox" id="doc-rodo" value="rodo.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                        onclick="toggleDocCheck('doc-rodo')">
+                        <input type="checkbox" id="doc-rodo" value="rodo.pdf"
+                            class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
                         <label for="doc-rodo" class="cursor-pointer">
                             <div class="font-semibold text-sm text-gray-800">Zgoda RODO</div>
-                            <div class="text-xs text-gray-500 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3 inline"></i> Dokument bez pól — dołączany jako strona do podpisania</div>
+                            <div class="text-xs text-gray-500 flex items-center gap-1"><i data-lucide="info"
+                                    class="w-3 h-3 inline"></i> Dokument bez pól — dołączany jako strona do podpisania
+                            </div>
                         </label>
                     </li>
-                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer" onclick="toggleDocCheck('doc-protokol-odbioru')">
-                        <input type="checkbox" id="doc-protokol-odbioru" value="protokol-odbioru.pdf" class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
+                    <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 transition-colors cursor-pointer"
+                        onclick="toggleDocCheck('doc-protokol-odbioru')">
+                        <input type="checkbox" id="doc-protokol-odbioru" value="protokol-odbioru.pdf"
+                            class="mt-0.5 w-4 h-4 accent-blue-600 cursor-pointer" onclick="event.stopPropagation()">
                         <label for="doc-protokol-odbioru" class="cursor-pointer">
                             <div class="font-semibold text-sm text-gray-800">Protokół odbioru</div>
                             <div class="text-xs text-gray-500">Wypełniany przy zwrocie sprzętu</div>
@@ -2035,16 +2069,16 @@
             // Miganie przycisku gdy jakiś termin ≤7 dni lub przeterminowany
             const urgent = rentals.some(r => {
                 if (!r.date) return false;
-                const diff = Math.round((new Date(r.date) - new Date().setHours(0,0,0,0)) / 86400000);
+                const diff = Math.round((new Date(r.date) - new Date().setHours(0, 0, 0, 0)) / 86400000);
                 return diff <= 7;
             });
             btn.classList.toggle('animate-pulse', urgent);
-            btn.classList.toggle('bg-red-50',    urgent);
-            btn.classList.toggle('text-red-800',  urgent);
-            btn.classList.toggle('border-red-300',urgent);
-            btn.classList.toggle('bg-green-50',  !urgent);
-            btn.classList.toggle('text-green-800',!urgent);
-            btn.classList.toggle('border-green-300',!urgent);
+            btn.classList.toggle('bg-red-50', urgent);
+            btn.classList.toggle('text-red-800', urgent);
+            btn.classList.toggle('border-red-300', urgent);
+            btn.classList.toggle('bg-green-50', !urgent);
+            btn.classList.toggle('text-green-800', !urgent);
+            btn.classList.toggle('border-green-300', !urgent);
             const modal = document.getElementById('myRentalsModal');
             if (modal && !modal.classList.contains('hidden')) renderMyRentals();
         }
@@ -2389,7 +2423,7 @@
                         ? `<button onclick="removeRental('${dbKey}', ${idx})" title="Usuń wpis wypożyczenia" aria-label="Usuń wpis wypożyczenia" class="text-white bg-red-400 font-bold px-2 py-1 text-xs hover:bg-red-500 rounded ml-1 transition-colors">✕</button>`
                         : `<span title="Wpis dodany przez innego pracownika" class="text-gray-300 font-bold px-2 py-1 text-xs rounded ml-1 cursor-not-allowed select-none">✕</span>`;
                     const roClass = canEdit ? '' : 'bg-gray-50 text-gray-400 cursor-not-allowed';
-                    const roAttr  = canEdit ? '' : 'readonly';
+                    const roAttr = canEdit ? '' : 'readonly';
                     html += `
                     <div class="flex flex-col gap-1 mt-2 bg-white p-1 rounded border border-gray-200 shadow-sm">
                         <div class="flex gap-1 items-center">
@@ -3667,6 +3701,7 @@
     <script>
         // ── Generator dokumentów wypożyczenia ──────────────────────────────
         const PDF_BASE = 'pdf/wypozyczenie/';
+        const { PDFDocument, PDFName, PDFArray, PDFDict, PDFRef, PDFBool, PDFString } = PDFLib;
 
         function openDocsGeneratorModal() {
             const modal = document.getElementById('docsGeneratorModal');
@@ -3693,7 +3728,7 @@
             cb.checked = !cb.checked;
 
             // Wzajemne wykluczanie wniosek-ozn / wniosek-oozn
-            const oznCb  = document.getElementById('doc-wniosek-ozn');
+            const oznCb = document.getElementById('doc-wniosek-ozn');
             const ooznCb = document.getElementById('doc-wniosek-oozn');
             if (id === 'doc-wniosek-ozn' && cb.checked) {
                 ooznCb.checked = false;
@@ -3778,23 +3813,22 @@
             }
 
             try {
-                const { PDFDocument, PDFName, PDFArray, PDFDict, PDFRef, PDFBool } = PDFLib;
                 const merged = await PDFDocument.create();
 
                 const selectedFiles = [...checkboxes].map(cb => cb.value);
-                const isOzn  = selectedFiles.includes('wniosek-ozn.pdf');
+                const isOzn = selectedFiles.includes('wniosek-ozn.pdf');
                 const isOozn = selectedFiles.includes('wniosek-oozn.pdf');
 
                 // Mapowanie pól dane-beneficjenta dla przypadku ozn (OzN jest wypożyczającym)
                 const BENEF_OZN_RENAMES = {
                     'ozn_imie_nazwisko': 'imie_nazwisko',
-                    'ozn_pesel':         'pesel',
-                    'ozn_telefon':       'telefon',
-                    'ozn_adres':         'adres',
-                    'ozn_email':         'email',
-                    'imie_nazwisko':     'opiekun_imie',
-                    'pesel':             'opiekun_pesel',
-                    'telefon':           'opiekun_telefon',
+                    'ozn_pesel': 'pesel',
+                    'ozn_telefon': 'telefon',
+                    'ozn_adres': 'adres',
+                    'ozn_email': 'email',
+                    'imie_nazwisko': 'opiekun_imie',
+                    'pesel': 'opiekun_pesel',
+                    'telefon': 'opiekun_telefon',
                 };
 
                 for (const cb of checkboxes) {
@@ -3842,11 +3876,11 @@
                         if (!annotDict) continue;
                         const subtype = annotDict.get(SUBTYPE);
                         if (!subtype || subtype.toString() !== '/Widget') continue;
-                        
+
                         // Usuń stare appearance streams — zepsute referencje fontów po scaleniu
                         // powodują że PDFium na Windows pokazuje puste pole po odkliknięciu
                         annotDict.delete(PDFName.of('AP'));
-                        
+
                         // ZNAJDŹ GŁÓWNE POLE (ROOT) DLA WIDGETU
                         let rootRef = annotEntry;
                         let rootDict = annotDict;
