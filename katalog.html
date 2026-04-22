@@ -3936,13 +3936,20 @@
                 const form = merged.getForm();
                 
                 // Ujednolicenie wielkości czcionki dla wszystkich pól tekstowych (rozmiar 9)
-                // zapobiega to ucinaniu tekstu (np. dat) i zapewnia spójny wygląd 
+                // Używamy "brute-force" na obiektach dict, gdyż standardowe setFontSize w pdf-lib przepuszcza auto-sizing przy zepsutych korzeniach
                 try {
                     const textFields = form.getTextFields();
                     textFields.forEach(f => {
                         try {
-                            f.setFontSize(9);
-                        } catch (e) {}
+                            const daStr = PDFLib.PDFString.of('/Helv 9 Tf 0 g');
+                            f.acroField.dict.set(PDFLib.PDFName.of('DA'), daStr);
+                            
+                            // Wyzerowanie ewentualnych styli widżetów dzieci (by poprawnie odziedziczyły narzuconą "9-tkę")
+                            const widgets = f.acroField.getWidgets();
+                            widgets.forEach(w => {
+                                w.dict.set(PDFLib.PDFName.of('DA'), daStr);
+                            });
+                        } catch (err) {}
                     });
                 } catch (e) {
                     console.warn("Nie udało się ujednolicić czcionek: ", e);
