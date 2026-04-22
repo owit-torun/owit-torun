@@ -3869,7 +3869,7 @@
 
                 // Odbuduj AcroForm — skanuj strony w poszukiwaniu widgetów formularzy
                 const ctx = merged.context;
-                const widgetRefs = [];
+                const fieldRefsSet = new Set(); // używamy Seta aby zapobiec duplikatom korzeni
                 const ANNOTS = PDFName.of('Annots');
                 const SUBTYPE = PDFName.of('Subtype');
                 const PARENT = PDFName.of('Parent');
@@ -3889,21 +3889,35 @@
                             ? ctx.lookupMaybe(annotEntry, PDFDict)
                             : (annotEntry instanceof PDFDict ? annotEntry : null);
                         if (!annotDict) continue;
+                        
                         const subtype = annotDict.get(SUBTYPE);
                         if (!subtype || subtype.toString() !== '/Widget') continue;
+                        
                         // Usuń stare appearance streams — zepsute referencje fontów po scaleniu
-                        // powodują że PDFium na Windows pokazuje puste pole po odkliknięciu
                         annotDict.delete(PDFName.of('AP'));
-                        // Tylko pola najwyższego poziomu (bez /Parent)
-                        if (!annotDict.has(PARENT) && annotEntry instanceof PDFRef) {
-                            widgetRefs.push(annotEntry);
+
+                        // Znajdź główny obiekt Field (korzeń) idąc po rodzicach
+                        let currentDict = annotDict;
+                        let rootRef = annotEntry instanceof PDFRef ? annotEntry : null;
+                        let parentRef = currentDict.get(PARENT);
+                        
+                        while (parentRef instanceof PDFRef) {
+                            rootRef = parentRef;
+                            currentDict = ctx.lookupMaybe(parentRef, PDFDict);
+                            if (!currentDict) break;
+                            parentRef = currentDict.get(PARENT);
+                        }
+
+                        // Dodaj właściwy korzeń na listę
+                        if (rootRef) {
+                            fieldRefsSet.add(rootRef);
                         }
                     }
                 }
 
                 // Utwórz tablicę Fields i słownik AcroForm
                 const fieldsArr = PDFArray.withContext(ctx);
-                widgetRefs.forEach(r => fieldsArr.push(r));
+                fieldRefsSet.forEach(r => fieldsArr.push(r));
 
                 // Osadź czcionkę – niezbędne dla Windows (PDFium nie renderuje pól bez zasobu czcionki)
                 const helvetica = await merged.embedFont(PDFLib.StandardFonts.Helvetica);
@@ -3916,19 +3930,18 @@
                 acroForm.set(PDFName.of('Fields'), fieldsArr);
                 acroForm.set(PDFName.of('NeedAppearances'), PDFBool.True);
                 acroForm.set(PDFName.of('DR'), drDict);
-                acroForm.set(PDFName.of('DA'), PDFLib.PDFString.of('/Helv 10 Tf 0 g'));
+                acroForm.set(PDFName.of('DA'), PDFLib.PDFString.of('/Helv 9 Tf 0 g'));
                 merged.catalog.set(PDFName.of('AcroForm'), acroForm);
 
                 const form = merged.getForm();
                 
-                // Ujednolicenie wielkości czcionki dla wszystkich pól tekstowych (rozmiar 10)
+                // Ujednolicenie wielkości czcionki dla wszystkich pól tekstowych (rozmiar 9)
                 // zapobiega to ucinaniu tekstu (np. dat) i zapewnia spójny wygląd 
                 try {
                     const textFields = form.getTextFields();
                     textFields.forEach(f => {
                         try {
-                            f.setFontSize(10);
-                            // Możemy też przypisać czcionkę jeśli pole jej nie posiada
+                            f.setFontSize(9);
                         } catch (e) {}
                     });
                 } catch (e) {
