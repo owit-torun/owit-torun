@@ -3701,7 +3701,6 @@
     <script>
         // ── Generator dokumentów wypożyczenia ──────────────────────────────
         const PDF_BASE = 'pdf/wypozyczenie/';
-        const { PDFDocument, PDFName, PDFArray, PDFDict, PDFRef, PDFBool, PDFString } = PDFLib;
 
         function openDocsGeneratorModal() {
             const modal = document.getElementById('docsGeneratorModal');
@@ -3813,6 +3812,7 @@
             }
 
             try {
+                const { PDFDocument, PDFName, PDFArray, PDFDict, PDFRef, PDFBool } = PDFLib;
                 const merged = await PDFDocument.create();
 
                 const selectedFiles = [...checkboxes].map(cb => cb.value);
@@ -3831,6 +3831,16 @@
                     'telefon': 'opiekun_telefon',
                 };
 
+                // Mapowanie naprawcze dla protokołu odbioru w locie
+                // Uwaga: plik PDF na dysku posiada historycznie narzucone błędne nazwy pól (przez stary skrypt)
+                // Wymusza to ręczne odwrócenie i naprostowanie ról rubryk w pamięci tuż przed generowaniem pakietu
+                const PROTOKOL_ODBIORU_RENAMES = {
+                    'imie_nazwisko': 'nazwa_sprzetu',  // rubryka sprzętu błędnie wciągała wypożyczającego/opiekuna
+                    'nr_umowy': 'odbioru_ilosc_puste', // rubryka ilości błędnie wciągała numer umowy z innych dokumentów
+                    'nr_umowy_2': 'nr_umowy',          // właściwa rubryka numeru umowy w protokole
+                    'pracownik_owit': 'imie_nazwisko'  // rubryka Zwracającego błędnie wciągała nazwisko pracownika OWiT
+                };
+
                 for (const cb of checkboxes) {
                     const url = PDF_BASE + cb.value;
                     let bytes;
@@ -3846,6 +3856,11 @@
                     if (cb.value === 'dane-beneficjenta.pdf' && isOzn && !isOozn) {
                         bytes = await renamePdfFields(bytes, BENEF_OZN_RENAMES);
                     }
+
+                    // Dla protokołu odbioru napraw miejscami zamienione pola wypożyczającego i pracownika
+                    if (cb.value === 'protokol-odbioru.pdf') {
+                        bytes = await renamePdfFields(bytes, PROTOKOL_ODBIORU_RENAMES);
+                    }
                     const src = await PDFDocument.load(bytes, { ignoreEncryption: true });
                     const pages = await merged.copyPages(src, src.getPageIndices());
                     pages.forEach(p => merged.addPage(p));
@@ -3853,33 +3868,11 @@
 
                 // Odbuduj AcroForm — skanuj strony w poszukiwaniu widgetów formularzy
                 const ctx = merged.context;
+                const widgetRefs = [];
                 const ANNOTS = PDFName.of('Annots');
                 const SUBTYPE = PDFName.of('Subtype');
                 const PARENT = PDFName.of('Parent');
-                const KIDS = PDFName.of('Kids');
-                const T_NAME = PDFName.of('T');
 
-                function getFieldName(fieldDict) {
-                    let name = '';
-                    let current = fieldDict;
-                    while (current) {
-                        const t = current.get(T_NAME);
-                        if (t) {
-                            const part = t.decodeText ? t.decodeText() : (t.value || '');
-                            name = name ? part + '.' + name : part;
-                        }
-                        const pRef = current.get(PARENT);
-                        if (pRef instanceof PDFRef) {
-                            current = ctx.lookupMaybe(pRef, PDFDict);
-                        } else {
-                            break;
-                        }
-                    }
-                    return name;
-                }
-
-                // 1. Zbieramy wszystkie pierwotne widgety ze stron
-                const allWidgets = [];
                 for (let i = 0; i < merged.getPageCount(); i++) {
                     const pageNode = merged.getPage(i).node;
                     const annotsRaw = pageNode.get(ANNOTS);
@@ -3897,167 +3890,51 @@
                         if (!annotDict) continue;
                         const subtype = annotDict.get(SUBTYPE);
                         if (!subtype || subtype.toString() !== '/Widget') continue;
-
-                        annotDict.delete(PDFName.of('AP')); // Usuń zepsute appearance files
-
-                        let rootRef = annotEntry;
-                        let rootDict = annotDict;
-                        while (rootDict.has(PARENT)) {
-                            const pRef = rootDict.get(PARENT);
-                            if (pRef instanceof PDFRef) {
-                                rootRef = pRef;
-                                rootDict = ctx.lookupMaybe(pRef, PDFDict) || rootDict;
-                            } else {
-                                break;
-                            }
+                        // Usuń stare appearance streams — zepsute referencje fontów po scaleniu
+                        // powodują że PDFium na Windows pokazuje puste pole po odkliknięciu
+                        annotDict.delete(PDFName.of('AP'));
+                        // Tylko pola najwyższego poziomu (bez /Parent)
+                        if (!annotDict.has(PARENT) && annotEntry instanceof PDFRef) {
+                            widgetRefs.push(annotEntry);
                         }
-
-                        const fullName = getFieldName(rootDict);
-                        allWidgets.push({ annotEntry, annotDict, rootRef, rootDict, fullName });
                     }
                 }
 
-                // 2. Łączymy duplikaty z tą samą nazwą pod jeden wspólny Master Root.
+                // Utwórz tablicę Fields i słownik AcroForm
                 const fieldsArr = PDFArray.withContext(ctx);
-                const masterFields = new Map(); // fullName -> masterRootRef
-                const anonymousFields = new Set(); // referencje bez nazwy
+                widgetRefs.forEach(r => fieldsArr.push(r));
 
-                for (const w of allWidgets) {
-                    if (!w.fullName) {
-                        const refStr = w.rootRef.toString();
-                        if (!anonymousFields.has(refStr)) {
-                            anonymousFields.add(refStr);
-                            fieldsArr.push(w.rootRef);
-                        }
-                        continue;
-                    }
-
-                    if (!masterFields.has(w.fullName)) {
-                        masterFields.set(w.fullName, w.rootRef);
-                        fieldsArr.push(w.rootRef);
-                        
-                        // Zabezpieczamy referencję - hybryda pola/widgetu czasem sprawia problemy, 
-                        // ale standard pdf-lib domyślnie generuje fields prawidłowo, jeżeli
-                        // nie podepniemy mu innych /Kids, albo stworzymy spójny system parent/child.
-                        // Aby uniknąć straty wyglądu oryginalnego widgetu, jeśli master hybrydą rozbijamy to:
-                        const masterDict = w.rootDict;
-                        let kids = masterDict.get(KIDS);
-                        
-                        if (!kids || !(kids instanceof PDFArray)) {
-                            // Separacja Mastera na czyste pole i klon czystego widgetu dla jego wizualizacji
-                            const widgetClone = PDFDict.withContext(ctx);
-                            const WIDGET_KEYS = ['Subtype', 'Rect', 'P', 'F', 'AP', 'AS', 'MK', 'BS', 'Border', 'H', 'A', 'AA'];
-                            
-                            for (const key of WIDGET_KEYS) {
-                                const kName = PDFName.of(key);
-                                if (masterDict.has(kName)) {
-                                    widgetClone.set(kName, masterDict.get(kName));
-                                    masterDict.delete(kName); // Master staje się czystym Polem (bez widżetów)
-                                }
-                            }
-                            widgetClone.set(PARENT, w.rootRef);
-                            const cloneRef = ctx.register(widgetClone);
-                            
-                            kids = PDFArray.withContext(ctx);
-                            kids.push(cloneRef);
-                            masterDict.set(KIDS, kids);
-                            
-                            // Podmień na stronach stary masterRef na nowy cloneRef (widget wizualny)
-                            for (let p = 0; p < merged.getPageCount(); p++) {
-                                const pageAnnotsRaw = merged.getPage(p).node.get(ANNOTS);
-                                const pageAnnots = pageAnnotsRaw instanceof PDFArray 
-                                    ? pageAnnotsRaw 
-                                    : ctx.lookupMaybe(pageAnnotsRaw, PDFArray);
-                                    
-                                if (pageAnnots) {
-                                    for(let aIdx = 0; aIdx < pageAnnots.size(); aIdx++) {
-                                        const pRef = pageAnnots.get(aIdx);
-                                        if (pRef instanceof PDFRef && pRef.toString() === w.rootRef.toString()) {
-                                            pageAnnots.set(aIdx, cloneRef);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // Dodanie obecnego (oryginalnego) widgetu do kids? 
-                        // Użyliśmy klonowania dla pierwotnego, więc nie musimy dodawać w.annotEntry jeśli rootRef === annotEntry.
-                        if (w.rootRef.toString() !== w.annotEntry.toString()) {
-                            // Jeśli w.annotEntry oryginalnie miało parenta (np. był to drugostronicowy element w Wniosku)
-                            // Dodajemy go normalnie do Kids u rootRef.
-                            w.annotDict.set(PARENT, w.rootRef);
-                            let found = false;
-                            for (let k = 0; k < kids.size(); k++) { 
-                                const kr = kids.get(k);
-                                if (kr instanceof PDFRef && kr.toString() === w.annotEntry.toString()) found = true; 
-                            }
-                            if (!found) kids.push(w.annotEntry);
-                        }
-
-                    } else {
-                        // Znaleźliśmy duplikat, przypisujemy do Mastera!
-                        const masterRef = masterFields.get(w.fullName);
-                        const masterDict = ctx.lookupMaybe(masterRef, PDFDict);
-                        const kids = masterDict.get(KIDS);
-                        
-                        if (w.rootRef.toString() === w.annotEntry.toString()) {
-                            // Ten widget był hybrydą. Teraz będzie już tylko i wyłącznie dzieckiem.
-                            // Kasujemy z niego metadane Pola (takie jak T, V, FT), bo dziedziczy je od Mastera.
-                            w.annotDict.delete(T_NAME);
-                            w.annotDict.delete(PDFName.of('V'));
-                            w.annotDict.delete(PDFName.of('Ff'));
-                            // WAŻNE: FT (Field Type) musi być usunięty, inaczej Acrobat uzna go za zepsute pod-pole!
-                            w.annotDict.delete(PDFName.of('FT'));
-                            w.annotDict.delete(PDFName.of('TU'));
-                            w.annotDict.delete(PDFName.of('TM'));
-                            w.annotDict.delete(PDFName.of('DV'));
-                            w.annotDict.delete(PDFName.of('Opt'));
-                            // WAŻNE: Nie usuwamy 'DA' (Font) ani 'Q' (Wyśrodkowanie)!
-                        }
-                        
-                        w.annotDict.set(PARENT, masterRef);
-                        
-                        let found = false;
-                        for (let k = 0; k < kids.size(); k++) { 
-                            const kr = kids.get(k);
-                            if (kr instanceof PDFRef && kr.toString() === w.annotEntry.toString()) found = true; 
-                        }
-                        if (!found) kids.push(w.annotEntry);
-                    }
-                }
-
-                // Osadzenie popularnych czcionek, z których mogą korzystać poszczególne pola.
-                // Dzięki zmapowaniu aliasów (Helv, Arial, F1), pdf-lib nie zignoruje lokalnego rozmiaru
-                // czcionki danego widżetu przy wyliczaniu Appearance Streams (AP)!
+                // Osadź czcionkę – niezbędne dla Windows (PDFium nie renderuje pól bez zasobu czcionki)
                 const helvetica = await merged.embedFont(PDFLib.StandardFonts.Helvetica);
-                const times = await merged.embedFont(PDFLib.StandardFonts.TimesRoman);
-                const courier = await merged.embedFont(PDFLib.StandardFonts.Courier);
-
                 const fontDict = PDFDict.withContext(ctx);
                 fontDict.set(PDFName.of('Helv'), helvetica.ref);
-                fontDict.set(PDFName.of('Helvetica'), helvetica.ref);
-                fontDict.set(PDFName.of('Arial'), helvetica.ref);
-                fontDict.set(PDFName.of('Ti'), times.ref);
-                fontDict.set(PDFName.of('Cour'), courier.ref);
-                fontDict.set(PDFName.of('F1'), helvetica.ref);
-                fontDict.set(PDFName.of('F2'), helvetica.ref);
-                fontDict.set(PDFName.of('F3'), helvetica.ref);
-                fontDict.set(PDFName.of('F4'), helvetica.ref);
-                
                 const drDict = PDFDict.withContext(ctx);
                 drDict.set(PDFName.of('Font'), fontDict);
 
-                // Rekonstrukcja głównego słownika AcroForm. Ponieważ merged to nowy dokument,
-                // z założenia nie ma on własnego AcroForm, stąd musimy utworzyć go w locie.
                 const acroForm = PDFDict.withContext(ctx);
                 acroForm.set(PDFName.of('Fields'), fieldsArr);
                 acroForm.set(PDFName.of('NeedAppearances'), PDFBool.True);
                 acroForm.set(PDFName.of('DR'), drDict);
-                acroForm.set(PDFName.of('DA'), PDFLib.PDFString.of('/Helv 11 Tf 0 g')); // Twardy Fallback ostateczny
+                acroForm.set(PDFName.of('DA'), PDFLib.PDFString.of('/Helv 10 Tf 0 g'));
                 merged.catalog.set(PDFName.of('AcroForm'), acroForm);
 
-                // Auto-wypełnij pole pracownika OWiT imieniem zalogowanego użytkownika
                 const form = merged.getForm();
+                
+                // Ujednolicenie wielkości czcionki dla wszystkich pól tekstowych (rozmiar 10)
+                // zapobiega to ucinaniu tekstu (np. dat) i zapewnia spójny wygląd 
+                try {
+                    const textFields = form.getTextFields();
+                    textFields.forEach(f => {
+                        try {
+                            f.setFontSize(10);
+                            // Możemy też przypisać czcionkę jeśli pole jej nie posiada
+                        } catch (e) {}
+                    });
+                } catch (e) {
+                    console.warn("Nie udało się ujednolicić czcionek: ", e);
+                }
+
+                // Auto-wypełnij pole pracownika OWiT imieniem zalogowanego użytkownika
                 if (currentUserName) {
                     try {
                         const owit = form.getTextField('pracownik_owit');
