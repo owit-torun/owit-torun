@@ -2001,7 +2001,8 @@
                 if (!inv || inv.hidden) continue;
                 (inv.rentals || []).forEach((rental, idx) => {
                     if (rental && rental.addedBy === currentUserEmail) {
-                        results.push({ dbKey, index: idx, name: getItemName(dbKey), date: rental.date || '', personName: rental.name || '' });
+                        const queueCount = (inv.queueArr || []).filter(Boolean).length;
+                        results.push({ dbKey, index: idx, name: getItemName(dbKey), date: rental.date || '', personName: rental.name || '', queueCount });
                     }
                 });
             }
@@ -2040,16 +2041,26 @@
             list.innerHTML = rentals.map(r => {
                 const status = _getRentalStatus(r.date);
                 const dateFormatted = r.date ? new Date(r.date).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
-                const rowBg = status.overdue ? 'border-red-200 bg-red-50/50' : 'border-gray-100 bg-gray-50/40';
+                const hasQueue = r.queueCount > 0;
+                const rowBg = status.overdue
+                    ? 'border-red-200 bg-red-50/50'
+                    : hasQueue
+                        ? 'border-amber-300 bg-amber-50/60 ring-1 ring-amber-200'
+                        : 'border-gray-100 bg-gray-50/40';
+                const queueBadge = hasQueue
+                    ? `<span class="shrink-0 flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full border bg-amber-100 text-amber-800 border-amber-300 whitespace-nowrap" title="Liczba osób oczekujących w kolejce"><i data-lucide="users" class="w-3 h-3"></i>${r.queueCount} w kolejce</span>`
+                    : '';
                 return `<li class="flex items-center gap-3 p-3 rounded-lg border ${rowBg}">
                     <span class="shrink-0 w-3 h-3 rounded-full ${status.dot}" aria-hidden="true"></span>
                     <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-gray-800 text-sm leading-tight">${r.name}</p>
+                        <button onclick="goToItemInCatalog('${r.dbKey}')" class="font-semibold text-green-800 text-sm leading-tight text-left hover:underline underline-offset-2 cursor-pointer" title="Przejdź do sprzętu w katalogu">${r.name}</button>
                         <p class="text-xs text-gray-500 mt-0.5">Termin zwrotu: <span class="font-medium text-gray-700">${dateFormatted}</span></p>
                     </div>
+                    ${queueBadge}
                     <span class="shrink-0 text-xs font-semibold px-2 py-1 rounded-full border ${status.badge} whitespace-nowrap">${status.label}</span>
                 </li>`;
             }).join('');
+            lucide.createIcons({ attrs: { 'aria-hidden': 'true' } });
         }
 
         function updateMyRentalsBadge() {
@@ -2288,6 +2299,7 @@
         }
 
         function updateRental(dbKey, index, field, value) {
+            if (field === 'deviceCode') value = value.toUpperCase();
             database.ref(`inventory/${dbKey}/rentals/${index}`).update({ [field]: value }).catch(e => alert("Błąd: " + e.message));
         }
 
@@ -2436,7 +2448,7 @@
                         </div>
                         <div class="flex flex-col">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Kod urządzenia</span>
-                            <input type="text" placeholder="XXX-00" value="${r.deviceCode || ''}" onchange="updateRental('${dbKey}', ${idx}, 'deviceCode', this.value)" aria-label="Kod urządzenia – wypożyczenie ${displayIdx + 1}" ${roAttr} class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono ${roClass}">
+                            <input type="text" placeholder="XXX-00" value="${r.deviceCode || ''}" oninput="this.value = this.value.toUpperCase()" onchange="updateRental('${dbKey}', ${idx}, 'deviceCode', this.value)" aria-label="Kod urządzenia – wypożyczenie ${displayIdx + 1}" ${roAttr} class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono ${roClass}">
                         </div>
                     </div>`;
                 });
@@ -2865,6 +2877,25 @@
         }
 
         // CZYSZCZENIE WYSZUKIWANIA
+        function goToItemInCatalog(dbKey) {
+            closeMyRentalsModal();
+            // Resetuj filtry i wyszukiwanie żeby karta była widoczna
+            const input = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (input && input.value) { input.value = ''; if (clearBtn) { clearBtn.classList.add('hidden'); clearBtn.classList.remove('flex'); } currentSearchQuery = ''; }
+            currentFilter = 'all';
+            currentCategoryFilter = 'all';
+            renderCatalog();
+            // Krótkie opóźnienie żeby renderCatalog zdążył wstawić DOM
+            setTimeout(() => {
+                const card = document.getElementById('item-' + dbKey);
+                if (!card) return;
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('ring-2', 'ring-green-500', 'ring-offset-2');
+                setTimeout(() => card.classList.remove('ring-2', 'ring-green-500', 'ring-offset-2'), 2000);
+            }, 80);
+        }
+
         function clearSearch() {
             const input = document.getElementById('searchInput');
             const btn = document.getElementById('clearSearchBtn');
@@ -3375,7 +3406,7 @@
                         const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(item.name)}`;
 
                         htmlContent += `
-                            <div class="product-card ${isEmployeeMode ? 'is-visible' : 'reveal'} relative ${selectedClass} rounded-2xl shadow-md border border-gray-200 overflow-hidden flex flex-col avoid-break print:shadow-none print:border-gray-300 hover:shadow-xl hover:border-green-400 group">
+                            <div id="item-${dbKey}" class="product-card ${isEmployeeMode ? 'is-visible' : 'reveal'} relative ${selectedClass} rounded-2xl shadow-md border border-gray-200 overflow-hidden flex flex-col avoid-break print:shadow-none print:border-gray-300 hover:shadow-xl hover:border-green-400 group">
                                 <!-- Checkbox do zaznaczania do druku -->
                                 <div class="absolute top-3 right-3 z-10 print-hide" onclick="event.stopPropagation()">
                                     <input type="checkbox" id="chk-${itemUid}" onchange="togglePrintSelection('${item.name.replace(/'/g, "\\'")}')" class="print-checkbox w-6 h-6 cursor-pointer rounded border-gray-300 shadow-sm transition-all" ${checkedAttr} aria-label="Zaznacz do druku: ${item.name}">
