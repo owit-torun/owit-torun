@@ -3382,6 +3382,7 @@
                     `;
 
                     section.items.forEach((item, itemIdx) => {
+                        const dbKey = getDbKey(item.name);
                         const itemUid = `${deptIdx}-${catIdx}-${itemIdx}`;
                         const isSelected = selectedItems.has(item.name);
                         const selectedClass = isSelected ? 'ring-2 ring-green-500 bg-green-50 selected-for-print' : 'bg-white';
