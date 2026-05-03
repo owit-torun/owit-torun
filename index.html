@@ -38,8 +38,13 @@
       "name": "OWiT Toruń – Ośrodek Wsparcia i Testów",
       "alternateName": "OWiT Toruń",
       "url": "https://owit-torun.pl",
-      "logo": "https://owit-torun.pl/images/ui/icon-512.png",
-      "image": "https://owit-torun.pl/images/ui/dofinansowanie.png",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://owit-torun.pl/images/ui/icon-512.png",
+        "width": 512,
+        "height": 512
+      },
+      "image": "https://owit-torun.pl/images/ui/og-banner.png",
       "telephone": "+48697677027",
       "email": "owit.torun@gmail.com",
       "description": "Bezpłatny ośrodek wsparcia oferujący doradztwo, testowanie i wypożyczanie technologii asystujących dla osób z niepełnosprawnościami w Toruniu.",
@@ -2589,7 +2594,7 @@
     <script src="components/footer.js"></script>
     <script>
         if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("./sw.js").catch(() => {});
+            navigator.serviceWorker.register("./sw.js").catch(() => { });
         }
     </script>
 </body>
