@@ -3260,13 +3260,20 @@
                 const dIdx = parseInt(item.departmentIdx);
                 const cIdx = parseInt(item.categoryIdx);
                 if (combinedCatalogData[dIdx] && combinedCatalogData[dIdx].categories[cIdx]) {
-                    combinedCatalogData[dIdx].categories[cIdx].items.push({
+                    const mergedItem = {
                         name: item.name,
                         desc: item.desc,
                         features: item.features || [],
                         imageUrl: item.imageUrl || '',
-                        badge: item.badge || null
-                    });
+                        badge: item.badge || null,
+                        nrSzafy: item.nrSzafy || null
+                    };
+                    const existingIdx = combinedCatalogData[dIdx].categories[cIdx].items.findIndex(i => getDbKey(i.name) === getDbKey(item.name));
+                    if (existingIdx !== -1) {
+                        combinedCatalogData[dIdx].categories[cIdx].items[existingIdx] = mergedItem;
+                    } else {
+                        combinedCatalogData[dIdx].categories[cIdx].items.push(mergedItem);
+                    }
                 }
             });
 
