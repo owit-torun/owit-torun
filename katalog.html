@@ -1410,6 +1410,14 @@
                         </select>
                     </div>
 
+                    <div class="space-y-1">
+                        <label for="modalNrSzafy" class="text-xs font-bold text-gray-600 uppercase tracking-wide">Numer Szafy</label>
+                        <input type="text" id="modalNrSzafy"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all shadow-sm"
+                            placeholder="np. S-3 lub 12A" maxlength="20">
+                        <p class="text-[10px] text-gray-400 mt-1">Widoczne wyłącznie dla zalogowanych pracowników.</p>
+                    </div>
+
                     <div class="space-y-1 pt-2 border-t border-gray-100">
                         <label for="modalImage" class="text-xs font-bold text-gray-600 uppercase tracking-wide">Zdjęcie
                             Sprzętu (.jpg / .png)</label>
@@ -2206,6 +2214,7 @@
             document.getElementById('modalDesc').value = itemData.desc || '';
             document.getElementById('modalFeatures').value = (itemData.features || []).join(', ');
             document.getElementById('modalBadge').value = itemData.badge || '';
+            document.getElementById('modalNrSzafy').value = itemData.nrSzafy || '';
 
             document.getElementById('addGearModal').classList.remove('hidden');
             if (typeof lucide !== 'undefined') lucide.createIcons({ attrs: { 'aria-hidden': 'true' } });
@@ -2253,7 +2262,8 @@
                     imageUrl = await processImageFile(fileInput.files[0]);
                 }
 
-                const itemData = { departmentIdx: deptIdx, categoryIdx: catIdx, name, desc, features, imageUrl, badge: badge || null, createdAt: Date.now() };
+                const nrSzafy = document.getElementById('modalNrSzafy').value.trim();
+                const itemData = { departmentIdx: deptIdx, categoryIdx: catIdx, name, desc, features, imageUrl, badge: badge || null, nrSzafy: nrSzafy || null, createdAt: Date.now() };
 
                 if (editingGearKey) {
                     const oldKey = editingGearKey;
@@ -2826,22 +2836,22 @@
             }
         }
 
-        // FLAGI: NOWOŚĆ / WKRÓTCE
-        function getItemBadge(item) {
+        // LEWY GÓRNY RÓG: szafa (tylko zalogowani) + flaga nowość/wkrótce
+        function getTopLeftBadges(item) {
+            const cabinetSpan = (isEmployeeMode && item.nrSzafy)
+                ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-black/40 text-white backdrop-blur-sm tracking-wide leading-tight">&#128230;&nbsp;${item.nrSzafy}</span>`
+                : '';
             const badge = item.badge;
-            if (!badge) return '';
-            if (badge === 'nowość') {
-                return `<div class="absolute top-2 left-2 z-10 print-hide">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-500 text-white shadow-sm uppercase tracking-wide">✦ Nowość</span>
-                </div>`;
-            }
-            if (badge === 'wkrótce') {
-                return `<div class="absolute top-2 left-2 z-10 print-hide">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-white shadow-sm uppercase tracking-wide">⏳ Wkrótce</span>
-                </div>`;
-            }
-            return '';
+            const badgeSpan = badge === 'nowość'
+                ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-500 text-white shadow-sm uppercase tracking-wide">✦ Nowość</span>`
+                : badge === 'wkrótce'
+                ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-white shadow-sm uppercase tracking-wide">⏳ Wkrótce</span>`
+                : '';
+            if (!cabinetSpan && !badgeSpan) return '';
+            return `<div class="absolute top-2 left-2 z-10 print-hide flex flex-col items-start gap-1">${cabinetSpan}${badgeSpan}</div>`;
         }
+
+        function getItemBadge(item) { return getTopLeftBadges(item); }
 
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 1024) {
