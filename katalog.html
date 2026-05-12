@@ -2839,7 +2839,7 @@
         // LEWY GÓRNY RÓG: szafa (tylko zalogowani) + flaga nowość/wkrótce
         function getTopLeftBadges(item) {
             const cabinetSpan = (isEmployeeMode && item.nrSzafy)
-                ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-black/40 text-white backdrop-blur-sm tracking-wide leading-tight">&#128230;&nbsp;${item.nrSzafy}</span>`
+                ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-black/40 text-white backdrop-blur-sm tracking-wide leading-tight">${item.nrSzafy}</span>`
                 : '';
             const badge = item.badge;
             const badgeSpan = badge === 'nowość'
