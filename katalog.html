@@ -2304,7 +2304,7 @@
         function addRental(dbKey) {
             const inv = inventoryData[dbKey] || { rentals: [] };
             const rentals = inv.rentals || [];
-            rentals.push({ name: currentUserName || '', date: '', addedBy: currentUserEmail });
+            rentals.push({ name: currentUserName || '', date: '', addedBy: currentUserEmail, beneficiaryLastName: '' });
             database.ref('inventory/' + dbKey + '/rentals').set(rentals).catch(e => alert("Błąd: " + e.message));
         }
 
@@ -2374,7 +2374,7 @@
         function addQueue(dbKey) {
             const inv = inventoryData[dbKey] || { queueArr: [] };
             const q = inv.queueArr || [];
-            q.push({ name: currentUserName || '', addedBy: currentUserEmail });
+            q.push({ name: currentUserName || '', addedBy: currentUserEmail, beneficiaryLastName: '' });
             database.ref('inventory/' + dbKey + '/queueArr').set(q).catch(e => alert("Błąd: " + e.message));
         }
 
@@ -2460,6 +2460,10 @@
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Kod urządzenia</span>
                             <input type="text" placeholder="XXX-00" value="${r.deviceCode || ''}" oninput="this.value = this.value.toUpperCase()" onchange="updateRental('${dbKey}', ${idx}, 'deviceCode', this.value)" aria-label="Kod urządzenia – wypożyczenie ${displayIdx + 1}" ${roAttr} class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono ${roClass}">
                         </div>
+                        <div class="flex flex-col">
+                            <span class="text-[9px] text-gray-400 leading-tight px-1">Nazwisko beneficjenta <span class="text-red-500">*</span></span>
+                            <input type="text" placeholder="Wymagane" value="${r.beneficiaryLastName || ''}" onchange="updateRental('${dbKey}', ${idx}, 'beneficiaryLastName', this.value)" aria-label="Nazwisko beneficjenta – wypożyczenie ${displayIdx + 1}" required ${roAttr} class="w-full p-1 border ${canEdit && !r.beneficiaryLastName ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none ${roClass}">
+                        </div>
                     </div>`;
                 });
 
@@ -2482,15 +2486,23 @@
                 }
 
                 queueArr.forEach((q, idx) => {
-                    const canDeleteQ = isAdminMode || !q.addedBy || q.addedBy === currentUserEmail;
-                    const deleteBtnQ = canDeleteQ
+                    const canEditQ = isAdminMode || !q.addedBy || q.addedBy === currentUserEmail;
+                    const deleteBtnQ = canEditQ
                         ? `<button onclick="removeQueue('${dbKey}', ${idx})" title="Usuń osobę z kolejki" aria-label="Usuń osobę z kolejki" class="text-gray-400 font-bold px-2 py-1 text-xs hover:text-red-500 hover:bg-red-100 rounded ml-1 transition-colors">✕</button>`
                         : `<span title="Wpis dodany przez innego pracownika" class="text-gray-300 font-bold px-2 py-1 text-xs rounded ml-1 cursor-not-allowed select-none">✕</span>`;
+                    const roClassQ = canEditQ ? '' : 'bg-gray-50 text-gray-400 cursor-not-allowed';
+                    const roAttrQ = canEditQ ? '' : 'readonly';
                     html += `
-                    <div class="flex gap-1 items-center mb-2 bg-yellow-50 p-1 rounded border border-yellow-200 shadow-sm">
-                        <span class="text-[10px] font-bold text-yellow-700 px-1 w-4 text-center">${idx + 1}.</span>
-                        <input type="text" placeholder="Imię/PUP" value="${q.name || ''}" onchange="updateQueue('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – kolejka pozycja ${idx + 1}" class="flex-1 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-medium">
-                        ${deleteBtnQ}
+                    <div class="flex flex-col mb-2 bg-yellow-50 p-1 rounded border border-yellow-200 shadow-sm">
+                        <div class="flex gap-1 items-center">
+                            <span class="text-[10px] font-bold text-yellow-700 px-1 w-4 text-center">${idx + 1}.</span>
+                            <input type="text" placeholder="Imię/PUP" value="${q.name || ''}" onchange="updateQueue('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – kolejka pozycja ${idx + 1}" ${roAttrQ} class="flex-1 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-medium ${roClassQ}">
+                            ${deleteBtnQ}
+                        </div>
+                        <div class="flex flex-col mt-1 pl-5">
+                            <span class="text-[9px] text-gray-400 leading-tight px-1">Nazwisko beneficjenta <span class="text-red-500">*</span></span>
+                            <input type="text" placeholder="Wymagane" value="${q.beneficiaryLastName || ''}" onchange="updateQueue('${dbKey}', ${idx}, 'beneficiaryLastName', this.value)" aria-label="Nazwisko beneficjenta – kolejka pozycja ${idx + 1}" required ${roAttrQ} class="w-full p-1 border ${canEditQ && !q.beneficiaryLastName ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none ${roClassQ}">
+                        </div>
                     </div>`;
                 });
 
