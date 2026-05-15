@@ -1712,6 +1712,8 @@
             'Basic D V5': 'drukarka brajlowska',
             // Powiększalniki i lupy
             'Luna 6': 'lupa',
+            'Luna 8': 'lupa',
+            'Clover 5': 'lupa',
             'Spider 3': 'powiększalnik',
             'Prodigi Connect 12': 'powiększalnik',
             'Da Vinci HD 24 Pro': 'powiększalnik',
@@ -2430,19 +2432,21 @@
         }
 
         function startAddReservation(dbKey) {
-            pendingReservation[dbKey] = { employeeName: currentUserName || '', beneficiaryLastName: '', startDate: '' };
+            pendingReservation[dbKey] = { employeeName: currentUserName || '', beneficiaryLastName: '', startDate: '', deviceCode: '' };
             renderCatalog();
         }
         function updatePendingReservation(dbKey, field, value) {
             if (!pendingReservation[dbKey]) return;
+            if (field === 'deviceCode') value = value.toUpperCase();
             pendingReservation[dbKey][field] = value;
         }
         function saveReservation(dbKey) {
             const p = pendingReservation[dbKey];
             if (!p) return;
             if (!p.beneficiaryLastName) { alert('Uzupełnij nazwisko beneficjenta.'); return; }
+            if (!p.deviceCode) { alert('Uzupełnij kod urządzenia.'); return; }
             const arr = ((inventoryData[dbKey] || {}).reservationsArr || []).slice();
-            arr.push({ employeeName: p.employeeName, beneficiaryLastName: p.beneficiaryLastName, startDate: p.startDate, addedBy: currentUserEmail });
+            arr.push({ employeeName: p.employeeName, beneficiaryLastName: p.beneficiaryLastName, startDate: p.startDate, deviceCode: p.deviceCode, addedBy: currentUserEmail });
             delete pendingReservation[dbKey];
             database.ref('inventory/' + dbKey + '/reservationsArr').set(arr)
                 .catch(e => alert("Błąd: " + e.message));
@@ -2571,8 +2575,8 @@
 
                 html += `</div>`; // Koniec sekcji wypożyczeń
 
-                // Sekcja kolejki – tylko gdy wszystkie sztuki wypożyczone
-                if (availableCount === 0) {
+                // Sekcja kolejki – admin widzi zawsze, pracownik tylko gdy wszystkie sztuki wypożyczone
+                if (isAdminMode || availableCount === 0) {
                     const queueArr = invData.queueArr || [];
                     html += `
                     <div class="flex flex-col mt-3 pt-3 border-t border-gray-200">
@@ -2653,6 +2657,10 @@
                             <input type="text" placeholder="Wymagane" value="${res.beneficiaryLastName || ''}" onchange="updateReservation('${dbKey}', ${idx}, 'beneficiaryLastName', this.value)" aria-label="Nazwisko beneficjenta – rezerwacja ${idx + 1}" required ${roAttrR} class="w-full p-1 border ${canEditR && !res.beneficiaryLastName ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none ${roClassR}">
                         </div>
                         <div class="flex flex-col mt-1 pl-5">
+                            <span class="text-[9px] text-gray-400 leading-tight px-1">Kod urządzenia <span class="text-red-500">*</span></span>
+                            <input type="text" placeholder="XXX-00" value="${res.deviceCode || ''}" oninput="this.value=this.value.toUpperCase()" onchange="updateReservation('${dbKey}', ${idx}, 'deviceCode', this.value)" aria-label="Kod urządzenia – rezerwacja ${idx + 1}" ${roAttrR} class="w-full p-1 border ${canEditR && !res.deviceCode ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none font-mono ${roClassR}">
+                        </div>
+                        <div class="flex flex-col mt-1 pl-5">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Data rozpoczęcia wypożyczenia</span>
                             <input type="date" value="${res.startDate || ''}" onchange="updateReservation('${dbKey}', ${idx}, 'startDate', this.value)" aria-label="Data rozpoczęcia wypożyczenia – rezerwacja ${idx + 1}" ${roAttrR} class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono ${roClassR}">
                         </div>
@@ -2670,6 +2678,10 @@
                         <div class="flex flex-col pl-1">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Nazwisko beneficjenta <span class="text-red-500">*</span></span>
                             <input type="text" placeholder="Wymagane" value="${pr.beneficiaryLastName}" oninput="updatePendingReservation('${dbKey}','beneficiaryLastName',this.value)" class="w-full p-1 border ${!pr.beneficiaryLastName ? 'border-red-300 bg-red-50' : 'border-gray-200'} rounded text-xs focus:ring-1 outline-none">
+                        </div>
+                        <div class="flex flex-col pl-1">
+                            <span class="text-[9px] text-gray-400 leading-tight px-1">Kod urządzenia <span class="text-red-500">*</span></span>
+                            <input type="text" placeholder="XXX-00" value="${pr.deviceCode}" oninput="this.value=this.value.toUpperCase();updatePendingReservation('${dbKey}','deviceCode',this.value)" class="w-full p-1 border ${!pr.deviceCode ? 'border-red-300 bg-red-50' : 'border-gray-200'} rounded text-xs focus:ring-1 outline-none font-mono">
                         </div>
                         <div class="flex flex-col pl-1">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Data rozpoczęcia wypożyczenia</span>
@@ -2823,6 +2835,8 @@
                         icon: "zoom-in",
                         items: [
                             { name: "Luna 6", desc: "Kieszonkowy powiększalnik wideo z jasnym 6-calowym ekranem. Posiada wbudowaną rączkę i doskonały kontrast do czytania w podróży.", features: ["Powiększenie ekranu", "Mobilne / Przenośne", "Wysoki kontrast"], imageUrl: "images/devices/luna-6.jpg" },
+                            { name: "Luna 8", desc: "Przenośny powiększalnik wideo z dużym 8-calowym ekranem (1280×800) i precyzyjną kamerą 13 MP z autofokusem. Oferuje do 8 godzin pracy na baterii, tryb dali do odczytywania tablic i rzutników, zapis do 200 zdjęć oraz wyjście HDMI.", features: ["Powiększenie ekranu", "Mobilne / Przenośne", "Wysoki kontrast", "Edukacja i Terapia"], imageUrl: "images/devices/luna-8.jpg" },
+                            { name: "Clover 5", desc: "Kompaktowy powiększalnik wideo z 5-calowym ekranem i składaną podstawką umożliwiającą komfortowe czytanie i pisanie. Waży zaledwie 210 g, oferuje powiększenie 4×–20×, 20 trybów kolorów wysokiego kontrastu oraz funkcję zatrzymania obrazu.", features: ["Powiększenie ekranu", "Mobilne / Przenośne", "Wysoki kontrast"], imageUrl: "images/devices/clover-5.jpg" },
                             { name: "Spider 3", desc: "Elastyczny i przenośny system powiększający oparty na złączach wideo. Pozwala na łatwe podłączenie do zewnętrznego monitora lub tabletu.", features: ["Powiększenie ekranu", "Mobilne / Przenośne"], imageUrl: "images/devices/powiekszalnik-spider.jpg" },
                             { name: "Prodigi Connect 12", desc: "Multimedialny powiększalnik (tablet 12 cali) z dodatkową, zewnętrzną kamerą do dali. Sprawdza się na wykładach i w szkołach.", features: ["Powiększenie ekranu", "Rozpoznawanie tekstu (OCR)", "Edukacja i Terapia"], imageUrl: "images/devices/prodigi-connect-12-z-kamera.jpg" },
                             { name: "Da Vinci HD 24 Pro", desc: "Wielofunkcyjny, stacjonarny powiększalnik z dużym 24-calowym ekranem i pełnym wsparciem OCR (odczytywanie zeskanowanego tekstu na głos).", features: ["Powiększenie ekranu", "Rozpoznawanie tekstu (OCR)", "Stacjonarne"], imageUrl: "images/devices/da-vinci-hd-24-pro.jpg" },
