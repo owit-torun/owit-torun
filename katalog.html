@@ -2056,6 +2056,7 @@
 
             for (const dbKey of Object.keys(inventoryData)) {
                 const invData = inventoryData[dbKey];
+                if (invData.hidden) continue;
                 const itemName = getItemName(dbKey);
 
                 (invData.rentals || []).forEach(r => {
