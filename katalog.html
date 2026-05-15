@@ -2304,7 +2304,12 @@
         function addRental(dbKey) {
             const inv = inventoryData[dbKey] || { rentals: [] };
             const rentals = inv.rentals || [];
-            rentals.push({ name: currentUserName || '', date: '', addedBy: currentUserEmail, beneficiaryLastName: '' });
+            const incomplete = rentals.find(r => !r.deviceCode || !r.beneficiaryLastName);
+            if (incomplete) {
+                alert('Uzupełnij wymagane pola (kod urządzenia i nazwisko beneficjenta) w istniejących wpisach przed dodaniem nowego.');
+                return;
+            }
+            rentals.push({ name: currentUserName || '', date: '', addedBy: currentUserEmail, beneficiaryLastName: '', deviceCode: '' });
             database.ref('inventory/' + dbKey + '/rentals').set(rentals).catch(e => alert("Błąd: " + e.message));
         }
 
@@ -2387,6 +2392,25 @@
                 const q = inventoryData[dbKey].queueArr || [];
                 q.splice(index, 1);
                 database.ref(`inventory/${dbKey}/queueArr`).set(q).catch(e => alert("Błąd: " + e.message));
+            });
+        }
+
+        function addReservation(dbKey) {
+            const inv = inventoryData[dbKey] || { reservationsArr: [] };
+            const arr = (inv.reservationsArr || []).slice();
+            arr.push({ employeeName: currentUserName || '', addedBy: currentUserEmail, beneficiaryLastName: '', startDate: '' });
+            database.ref('inventory/' + dbKey + '/reservationsArr').set(arr).catch(e => alert("Błąd: " + e.message));
+        }
+
+        function updateReservation(dbKey, index, field, value) {
+            database.ref(`inventory/${dbKey}/reservationsArr/${index}`).update({ [field]: value }).catch(e => alert("Błąd: " + e.message));
+        }
+
+        function removeReservation(dbKey, index) {
+            showConfirm("Czy usunąć tę rezerwację?", () => {
+                const arr = (inventoryData[dbKey].reservationsArr || []).slice();
+                arr.splice(index, 1);
+                database.ref(`inventory/${dbKey}/reservationsArr`).set(arr).catch(e => alert("Błąd: " + e.message));
             });
         }
 
@@ -2475,40 +2499,81 @@
 
                 html += `</div>`; // Koniec sekcji wypożyczeń
 
-                // Sekcja kolejki
-                const queueArr = invData.queueArr || [];
-                html += `
+                // Sekcja kolejki – tylko gdy wszystkie sztuki wypożyczone
+                if (availableCount === 0) {
+                    const queueArr = invData.queueArr || [];
+                    html += `
                     <div class="flex flex-col mt-3 pt-3 border-t border-gray-200">
                         <label class="text-[11px] font-bold text-gray-600 uppercase mb-2">Lista oczekujących (${queueArr.length}):</label>`;
 
-                if (queueArr.length === 0) {
-                    html += `<div class="text-xs text-gray-600 italic mb-2">Brak osób w kolejce.</div>`;
+                    if (queueArr.length === 0) {
+                        html += `<div class="text-xs text-gray-600 italic mb-2">Brak osób w kolejce.</div>`;
+                    }
+
+                    queueArr.forEach((q, idx) => {
+                        const canEditQ = isAdminMode || !q.addedBy || q.addedBy === currentUserEmail;
+                        const deleteBtnQ = canEditQ
+                            ? `<button onclick="removeQueue('${dbKey}', ${idx})" title="Usuń osobę z kolejki" aria-label="Usuń osobę z kolejki" class="text-gray-400 font-bold px-2 py-1 text-xs hover:text-red-500 hover:bg-red-100 rounded ml-1 transition-colors">✕</button>`
+                            : `<span title="Wpis dodany przez innego pracownika" class="text-gray-300 font-bold px-2 py-1 text-xs rounded ml-1 cursor-not-allowed select-none">✕</span>`;
+                        const roClassQ = canEditQ ? '' : 'bg-gray-50 text-gray-400 cursor-not-allowed';
+                        const roAttrQ = canEditQ ? '' : 'readonly';
+                        html += `
+                        <div class="flex flex-col mb-2 bg-yellow-50 p-1 rounded border border-yellow-200 shadow-sm">
+                            <div class="flex gap-1 items-center">
+                                <span class="text-[10px] font-bold text-yellow-700 px-1 w-4 text-center">${idx + 1}.</span>
+                                <input type="text" placeholder="Imię/PUP" value="${q.name || ''}" onchange="updateQueue('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – kolejka pozycja ${idx + 1}" ${roAttrQ} class="flex-1 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-medium ${roClassQ}">
+                                ${deleteBtnQ}
+                            </div>
+                            <div class="flex flex-col mt-1 pl-5">
+                                <span class="text-[9px] text-gray-400 leading-tight px-1">Nazwisko beneficjenta <span class="text-red-500">*</span></span>
+                                <input type="text" placeholder="Wymagane" value="${q.beneficiaryLastName || ''}" onchange="updateQueue('${dbKey}', ${idx}, 'beneficiaryLastName', this.value)" aria-label="Nazwisko beneficjenta – kolejka pozycja ${idx + 1}" required ${roAttrQ} class="w-full p-1 border ${canEditQ && !q.beneficiaryLastName ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none ${roClassQ}">
+                            </div>
+                        </div>`;
+                    });
+
+                    html += `
+                        <button onclick="addQueue('${dbKey}')" class="w-full text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-bold px-2 py-2 rounded transition-colors mt-1">+ Dodaj osobę do kolejki</button>
+                    </div>`;
                 }
 
-                queueArr.forEach((q, idx) => {
-                    const canEditQ = isAdminMode || !q.addedBy || q.addedBy === currentUserEmail;
-                    const deleteBtnQ = canEditQ
-                        ? `<button onclick="removeQueue('${dbKey}', ${idx})" title="Usuń osobę z kolejki" aria-label="Usuń osobę z kolejki" class="text-gray-400 font-bold px-2 py-1 text-xs hover:text-red-500 hover:bg-red-100 rounded ml-1 transition-colors">✕</button>`
+                // Sekcja rezerwacji
+                const reservationsArr = invData.reservationsArr || [];
+                html += `
+                <div class="flex flex-col mt-3 pt-3 border-t border-gray-200">
+                    <label class="text-[11px] font-bold text-gray-600 uppercase mb-2">Rezerwacje (${reservationsArr.length}):</label>`;
+
+                if (reservationsArr.length === 0) {
+                    html += `<div class="text-xs text-gray-600 italic mb-2">Brak rezerwacji.</div>`;
+                }
+
+                reservationsArr.forEach((res, idx) => {
+                    const canEditR = isAdminMode || !res.addedBy || res.addedBy === currentUserEmail;
+                    const deleteBtnR = canEditR
+                        ? `<button onclick="removeReservation('${dbKey}', ${idx})" title="Usuń rezerwację" aria-label="Usuń rezerwację" class="text-gray-400 font-bold px-2 py-1 text-xs hover:text-red-500 hover:bg-red-100 rounded ml-1 transition-colors">✕</button>`
                         : `<span title="Wpis dodany przez innego pracownika" class="text-gray-300 font-bold px-2 py-1 text-xs rounded ml-1 cursor-not-allowed select-none">✕</span>`;
-                    const roClassQ = canEditQ ? '' : 'bg-gray-50 text-gray-400 cursor-not-allowed';
-                    const roAttrQ = canEditQ ? '' : 'readonly';
+                    const roClassR = canEditR ? '' : 'bg-gray-50 text-gray-400 cursor-not-allowed';
+                    const roAttrR = canEditR ? '' : 'readonly';
                     html += `
-                    <div class="flex flex-col mb-2 bg-yellow-50 p-1 rounded border border-yellow-200 shadow-sm">
+                    <div class="flex flex-col mb-2 bg-purple-50 p-1 rounded border border-purple-200 shadow-sm">
                         <div class="flex gap-1 items-center">
-                            <span class="text-[10px] font-bold text-yellow-700 px-1 w-4 text-center">${idx + 1}.</span>
-                            <input type="text" placeholder="Imię/PUP" value="${q.name || ''}" onchange="updateQueue('${dbKey}', ${idx}, 'name', this.value)" aria-label="Imię lub PUP – kolejka pozycja ${idx + 1}" ${roAttrQ} class="flex-1 p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-medium ${roClassQ}">
-                            ${deleteBtnQ}
+                            <span class="text-[10px] font-bold text-purple-700 px-1 w-4 text-center">${idx + 1}.</span>
+                            <input type="text" value="${res.employeeName || ''}" readonly aria-label="Imię i nazwisko pracownika – rezerwacja ${idx + 1}" class="flex-1 p-1 border border-gray-100 rounded text-xs bg-gray-50 text-gray-500 cursor-not-allowed outline-none font-medium" title="Imię i nazwisko pracownika (automatyczne)">
+                            ${deleteBtnR}
                         </div>
                         <div class="flex flex-col mt-1 pl-5">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Nazwisko beneficjenta <span class="text-red-500">*</span></span>
-                            <input type="text" placeholder="Wymagane" value="${q.beneficiaryLastName || ''}" onchange="updateQueue('${dbKey}', ${idx}, 'beneficiaryLastName', this.value)" aria-label="Nazwisko beneficjenta – kolejka pozycja ${idx + 1}" required ${roAttrQ} class="w-full p-1 border ${canEditQ && !q.beneficiaryLastName ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none ${roClassQ}">
+                            <input type="text" placeholder="Wymagane" value="${res.beneficiaryLastName || ''}" onchange="updateReservation('${dbKey}', ${idx}, 'beneficiaryLastName', this.value)" aria-label="Nazwisko beneficjenta – rezerwacja ${idx + 1}" required ${roAttrR} class="w-full p-1 border ${canEditR && !res.beneficiaryLastName ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none ${roClassR}">
+                        </div>
+                        <div class="flex flex-col mt-1 pl-5">
+                            <span class="text-[9px] text-gray-400 leading-tight px-1">Data rozpoczęcia wypożyczenia</span>
+                            <input type="date" value="${res.startDate || ''}" onchange="updateReservation('${dbKey}', ${idx}, 'startDate', this.value)" aria-label="Data rozpoczęcia wypożyczenia – rezerwacja ${idx + 1}" ${roAttrR} class="w-full p-1 border border-gray-100 rounded text-xs focus:ring-1 outline-none font-mono ${roClassR}">
                         </div>
                     </div>`;
                 });
 
                 html += `
-                        <button onclick="addQueue('${dbKey}')" class="w-full text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-bold px-2 py-2 rounded transition-colors mt-1">+ Dodaj osobę do kolejki</button>
-                    </div>
+                    <button onclick="addReservation('${dbKey}')" class="w-full text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold px-2 py-2 rounded transition-colors mt-1">+ Dodaj rezerwację</button>
+                </div>
                 </div>`;
             } else {
                 // Widok Klienta/Przeglądającego
