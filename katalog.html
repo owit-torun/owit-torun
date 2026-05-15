@@ -2322,8 +2322,8 @@
             if (!p.beneficiaryLastName) { alert('Uzupełnij nazwisko beneficjenta.'); return; }
             const rentals = ((inventoryData[dbKey] || {}).rentals || []).slice();
             rentals.push({ name: p.name, date: p.date, deviceCode: p.deviceCode, beneficiaryLastName: p.beneficiaryLastName, addedBy: currentUserEmail });
+            delete pendingRental[dbKey];
             database.ref('inventory/' + dbKey + '/rentals').set(rentals)
-                .then(() => { delete pendingRental[dbKey]; })
                 .catch(e => alert("Błąd: " + e.message));
         }
         function cancelPendingRental(dbKey) {
@@ -2408,8 +2408,8 @@
             if (!p.beneficiaryLastName) { alert('Uzupełnij nazwisko beneficjenta.'); return; }
             const q = ((inventoryData[dbKey] || {}).queueArr || []).slice();
             q.push({ name: p.name, beneficiaryLastName: p.beneficiaryLastName, addedBy: currentUserEmail });
+            delete pendingQueue[dbKey];
             database.ref('inventory/' + dbKey + '/queueArr').set(q)
-                .then(() => { delete pendingQueue[dbKey]; })
                 .catch(e => alert("Błąd: " + e.message));
         }
         function cancelPendingQueue(dbKey) {
@@ -2443,8 +2443,8 @@
             if (!p.beneficiaryLastName) { alert('Uzupełnij nazwisko beneficjenta.'); return; }
             const arr = ((inventoryData[dbKey] || {}).reservationsArr || []).slice();
             arr.push({ employeeName: p.employeeName, beneficiaryLastName: p.beneficiaryLastName, startDate: p.startDate, addedBy: currentUserEmail });
+            delete pendingReservation[dbKey];
             database.ref('inventory/' + dbKey + '/reservationsArr').set(arr)
-                .then(() => { delete pendingReservation[dbKey]; })
                 .catch(e => alert("Błąd: " + e.message));
         }
         function cancelPendingReservation(dbKey) {
