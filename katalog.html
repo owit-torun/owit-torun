@@ -1178,6 +1178,16 @@
                     <i data-lucide="x"></i>
                 </button>
             </div>
+            <div class="flex gap-1 px-5 pt-4 shrink-0 border-b border-gray-100">
+                <button id="reportTabWorkers" onclick="switchReportTab('workers')"
+                    class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-red-600 text-red-700 bg-red-50 transition-colors">
+                    Pracownicy
+                </button>
+                <button id="reportTabOverdue" onclick="switchReportTab('overdue')"
+                    class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+                    Po terminie <span id="overdueCount" class="ml-1 hidden min-w-[1.25rem] h-5 bg-red-600 text-white text-[10px] font-bold rounded-full inline-flex items-center justify-center px-1"></span>
+                </button>
+            </div>
             <div id="adminReportContent" class="p-5 overflow-y-auto flex-grow bg-white text-sm"></div>
         </div>
     </div>
@@ -2037,11 +2047,30 @@
 
         function openAdminReportModal() {
             _adminReportTrigger = document.activeElement;
-            document.getElementById('adminReportContent').innerHTML = _buildAdminReport();
             const modal = document.getElementById('adminReportModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            lucide.createIcons();
+            // przelicz badge przeterminowanych przed renderem pierwszej zakładki
+            _updateOverdueBadge();
+            switchReportTab('workers');
+        }
+
+        function _updateOverdueBadge() {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            let count = 0;
+            for (const dbKey of Object.keys(inventoryData)) {
+                const invData = inventoryData[dbKey];
+                if (invData.hidden) continue;
+                if (getItemName(dbKey) === dbKey) continue;
+                (invData.rentals || []).forEach(r => {
+                    if (!r.date) return;
+                    const ret = new Date(r.date); ret.setHours(0, 0, 0, 0);
+                    if (ret < today) count++;
+                });
+            }
+            const badge = document.getElementById('overdueCount');
+            if (count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
+            else { badge.classList.add('hidden'); }
         }
 
         function closeAdminReportModal() {
@@ -2049,6 +2078,85 @@
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             if (_adminReportTrigger) { _adminReportTrigger.focus(); _adminReportTrigger = null; }
+        }
+
+        function switchReportTab(tab) {
+            const workers = document.getElementById('reportTabWorkers');
+            const overdue = document.getElementById('reportTabOverdue');
+            const active = 'border-red-600 text-red-700 bg-red-50';
+            const inactive = 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50';
+            if (tab === 'workers') {
+                workers.className = `px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${active}`;
+                overdue.className = `px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${inactive}`;
+                document.getElementById('adminReportContent').innerHTML = _buildAdminReport();
+            } else {
+                overdue.className = `px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${active}`;
+                workers.className = `px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${inactive}`;
+                document.getElementById('adminReportContent').innerHTML = _buildOverdueReport();
+            }
+            lucide.createIcons();
+        }
+
+        function _buildOverdueReport() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const fmt = d => new Date(d).toLocaleDateString('pl-PL');
+            const overdue = [];
+
+            for (const dbKey of Object.keys(inventoryData)) {
+                const invData = inventoryData[dbKey];
+                if (invData.hidden) continue;
+                const itemName = getItemName(dbKey);
+                if (itemName === dbKey) continue;
+                (invData.rentals || []).forEach(r => {
+                    if (!r.date) return;
+                    const ret = new Date(r.date);
+                    ret.setHours(0, 0, 0, 0);
+                    if (ret < today) overdue.push({ itemName, ...r, _dbKey: dbKey });
+                });
+            }
+
+            // aktualizuj badge na zakładce
+            const badge = document.getElementById('overdueCount');
+            if (overdue.length > 0) {
+                badge.textContent = overdue.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (overdue.length === 0) {
+                return `<div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                    <i data-lucide="check-circle" class="w-12 h-12 mb-3 text-green-400"></i>
+                    <p class="font-semibold text-gray-500">Brak wypożyczeń po terminie.</p>
+                </div>`;
+            }
+
+            // sortuj po dacie (najstarsze pierwsze)
+            overdue.sort((a, b) => a.date.localeCompare(b.date));
+
+            const daysOverdue = d => {
+                const diff = today - new Date(d);
+                return Math.floor(diff / 86400000);
+            };
+
+            let html = `<div class="mb-3 text-xs text-gray-500">Łącznie przeterminowanych: <b class="text-red-700">${overdue.length}</b></div><div class="space-y-2">`;
+            overdue.forEach(r => {
+                const days = daysOverdue(r.date);
+                const urgency = days > 30 ? 'border-red-400 bg-red-50' : days > 7 ? 'border-orange-300 bg-orange-50' : 'border-yellow-300 bg-yellow-50';
+                const badge = days > 30 ? 'bg-red-600 text-white' : days > 7 ? 'bg-orange-500 text-white' : 'bg-yellow-500 text-white';
+                html += `
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 border ${urgency} rounded-lg px-3 py-2 text-xs">
+                    <span class="${badge} font-bold px-2 py-0.5 rounded-full text-[11px] shrink-0">+${days} dni</span>
+                    <span class="font-bold text-gray-800 shrink-0">${r.itemName}</span>
+                    <span class="text-gray-500 shrink-0">Kod: <b class="font-mono">${r.deviceCode || '—'}</b></span>
+                    <span class="text-gray-500 shrink-0">Beneficjent: <b>${r.beneficiaryLastName || '—'}</b></span>
+                    <span class="text-gray-500 shrink-0">Termin zwrotu: <b class="text-red-600">${fmt(r.date)}</b></span>
+                    <span class="text-gray-400 shrink-0">Pracownik: <b class="text-gray-700">${r.name || r.addedBy || '—'}</b></span>
+                </div>`;
+            });
+            html += `</div>`;
+            return html;
         }
 
         function _buildAdminReport() {
