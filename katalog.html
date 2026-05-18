@@ -2058,6 +2058,7 @@
                 const invData = inventoryData[dbKey];
                 if (invData.hidden) continue;
                 const itemName = getItemName(dbKey);
+                if (itemName === dbKey) continue; // pominięcie osieroconych wpisów spoza katalogu
 
                 (invData.rentals || []).forEach(r => {
                     const key = r.addedBy || '(brak e-mail)';
