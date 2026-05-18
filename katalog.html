@@ -2056,8 +2056,13 @@
 
         async function loadHistoryData() {
             if (historyData !== null) return;
-            const snap = await database.ref('history').once('value');
-            historyData = snap.val() || {};
+            try {
+                const snap = await database.ref('history').once('value');
+                historyData = snap.val() || {};
+            } catch (e) {
+                console.warn('Historia: brak uprawnień lub błąd odczytu', e.message);
+                historyData = {};
+            }
         }
 
         async function openAdminReportModal() {
