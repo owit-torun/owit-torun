@@ -2140,22 +2140,24 @@
             const available = Math.max(0, totalCapacity - totalRented);
             const utilizationPct = totalCapacity > 0 ? Math.round(totalRented / totalCapacity * 100) : 0;
 
-            const card = (icon, label, value, color) =>
-                `<div class="flex flex-col gap-1 bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-                    <div class="flex items-center gap-2 text-${color}-600 mb-1"><i data-lucide="${icon}" class="w-5 h-5"></i><span class="text-xs font-bold uppercase text-gray-500">${label}</span></div>
-                    <span class="text-3xl font-extrabold text-gray-800">${value}</span>
+            const card = (icon, label, value, sub, color) =>
+                `<div class="flex flex-col bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <div class="flex items-center gap-2 text-${color}-600 mb-1"><i data-lucide="${icon}" class="w-4 h-4 shrink-0"></i><span class="text-[11px] font-bold uppercase text-gray-500 leading-tight">${label}</span></div>
+                    <span class="text-3xl font-extrabold text-gray-800 my-1">${value}</span>
+                    <span class="text-[11px] text-gray-400 leading-tight">${sub}</span>
                 </div>`;
 
             const topDevices = deviceStats.sort((a, b) => b.rented - a.rented).slice(0, 5);
             const topEmployees = Object.entries(employeeRentals).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
             let html = `<div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                ${card('layers', 'Urządzeń w katalogu', totalDevices, 'gray')}
-                ${card('package-check', 'Wypożyczonych', totalRented, 'blue')}
-                ${card('package', 'Dostępnych', available, 'green')}
-                ${card('alert-circle', 'Po terminie', totalOverdue, 'red')}
-                ${card('users', 'W kolejce', totalQueue, 'yellow')}
-                ${card('calendar', 'Rezerwacji', totalReservations, 'purple')}
+                ${card('layers',        'Modeli sprzętu',   totalDevices,  'Unikalne typy urządzeń w katalogu', 'gray')}
+                ${card('archive',       'Sztuk łącznie',    totalCapacity, 'Suma wszystkich egzemplarzy', 'gray')}
+                ${card('package-check', 'Wypożyczonych',    totalRented,   `Aktywne wypożyczenia (${utilizationPct}% obłożenia)`, 'blue')}
+                ${card('package',       'Dostępnych',       available,     'Egzemplarze wolne do wypożyczenia', 'green')}
+                ${card('alert-circle',  'Po terminie',      totalOverdue,  'Wypożyczenia z przekroczonym terminem zwrotu', 'red')}
+                ${card('users',         'W kolejce',        totalQueue,    'Osoby oczekujące na dostępność', 'yellow')}
+                ${card('calendar',      'Rezerwacji',       totalReservations, 'Zaplanowane przyszłe wypożyczenia', 'purple')}
             </div>`;
 
             // Pasek wykorzystania
