@@ -1191,6 +1191,10 @@
                     class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
                     Po terminie <span id="overdueCount" class="ml-1 hidden min-w-[1.25rem] h-5 bg-red-600 text-white text-[10px] font-bold rounded-full inline-flex items-center justify-center px-1"></span>
                 </button>
+                <button id="reportTabHistory" onclick="switchReportTab('history')"
+                    class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+                    Historia
+                </button>
             </div>
             <div id="adminReportContent" class="p-5 overflow-y-auto flex-grow bg-white text-sm"></div>
         </div>
@@ -2048,13 +2052,26 @@
 
         // RAPORT ADMINA
         let _adminReportTrigger = null;
+        let historyData = null;
 
-        function openAdminReportModal() {
+        async function loadHistoryData() {
+            if (historyData !== null) return;
+            const snap = await database.ref('history').once('value');
+            historyData = snap.val() || {};
+        }
+
+        async function openAdminReportModal() {
             _adminReportTrigger = document.activeElement;
             const modal = document.getElementById('adminReportModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            // przelicz badge przeterminowanych przed renderem pierwszej zakładki
+            document.getElementById('adminReportContent').innerHTML =
+                `<div class="flex items-center justify-center py-16 text-gray-400 gap-3">
+                    <i data-lucide="loader-2" class="w-6 h-6 animate-spin"></i>
+                    <span class="text-sm">Ładowanie danych…</span>
+                 </div>`;
+            lucide.createIcons();
+            await loadHistoryData();
             _updateOverdueBadge();
             switchReportTab('dashboard');
         }
@@ -2086,21 +2103,75 @@
 
         function switchReportTab(tab) {
             const dashboard = document.getElementById('reportTabDashboard');
-            const workers = document.getElementById('reportTabWorkers');
-            const overdue = document.getElementById('reportTabOverdue');
-            const active = 'px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors border-red-600 text-red-700 bg-red-50';
+            const workers   = document.getElementById('reportTabWorkers');
+            const overdue   = document.getElementById('reportTabOverdue');
+            const history   = document.getElementById('reportTabHistory');
+            const active   = 'px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors border-red-600 text-red-700 bg-red-50';
             const inactive = 'px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50';
             dashboard.className = tab === 'dashboard' ? active : inactive;
-            workers.className  = tab === 'workers'   ? active : inactive;
-            overdue.className  = tab === 'overdue'   ? active : inactive;
-            if (tab === 'dashboard') {
-                document.getElementById('adminReportContent').innerHTML = _buildDashboard();
-            } else if (tab === 'workers') {
-                document.getElementById('adminReportContent').innerHTML = _buildAdminReport();
-            } else {
-                document.getElementById('adminReportContent').innerHTML = _buildOverdueReport();
-            }
+            workers.className   = tab === 'workers'   ? active : inactive;
+            overdue.className   = tab === 'overdue'   ? active : inactive;
+            history.className   = tab === 'history'   ? active : inactive;
+            if      (tab === 'dashboard') document.getElementById('adminReportContent').innerHTML = _buildDashboard();
+            else if (tab === 'workers')   document.getElementById('adminReportContent').innerHTML = _buildAdminReport();
+            else if (tab === 'overdue')   document.getElementById('adminReportContent').innerHTML = _buildOverdueReport();
+            else                          document.getElementById('adminReportContent').innerHTML = _buildHistoryTab();
             lucide.createIcons();
+        }
+
+        function _buildHistoryTab() {
+            const entries = Object.values(historyData || {})
+                .sort((a, b) => (b.returnedAt || '').localeCompare(a.returnedAt || ''));
+
+            if (entries.length === 0) return `
+                <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+                    <i data-lucide="clock" class="w-12 h-12 mb-3 text-gray-300"></i>
+                    <p class="font-semibold text-gray-500">Brak historii — pojawi się po pierwszym zwrocie sprzętu.</p>
+                </div>`;
+
+            const fmt = d => d ? new Date(d).toLocaleDateString('pl-PL') : '—';
+            const daysDiff = (a, b) => {
+                if (!a || !b) return null;
+                return Math.round((new Date(a) - new Date(b)) / 86400000);
+            };
+
+            let html = `<div class="mb-3 flex items-center justify-between">
+                <span class="text-xs text-gray-500">Łącznie zwrotów: <b class="text-gray-800">${entries.length}</b></span>
+            </div><div class="space-y-2">`;
+
+            entries.forEach(r => {
+                const diff = daysDiff(r.returnedAt, r.plannedReturn);
+                let statusBadge;
+                if (diff === null || !r.plannedReturn) {
+                    statusBadge = `<span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-semibold shrink-0">brak daty</span>`;
+                } else if (diff <= 0) {
+                    statusBadge = `<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold shrink-0">${diff === 0 ? 'na czas' : `${Math.abs(diff)} dni wcześniej`}</span>`;
+                } else {
+                    statusBadge = `<span class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold shrink-0">${diff} dni po terminie</span>`;
+                }
+
+                const duration = daysDiff(r.returnedAt, r.rentedAt);
+                const durationTxt = duration !== null ? `${duration} dni` : '—';
+
+                html += `
+                <div class="border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white hover:bg-gray-50 transition-colors">
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        ${statusBadge}
+                        <span class="font-semibold text-gray-800">${r.itemName || r.dbKey}</span>
+                        <span class="text-gray-500 font-mono">${r.deviceCode || '—'}</span>
+                        <span class="text-gray-500">Beneficjent: <b>${r.beneficiaryLastName || '—'}</b></span>
+                        <span class="text-gray-500">Pracownik: <b>${r.name || r.addedBy || '—'}</b></span>
+                    </div>
+                    <div class="flex flex-wrap gap-x-3 mt-1 text-[10px] text-gray-400">
+                        <span>Wypożyczono: <b>${fmt(r.rentedAt)}</b></span>
+                        <span>Plan. zwrot: <b>${fmt(r.plannedReturn)}</b></span>
+                        <span>Faktyczny zwrot: <b>${fmt(r.returnedAt)}</b></span>
+                        <span>Czas wypożyczenia: <b>${durationTxt}</b></span>
+                    </div>
+                </div>`;
+            });
+
+            return html + '</div>';
         }
 
         function _buildDashboard() {
@@ -2190,7 +2261,7 @@
 
             // Top pracownicy
             if (topEmployees.length > 0) {
-                html += `<div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                html += `<div class="mb-6 bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
                     <p class="text-xs font-bold text-gray-500 uppercase mb-3">Aktywni pracownicy (wg liczby wypożyczeń)</p>
                     <div class="space-y-1">`;
                 topEmployees.forEach(([email, count]) => {
@@ -2200,6 +2271,72 @@
                     </div>`;
                 });
                 html += `</div></div>`;
+            }
+
+            // Statystyki historyczne
+            const histEntries = Object.values(historyData || {});
+            if (histEntries.length > 0) {
+                let onTime = 0, late = 0, totalLateDays = 0, totalDuration = 0, durationCount = 0;
+                const byMonth = {};
+                const byDevice = {};
+                histEntries.forEach(r => {
+                    const diff = r.returnedAt && r.plannedReturn
+                        ? Math.round((new Date(r.returnedAt) - new Date(r.plannedReturn)) / 86400000)
+                        : null;
+                    if (diff !== null) { diff <= 0 ? onTime++ : (late++, totalLateDays += diff); }
+                    if (r.rentedAt && r.returnedAt) {
+                        const dur = Math.round((new Date(r.returnedAt) - new Date(r.rentedAt)) / 86400000);
+                        if (dur >= 0) { totalDuration += dur; durationCount++; }
+                    }
+                    if (r.returnedAt) {
+                        const m = r.returnedAt.slice(0, 7);
+                        byMonth[m] = (byMonth[m] || 0) + 1;
+                    }
+                    if (r.itemName) byDevice[r.itemName] = (byDevice[r.itemName] || 0) + 1;
+                });
+                const avgDur = durationCount > 0 ? Math.round(totalDuration / durationCount) : null;
+                const avgLate = late > 0 ? Math.round(totalLateDays / late) : null;
+                const topMonths = Object.entries(byMonth).sort((a,b) => b[1]-a[1]).slice(0,6).sort((a,b)=>a[0].localeCompare(b[0]));
+                const topHistDevices = Object.entries(byDevice).sort((a,b)=>b[1]-a[1]).slice(0,5);
+                const maxMonth = topMonths.length ? Math.max(...topMonths.map(m=>m[1])) : 1;
+                const fmtMonth = m => { const [y,mo] = m.split('-'); return new Date(y,mo-1).toLocaleDateString('pl-PL',{month:'short',year:'numeric'}); };
+
+                html += `<div class="border-t border-gray-200 pt-5 mt-2">
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-4">Statystyki historyczne (${histEntries.length} zwrotów)</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                        ${card('archive', 'Zwrotów ogółem', histEntries.length, 'Wszystkie zarejestrowane zwroty', 'gray')}
+                        ${card('check-circle', 'Na czas / wcześniej', onTime, `${Math.round(onTime/(onTime+late||1)*100)}% wszystkich zwrotów`, 'green')}
+                        ${card('clock', 'Po terminie', late, avgLate !== null ? `Śr. opóźnienie: ${avgLate} dni` : 'Brak danych o terminie', 'red')}
+                        ${card('calendar-clock', 'Śr. czas wyp.', avgDur !== null ? avgDur + ' dni' : '—', 'Średni czas trwania wypożyczenia', 'blue')}
+                    </div>`;
+
+                if (topMonths.length > 0) {
+                    html += `<div class="mb-6 bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                        <p class="text-xs font-bold text-gray-500 uppercase mb-3">Zwroty wg miesiąca</p>
+                        <div class="space-y-2">`;
+                    topMonths.forEach(([m, cnt]) => {
+                        const pct = Math.round(cnt / maxMonth * 100);
+                        html += `<div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-gray-600">${fmtMonth(m)}</span><span class="text-gray-400 font-medium">${cnt}</span></div>
+                            <div class="w-full bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-indigo-400" style="width:${pct}%"></div></div>
+                        </div>`;
+                    });
+                    html += `</div></div>`;
+                }
+
+                if (topHistDevices.length > 0) {
+                    html += `<div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                        <p class="text-xs font-bold text-gray-500 uppercase mb-3">Najczęściej zwracane urządzenia</p>
+                        <div class="space-y-1">`;
+                    topHistDevices.forEach(([name, cnt]) => {
+                        html += `<div class="flex justify-between items-center text-xs py-1 border-b border-gray-50 last:border-0">
+                            <span class="text-gray-700">${name}</span>
+                            <span class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">${cnt}</span>
+                        </div>`;
+                    });
+                    html += `</div></div>`;
+                }
+                html += `</div>`;
             }
 
             return html;
@@ -2681,7 +2818,7 @@
             if (!p.deviceCode) { alert('Uzupełnij kod urządzenia.'); return; }
             if (!p.beneficiaryLastName) { alert('Uzupełnij nazwisko beneficjenta.'); return; }
             const rentals = ((inventoryData[dbKey] || {}).rentals || []).slice();
-            rentals.push({ name: p.name, date: p.date, deviceCode: p.deviceCode, beneficiaryLastName: p.beneficiaryLastName, addedBy: currentUserEmail });
+            rentals.push({ name: p.name, date: p.date, deviceCode: p.deviceCode, beneficiaryLastName: p.beneficiaryLastName, addedBy: currentUserEmail, rentedAt: new Date().toISOString().split('T')[0] });
             delete pendingRental[dbKey];
             database.ref('inventory/' + dbKey + '/rentals').set(rentals)
                 .catch(e => alert("Błąd: " + e.message));
@@ -2711,6 +2848,19 @@
         function removeRental(dbKey, index) {
             showConfirm("Czy na pewno chcesz usunąć to wypożyczenie (sprzęt wrócił)?", () => {
                 const rentals = inventoryData[dbKey].rentals || [];
+                const rental = rentals[index] || {};
+                const today = new Date().toISOString().split('T')[0];
+                database.ref('history').push({
+                    dbKey,
+                    itemName: getItemName(dbKey),
+                    deviceCode: rental.deviceCode || '',
+                    beneficiaryLastName: rental.beneficiaryLastName || '',
+                    name: rental.name || '',
+                    addedBy: rental.addedBy || '',
+                    rentedAt: rental.rentedAt || '',
+                    plannedReturn: rental.date || '',
+                    returnedAt: today
+                }).catch(e => console.warn('Historia: błąd zapisu', e));
                 rentals.splice(index, 1);
                 database.ref(`inventory/${dbKey}/rentals`).set(rentals)
                     .then(() => {
