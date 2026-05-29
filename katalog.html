@@ -1381,7 +1381,7 @@
         </div>
     </div>
 
-    <!-- MODAL DO DODAWANIA SPRZĘTU -->
+        <!-- MODAL DO DODAWANIA SPRZĘTU -->
     <div id="addGearModal"
         class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 print:hidden backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-labelledby="addGearModalTitle">
@@ -1918,13 +1918,13 @@
                     isAdminMode = true;
                     document.getElementById('addGearBtn').classList.remove('hidden');
                     document.getElementById('addGearBtn').classList.add('flex');
-                    document.getElementById('adminReportBtn').classList.remove('hidden');
+document.getElementById('adminReportBtn').classList.remove('hidden');
                     document.getElementById('adminReportBtn').classList.add('flex');
                 } else {
                     isAdminMode = false;
                     document.getElementById('addGearBtn').classList.add('hidden');
                     document.getElementById('addGearBtn').classList.remove('flex');
-                    document.getElementById('adminReportBtn').classList.add('hidden');
+document.getElementById('adminReportBtn').classList.add('hidden');
                     document.getElementById('adminReportBtn').classList.remove('flex');
                 }
                 document.getElementById('myRentalsBtn').classList.remove('hidden');
@@ -1945,7 +1945,7 @@
                 document.getElementById('loginLabelMobile').innerText = "Pracownik";
                 document.getElementById('addGearBtn').classList.add('hidden');
                 document.getElementById('addGearBtn').classList.remove('flex');
-                document.getElementById('adminReportBtn').classList.add('hidden');
+document.getElementById('adminReportBtn').classList.add('hidden');
                 document.getElementById('adminReportBtn').classList.remove('flex');
                 document.getElementById('myRentalsBtn').classList.add('hidden');
                 document.getElementById('myRentalsBtn').classList.remove('flex');
@@ -1959,7 +1959,7 @@
 
         // FUNKCJE PRACOWNICZE
         // Zastępuje natywne confirm() — Firefox blokuje dialogi systemowe w niektórych kontekstach
-        function showConfirm(message, onConfirm) {
+        function showConfirm(message, onConfirm, onCancel) {
             const modal = document.getElementById('confirmModal');
             document.getElementById('confirmModalMsg').textContent = message;
             modal.classList.remove('hidden');
@@ -1974,7 +1974,7 @@
                 cancelBtn.replaceWith(cancelBtn.cloneNode(true));
             }
             document.getElementById('confirmModalOk').addEventListener('click', () => { close(); onConfirm(); });
-            document.getElementById('confirmModalCancel').addEventListener('click', close);
+            document.getElementById('confirmModalCancel').addEventListener('click', () => { close(); if (onCancel) onCancel(); });
         }
 
         let _loginModalTrigger = null;
@@ -2347,65 +2347,143 @@
             return html;
         }
 
+        function _empLabel(email) {
+            if (!email) return 'Nieznany pracownik';
+            return email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).trim();
+        }
+
         function _buildOverdueReport() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const fmt = d => new Date(d).toLocaleDateString('pl-PL');
-            const overdue = [];
+            const daysOverdue = d => Math.floor((today - new Date(d)) / 86400000);
+
+            // Grupowanie po pracowniku
+            const byEmp = {};
+            let totalOverdue = 0;
 
             for (const dbKey of Object.keys(inventoryData)) {
                 const invData = inventoryData[dbKey];
                 if (invData.hidden) continue;
                 const itemName = getItemName(dbKey);
                 if (itemName === dbKey) continue;
-                (invData.rentals || []).forEach(r => {
+                const total = invData.total || 1;
+                const rentals = invData.rentals || [];
+                const queueArr = invData.queueArr || [];
+                const available = total - rentals.length;
+
+                // Przeterminowane wypożyczenia
+                rentals.forEach(r => {
                     if (!r.date) return;
-                    const ret = new Date(r.date);
-                    ret.setHours(0, 0, 0, 0);
-                    if (ret < today) overdue.push({ itemName, ...r, _dbKey: dbKey });
+                    const ret = new Date(r.date); ret.setHours(0, 0, 0, 0);
+                    if (ret >= today) return;
+                    const emp = r.addedBy || '';
+                    if (!byEmp[emp]) byEmp[emp] = { rentals: [], queue: [], reservations: [] };
+                    byEmp[emp].rentals.push({ itemName, ...r, _dbKey: dbKey });
+                    totalOverdue++;
+                });
+
+                // Zbędne kolejki — ktoś czeka gdy sprzęt jest dostępny
+                if (available > 0) {
+                    queueArr.forEach(q => {
+                        const emp = q.addedBy || '';
+                        if (!byEmp[emp]) byEmp[emp] = { rentals: [], queue: [], reservations: [] };
+                        byEmp[emp].queue.push({ itemName, ...q, _dbKey: dbKey, available });
+                    });
+                }
+            }
+
+            const totalQueue = Object.values(byEmp).reduce((s, d) => s + d.queue.length, 0);
+
+            // Rezerwacje po terminie
+            let totalOverdueRes = 0;
+            for (const dbKey of Object.keys(inventoryData)) {
+                const invData = inventoryData[dbKey];
+                if (invData.hidden) continue;
+                const itemName = getItemName(dbKey);
+                if (itemName === dbKey) continue;
+                (invData.reservationsArr || []).forEach(res => {
+                    if (!res.startDate) return;
+                    const d = new Date(res.startDate); d.setHours(0, 0, 0, 0);
+                    if (d >= today) return;
+                    const emp = res.addedBy || '';
+                    if (!byEmp[emp]) byEmp[emp] = { rentals: [], queue: [], reservations: [] };
+                    byEmp[emp].reservations.push({ itemName, ...res, _dbKey: dbKey });
+                    totalOverdueRes++;
                 });
             }
 
-            // aktualizuj badge na zakładce
+            // badge na zakładce
             const badge = document.getElementById('overdueCount');
-            if (overdue.length > 0) {
-                badge.textContent = overdue.length;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
+            if (totalOverdue > 0) { badge.textContent = totalOverdue; badge.classList.remove('hidden'); }
+            else badge.classList.add('hidden');
 
-            if (overdue.length === 0) {
+            const empKeys = Object.keys(byEmp);
+            if (empKeys.length === 0) {
                 return `<div class="flex flex-col items-center justify-center py-12 text-gray-400">
                     <i data-lucide="check-circle" class="w-12 h-12 mb-3 text-green-400"></i>
-                    <p class="font-semibold text-gray-500">Brak wypożyczeń po terminie.</p>
+                    <p class="font-semibold text-gray-500">Brak wypożyczeń i rezerwacji po terminie.</p>
                 </div>`;
             }
 
-            // sortuj po dacie (najstarsze pierwsze)
-            overdue.sort((a, b) => a.date.localeCompare(b.date));
-
-            const daysOverdue = d => {
-                const diff = today - new Date(d);
-                return Math.floor(diff / 86400000);
-            };
-
-            let html = `<div class="mb-3 text-xs text-gray-500">Łącznie przeterminowanych: <b class="text-red-700">${overdue.length}</b></div><div class="space-y-2">`;
-            overdue.forEach(r => {
-                const days = daysOverdue(r.date);
-                const urgency = days > 30 ? 'border-red-400 bg-red-50' : days > 7 ? 'border-orange-300 bg-orange-50' : 'border-yellow-300 bg-yellow-50';
-                const badge = days > 30 ? 'bg-red-600 text-white' : days > 7 ? 'bg-orange-500 text-white' : 'bg-yellow-500 text-white';
-                html += `
-                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 border ${urgency} rounded-lg px-3 py-2 text-xs">
-                    <span class="${badge} font-bold px-2 py-0.5 rounded-full text-[11px] shrink-0">+${days} dni</span>
-                    <span class="font-bold text-gray-800 shrink-0">${r.itemName}</span>
-                    <span class="text-gray-500 shrink-0">Kod: <b class="font-mono">${r.deviceCode || '—'}</b></span>
-                    <span class="text-gray-500 shrink-0">Beneficjent: <b>${r.beneficiaryLastName || '—'}</b></span>
-                    <span class="text-gray-500 shrink-0">Termin zwrotu: <b class="text-red-600">${fmt(r.date)}</b></span>
-                    <span class="text-gray-400 shrink-0">Pracownik: <b class="text-gray-700">${r.name || r.addedBy || '—'}</b></span>
-                </div>`;
-            });
+            let html = `<div class="mb-3 text-xs text-gray-500">Przeterminowane wypożyczenia: <b class="text-red-700">${totalOverdue}</b>`;
+            if (totalOverdueRes > 0) html += `&ensp;·&ensp;Rezerwacje po terminie: <b class="text-purple-700">${totalOverdueRes}</b>`;
+            if (totalQueue > 0) html += `&ensp;·&ensp;Zbędne kolejki: <b class="text-amber-700">${totalQueue}</b>`;
             html += `</div>`;
+
+            for (const empEmail of empKeys.sort()) {
+                const data = byEmp[empEmail];
+                const label = _empLabel(empEmail);
+                html += `<div class="mb-5">
+                    <div class="flex items-center gap-2 mb-2 pb-1 border-b border-gray-100">
+                        <i data-lucide="user" class="w-4 h-4 text-gray-400 shrink-0"></i>
+                        <span class="font-bold text-gray-700 text-sm">${label}</span>
+                        ${empEmail ? `<span class="text-xs text-gray-400">(${empEmail})</span>` : ''}
+                    </div>
+                    <div class="space-y-1.5 ml-5">`;
+
+                // przeterminowane wypożyczenia tego pracownika
+                data.rentals.sort((a, b) => a.date.localeCompare(b.date)).forEach(r => {
+                    const days = daysOverdue(r.date);
+                    const urgency = days > 30 ? 'border-red-400 bg-red-50' : days > 7 ? 'border-orange-300 bg-orange-50' : 'border-yellow-300 bg-yellow-50';
+                    const daysBadge = days > 30 ? 'bg-red-600 text-white' : days > 7 ? 'bg-orange-500 text-white' : 'bg-yellow-500 text-white';
+                    const ackBadge = r.overdueAcknowledged
+                        ? `<span class="shrink-0 text-[10px] bg-amber-100 text-amber-700 border border-amber-300 rounded px-1.5 py-0.5 font-semibold">✓ Potwierdzone przez prac.</span>`
+                        : '';
+                    html += `<div class="flex flex-wrap items-center gap-x-3 gap-y-1 border ${urgency} rounded-lg px-3 py-2 text-xs">
+                        <span class="${daysBadge} font-bold px-2 py-0.5 rounded-full text-[11px] shrink-0">+${days} dni</span>
+                        <span class="font-bold text-gray-800 shrink-0">${r.itemName}</span>
+                        <span class="text-gray-500 shrink-0">Kod: <b class="font-mono">${r.deviceCode || '—'}</b></span>
+                        <span class="text-gray-500 shrink-0">Beneficjent: <b>${r.beneficiaryLastName || '—'}</b></span>
+                        <span class="text-gray-500 shrink-0">Termin zwrotu: <b class="text-red-600">${fmt(r.date)}</b></span>
+                        ${ackBadge}
+                    </div>`;
+                });
+
+                // zakolejkowani gdy sprzęt dostępny
+                data.queue.forEach(q => {
+                    html += `<div class="flex flex-wrap items-center gap-x-3 gap-y-1 border border-amber-300 bg-amber-50 rounded-lg px-3 py-2 text-xs">
+                        <span class="bg-amber-500 text-white font-bold px-2 py-0.5 rounded-full text-[11px] shrink-0">W kolejce</span>
+                        <span class="font-bold text-gray-800 shrink-0">${q.itemName}</span>
+                        <span class="text-gray-500 shrink-0">Beneficjent: <b>${q.beneficiaryLastName || '—'}</b></span>
+                        <span class="text-amber-700 font-semibold shrink-0">Sprzęt dostępny: ${q.available} szt.</span>
+                    </div>`;
+                });
+
+                // rezerwacje po terminie tego pracownika
+                data.reservations.forEach(res => {
+                    const days = daysOverdue(res.startDate);
+                    html += `<div class="flex flex-wrap items-center gap-x-3 gap-y-1 border border-purple-300 bg-purple-50 rounded-lg px-3 py-2 text-xs">
+                        <span class="bg-purple-600 text-white font-bold px-2 py-0.5 rounded-full text-[11px] shrink-0">Rezerwacja +${days} dni</span>
+                        <span class="font-bold text-gray-800 shrink-0">${res.itemName}</span>
+                        <span class="text-gray-500 shrink-0">Beneficjent: <b>${res.beneficiaryLastName || '—'}</b></span>
+                        <span class="text-gray-500 shrink-0">Od: <b class="text-purple-700">${fmt(res.startDate)}</b></span>
+                    </div>`;
+                });
+
+                html += `</div></div>`;
+            }
+
             return html;
         }
 
@@ -2838,6 +2916,18 @@
             database.ref(`inventory/${dbKey}/rentals/${index}`).update({ [field]: value }).catch(e => alert("Błąd: " + e.message));
         }
 
+        function confirmOverdueAck(dbKey, index, checkbox) {
+            if (checkbox.checked) {
+                showConfirm(
+                    'Czy na pewno chcesz potwierdzić, że wiesz o opóźnieniu i znasz jego powód? Informacja zostanie zapisana i będzie widoczna dla administratora.',
+                    () => { updateRental(dbKey, index, 'overdueAcknowledged', true); },
+                    () => { checkbox.checked = false; }
+                );
+            } else {
+                updateRental(dbKey, index, 'overdueAcknowledged', false);
+            }
+        }
+
         function getItemName(dbKey) {
             const customItem = customCatalogList.find(i => getDbKey(i.name) === dbKey);
             if (customItem) return customItem.name;
@@ -3040,8 +3130,21 @@
                         : `<span title="Wpis dodany przez innego pracownika" class="text-gray-300 font-bold px-2 py-1 text-xs rounded ml-1 cursor-not-allowed select-none">✕</span>`;
                     const roClass = canEditFields ? '' : 'bg-gray-50 text-gray-400 cursor-not-allowed';
                     const roAttr = canEditFields ? '' : 'readonly';
+
+                    // Checkbox po terminie
+                    const today0 = new Date(); today0.setHours(0,0,0,0);
+                    const isOverdue = r.date && new Date(r.date) < today0;
+                    const ackCheckId = `ackOverdue_${dbKey}_${idx}`;
+                    const canAck = canDelete;
+                    const overdueCheckbox = (isOverdue && canAck) ? `
+                        <label class="flex items-start gap-2 mt-1.5 p-1.5 rounded bg-amber-50 border border-amber-200 cursor-pointer select-none" title="Zaznacz jeśli wiesz, że jesteś po terminie i znasz powód">
+                            <input type="checkbox" id="${ackCheckId}" ${r.overdueAcknowledged ? 'checked' : ''} onchange="confirmOverdueAck('${dbKey}', ${idx}, this)" class="mt-0.5 accent-amber-600 w-3.5 h-3.5 shrink-0 cursor-pointer">
+                            <span class="text-[10px] text-amber-800 leading-snug font-medium">Wiem, że jestem po terminie i znam powód</span>
+                        </label>` : '';
+                    const overdueAdminBadge = (isOverdue && !canAck && r.overdueAcknowledged) ? `
+                        <div class="mt-1.5 text-[10px] bg-amber-100 text-amber-700 border border-amber-300 rounded px-1.5 py-0.5 font-semibold">✓ Pracownik potwierdził opóźnienie — wina beneficjenta</div>` : '';
                     html += `
-                    <div class="flex flex-col gap-1 mt-2 bg-white p-1 rounded border border-gray-200 shadow-sm">
+                    <div class="flex flex-col gap-1 mt-2 bg-white p-1 rounded border ${isOverdue ? 'border-red-300' : 'border-gray-200'} shadow-sm">
                         <div class="flex gap-1 items-center">
                             <div class="flex flex-col w-1/2">
                                 <span class="text-[9px] text-gray-400 leading-tight px-1">Imię / PUP <span class="text-red-500">*</span></span>
@@ -3061,6 +3164,7 @@
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Nazwisko beneficjenta <span class="text-red-500">*</span></span>
                             <input type="text" placeholder="Wymagane" value="${r.beneficiaryLastName || ''}" onchange="updateRental('${dbKey}', ${idx}, 'beneficiaryLastName', this.value)" aria-label="Nazwisko beneficjenta – wypożyczenie ${displayIdx + 1}" required ${roAttr} class="w-full p-1 border ${canEditFields && !r.beneficiaryLastName ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none ${roClass}">
                         </div>
+                        ${overdueCheckbox}${overdueAdminBadge}
                     </div>`;
                 });
 
