@@ -2539,7 +2539,12 @@ document.getElementById('adminReportBtn').classList.add('hidden');
 
                 if (emp.rentals.length > 0) {
                     html += `<div class="px-4 py-3"><p class="text-[11px] font-bold text-blue-700 uppercase mb-2">Aktywne wypożyczenia</p><div class="space-y-1">`;
-                    emp.rentals.forEach(r => {
+                    emp.rentals.sort((a, b) => {
+                        if (!a.date && !b.date) return 0;
+                        if (!a.date) return 1;
+                        if (!b.date) return -1;
+                        return new Date(a.date) - new Date(b.date);
+                    }).forEach(r => {
                         html += `<div class="flex flex-wrap gap-x-4 gap-y-0.5 text-xs bg-blue-50 rounded px-2 py-1">
                             <span class="font-semibold text-gray-800">${r.itemName}</span>
                             <span class="text-gray-500">Kod: <b class="font-mono">${r.deviceCode || '—'}</b></span>
@@ -2563,7 +2568,12 @@ document.getElementById('adminReportBtn').classList.add('hidden');
 
                 if (emp.reservations.length > 0) {
                     html += `<div class="px-4 py-3"><p class="text-[11px] font-bold text-purple-700 uppercase mb-2">Rezerwacje</p><div class="space-y-1">`;
-                    emp.reservations.forEach(res => {
+                    emp.reservations.sort((a, b) => {
+                        if (!a.startDate && !b.startDate) return 0;
+                        if (!a.startDate) return 1;
+                        if (!b.startDate) return -1;
+                        return new Date(a.startDate) - new Date(b.startDate);
+                    }).forEach(res => {
                         html += `<div class="flex flex-wrap gap-x-4 gap-y-0.5 text-xs bg-purple-50 rounded px-2 py-1">
                             <span class="font-semibold text-gray-800">${res.itemName}</span>
                             <span class="text-gray-500">Kod: <b class="font-mono">${res.deviceCode || '—'}</b></span>
