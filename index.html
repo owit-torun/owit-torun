@@ -64,15 +64,9 @@
       "openingHoursSpecification": [
         {
           "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Monday", "Wednesday", "Thursday"],
-          "opens": "08:30",
-          "closes": "14:30"
-        },
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": "Tuesday",
-          "opens": "12:00",
-          "closes": "18:00"
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday"],
+          "opens": "08:00",
+          "closes": "14:00"
         }
       ],
       "sameAs": [
@@ -1892,32 +1886,40 @@
                                     class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
                                     <i data-lucide="clock" class="w-5 h-5 text-green-700"></i>
                                 </div>
-                                <p class="font-bold text-gray-900">Godziny otwarcia</p>
+                                <p class="font-bold text-gray-900">Godziny otwarcia <span class="text-green-700">(wakacje)</span></p>
+                            </div>
+                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-xs text-amber-900">
+                                <p class="font-bold flex items-center gap-1.5">
+                                    <i data-lucide="sun" class="w-4 h-4 flex-shrink-0"></i>Godziny wakacyjne
+                                </p>
+                                <p class="mt-1">W wakacje pracujemy w godz. <strong>8:00–14:00</strong> (Pon–Czw).</p>
+                                <p class="mt-1.5"><strong>10–24 sierpnia</strong> – przerwa operacyjna: OWiT nieczynny
+                                    stacjonarnie, dostępność <strong>wyłącznie telefoniczna i mailowa</strong>.</p>
                             </div>
                             <div class="space-y-1.5" id="hours-table">
                                 <div class="hours-row flex justify-between items-center px-3 py-2" data-day="1">
                                     <span class="day-name text-gray-600 text-sm font-medium">Poniedziałek</span>
                                     <span
-                                        class="hours-badge bg-green-50 text-gray-800 text-xs font-bold px-3 py-1 rounded-full">8:30
-                                        – 14:30</span>
+                                        class="hours-badge bg-green-50 text-gray-800 text-xs font-bold px-3 py-1 rounded-full">8:00
+                                        – 14:00</span>
                                 </div>
                                 <div class="hours-row flex justify-between items-center px-3 py-2" data-day="2">
                                     <span class="day-name text-gray-600 text-sm font-medium">Wtorek</span>
                                     <span
-                                        class="hours-badge bg-green-50 text-gray-800 text-xs font-bold px-3 py-1 rounded-full">12:00
-                                        – 18:00</span>
+                                        class="hours-badge bg-green-50 text-gray-800 text-xs font-bold px-3 py-1 rounded-full">8:00
+                                        – 14:00</span>
                                 </div>
                                 <div class="hours-row flex justify-between items-center px-3 py-2" data-day="3">
                                     <span class="day-name text-gray-600 text-sm font-medium">Środa</span>
                                     <span
-                                        class="hours-badge bg-green-50 text-gray-800 text-xs font-bold px-3 py-1 rounded-full">8:30
-                                        – 14:30</span>
+                                        class="hours-badge bg-green-50 text-gray-800 text-xs font-bold px-3 py-1 rounded-full">8:00
+                                        – 14:00</span>
                                 </div>
                                 <div class="hours-row flex justify-between items-center px-3 py-2" data-day="4">
                                     <span class="day-name text-gray-600 text-sm font-medium">Czwartek</span>
                                     <span
-                                        class="hours-badge bg-green-50 text-gray-800 text-xs font-bold px-3 py-1 rounded-full">8:30
-                                        – 14:30</span>
+                                        class="hours-badge bg-green-50 text-gray-800 text-xs font-bold px-3 py-1 rounded-full">8:00
+                                        – 14:00</span>
                                 </div>
                                 <div class="hours-row flex justify-between items-center px-3 py-2 opacity-40"
                                     data-day="5">
@@ -1927,7 +1929,7 @@
                                 </div>
                             </div>
                             <p class="text-xs text-gray-600 mt-3 px-3">
-                                Dostępność tel./mail: Pn, Śr, Czw, Pt 7:30–15:30 · Wt 10:00–18:00
+                                Dostępność tel./mail: Pn–Czw 7:30–15:30
                             </p>
                         </div>
                     </div>
