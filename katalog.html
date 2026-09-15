@@ -1727,14 +1727,17 @@
             'Apple iPad 10 generacji': 'tablet',
             'Apple iPad PRO': 'tablet',
             'Lenovo K10': 'tablet',
+            'iPad Air 11″ WiFi 128GB': 'tablet',
             // Telefony
             'Alcatel 20.19': 'telefon',
             'Hammer Iron 3': 'smartfon',
             'iPhone 17 Pro': 'smartfon',
             'Apple Watch 11': 'smartwatch',
+            'Samsung Galaxy S26 Ultra': 'telefon',
             // Urządzenia biurowe
             'Brother MFC-J2330DW': 'drukarka',
             'Brother DCP-T720DW': 'drukarka',
+            'Samsung Smart M7 LS32FM700UUXDU': 'monitor',
             // Oprogramowanie i edukacja
             'Eyefeel': 'oprogramowanie',
             'Eyelearn': 'oprogramowanie',
@@ -1744,6 +1747,7 @@
             'Aftershokz OpenMove': 'słuchawki',
             'Beats Solo 4': 'słuchawki',
             'ClassVR Premium VRP64/4': 'gogle VR',
+            'Sony Bravia Theatre U': 'głośnik',
             // Monitory i klawiatury brajlowskie
             'Focus 40 Blue': 'monitor brajlowski',
             'Brailliant BI20x': 'monitor brajlowski',
@@ -1762,6 +1766,8 @@
             'Ruby HD': 'lupa',
             'Ruby XL HD': 'lupa',
             'Mano Edu Lite': 'powiększalnik',
+            'Exigo': 'powiększalnik',
+            'MANO EDU + ekran + bateria + stacja ładująca': 'powiększalnik',
             // Oprogramowanie odczytujące
             'SuperNova Magnifier & Reader': 'oprogramowanie',
             'ZoomText Magnifier and Reader': 'oprogramowanie',
@@ -1782,6 +1788,7 @@
             'Hark Reader': 'lektorat',
             'OrCam MyEye 2.0': 'urządzenie AI',
             'Słuchawki do OrCam': 'słuchawki',
+            'NaviBelt': 'nawigacja',
             // Słuch
             'Thomson HQ HED4508': 'słuchawki',
             'Roger Clip-on Mic': 'mikrofon',
@@ -1815,6 +1822,18 @@
             'Bigtrack Wireless': 'mysz trackball',
             'Adaptacyjny kontroler Xbox': 'kontroler',
             'Head Pointer': 'wskaźnik głowowy',
+            'GlassOuse Pro': 'mysz',
+            'GlassOuse v1.4': 'mysz',
+            'Bite Switch do GlassOuse': 'switch',
+            'Blink Switch do GlassOuse': 'switch',
+            'Cheek Switch do GlassOuse': 'switch',
+            'Finger Switch do GlassOuse': 'switch',
+            'Puff Switch do GlassOuse': 'switch',
+            'Switch nożny do GlassOuse': 'switch',
+            'Switch zbliżeniowy do GlassOuse': 'switch',
+            'Czapka G-Beanie do GlassOuse': 'mocowanie',
+            'Czapka z daszkiem G-Cap do GlassOuse': 'mocowanie',
+            'Opaska G-HandBand do GlassOuse': 'mocowanie',
             // Specjalistyczne klawiatury
             'OrbiTouch': 'klawiatura',
             'Klawiatura Clevy z ramką': 'klawiatura',
@@ -3093,7 +3112,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
         function generateInventoryUI(item) {
             const dbKey = getDbKey(item.name);
             const invData = inventoryData[dbKey] || {};
-            const itemTotal = invData.total || 1;
+            const itemTotal = invData.total || item.quantity || 1;
             const rentals = invData.rentals || [];
             const availableCount = Math.max(0, parseInt(itemTotal) - rentals.length);
 
@@ -3379,8 +3398,26 @@ document.getElementById('adminReportBtn').classList.add('hidden');
         //   "Microsoft Surface Pro 11": "nowość",
         //   "Apple iPad PRO":           "wkrótce",
         const CATALOG_BADGES = {
-            // "Nazwa produktu": "nowość",
-            // "Inna nazwa":     "wkrótce",
+            "ZoomText Magnifier and Reader": "nowość",
+            "Bite Switch do GlassOuse": "nowość",
+            "Blink Switch do GlassOuse": "nowość",
+            "Cheek Switch do GlassOuse": "nowość",
+            "Czapka G-Beanie do GlassOuse": "nowość",
+            "Czapka z daszkiem G-Cap do GlassOuse": "nowość",
+            "Exigo": "nowość",
+            "Finger Switch do GlassOuse": "nowość",
+            "GlassOuse Pro": "nowość",
+            "GlassOuse v1.4": "nowość",
+            "iPad Air 11″ WiFi 128GB": "nowość",
+            "MANO EDU + ekran + bateria + stacja ładująca": "nowość",
+            "Opaska G-HandBand do GlassOuse": "nowość",
+            "Puff Switch do GlassOuse": "nowość",
+            "Samsung Smart M7 LS32FM700UUXDU": "nowość",
+            "Sony Bravia Theatre U": "nowość",
+            "Switch nożny do GlassOuse": "nowość",
+            "Switch zbliżeniowy do GlassOuse": "nowość",
+            "NaviBelt": "wkrótce",
+            "Samsung Galaxy S26 Ultra": "wkrótce",
         };
 
         const catalogData = [
@@ -3413,7 +3450,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                             { name: "Apple iPad 9 generacji", desc: "Wszechstronny tablet oferujący bogate funkcje dostępności i wsparcie dla aplikacji wspomagających komunikację alternatywną (AAC).", features: ["Mobilne / Przenośne", "Komunikacja (AAC)", "Środowisko Apple (iOS/macOS)"], imageUrl: "images/devices/ipad-apple-10-2-pro.jpg" },
                             { name: "Apple iPad 10 generacji", desc: "Nowoczesny tablet z przeprojektowaną obudową i złączem USB-C. Oferuje większy ekran 10,9 cala, wydajniejszy chip A14 Bionic oraz wsparcie dla aplikacji AAC i ułatwień dostępu.", features: ["Mobilne / Przenośne", "Komunikacja (AAC)", "Środowisko Apple (iOS/macOS)"], imageUrl: "images/devices/ipad-10gen.jpg" },
                             { name: "Apple iPad PRO", desc: "Zaawansowany tablet z płynnym ekranem ProMotion. Doskonały do precyzyjnej pracy, terapii interaktywnych oraz komunikacji.", features: ["Mobilne / Przenośne", "Komunikacja (AAC)", "Środowisko Apple (iOS/macOS)"], imageUrl: "images/devices/ipad-pro.jpg" },
-                            { name: "Lenovo K10", desc: "Wytrzymały tablet z systemem Android. Dobrze sprawdza się w zastosowaniach edukacyjnych i jako urządzenie do przeglądania treści.", features: ["Mobilne / Przenośne", "Edukacja i Terapia", "Środowisko Android"], imageUrl: "images/devices/lenovo-tablet-k10.jpg" }
+                            { name: "Lenovo K10", desc: "Wytrzymały tablet z systemem Android. Dobrze sprawdza się w zastosowaniach edukacyjnych i jako urządzenie do przeglądania treści.", features: ["Mobilne / Przenośne", "Edukacja i Terapia", "Środowisko Android"], imageUrl: "images/devices/lenovo-tablet-k10.jpg" },
+                            { name: "iPad Air 11″ WiFi 128GB", desc: "Lekki tablet z 11-calowym ekranem, pojemnością 128 GB i rozbudowanymi funkcjami dostępności systemu iPadOS. Sprawdza się w komunikacji AAC, edukacji i codziennej pracy mobilnej.", features: ["Mobilne / Przenośne", "Komunikacja (AAC)", "Środowisko Apple (iOS/macOS)"], imageUrl: "images/devices/ipad-air-11-wifi-128gb.png", quantity: 1 }
                         ]
                     },
                     {
@@ -3423,7 +3461,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                             { name: "Alcatel 20.19", desc: "Klasyczny telefon GSM z dużą, fizyczną klawiaturą. Zaprojektowany z myślą o seniorach i osobach słabowidzących. Posiada przycisk SOS.", features: ["Dla seniora", "Obsługa bezwzrokowa", "Mobilne / Przenośne"], imageUrl: "images/devices/alcatel-20-19.jpg" },
                             { name: "Hammer Iron 3", desc: "Wzmocniony smartfon o podwyższonej odporności na wstrząsy, pył i wodę. Idealny do trudnych warunków.", features: ["Mobilne / Przenośne", "Środowisko Android"], imageUrl: "images/devices/hammer-iron-3-silver.jpg" },
                             { name: "iPhone 17 Pro", desc: "Najnowocześniejszy smartfon z asystentem AI i skanerem LiDAR, który pozwala na mapowanie otoczenia i nawigację dla osób niewidomych.", features: ["Syntezator mowy (TTS)", "Mobilne / Przenośne", "Środowisko Apple (iOS/macOS)"], imageUrl: "images/devices/iphone-17-pro.jpg" },
-                            { name: "Apple Watch 11", desc: "Inteligentny zegarek oferujący zaawansowane funkcje monitorowania zdrowia, bezpieczeństwa oraz ułatwienia dostępu dla osób z niepełnosprawnościami.", features: ["Mobilne / Przenośne", "Środowisko Apple (iOS/macOS)", "Wsparcie słuchu"], imageUrl: "images/devices/apple-watch-11.jpg" }
+                            { name: "Apple Watch 11", desc: "Inteligentny zegarek oferujący zaawansowane funkcje monitorowania zdrowia, bezpieczeństwa oraz ułatwienia dostępu dla osób z niepełnosprawnościami.", features: ["Mobilne / Przenośne", "Środowisko Apple (iOS/macOS)", "Wsparcie słuchu"], imageUrl: "images/devices/apple-watch-11.jpg" },
+                            { name: "Samsung Galaxy S26 Ultra", desc: "Zaawansowany smartfon z dużym ekranem 6,9 cala, aparatem 200 MP i rysikiem S Pen. System Android oferuje m.in. czytnik ekranu, powiększenie, sterowanie głosowe i regulację kontrastu.", features: ["Syntezator mowy (TTS)", "Mobilne / Przenośne", "Środowisko Android"], imageUrl: "images/devices/samsung-galaxy-s26-ultra.png", quantity: 2 }
                         ]
                     },
                     {
@@ -3431,7 +3470,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                         icon: "printer",
                         items: [
                             { name: "Brother MFC-J2330DW", desc: "Wydajne urządzenie wielofunkcyjne drukujące w formacie A3. Posiada automatyczny podajnik dokumentów (ADF) i ekran dotykowy.", features: ["Stacjonarne", "Edukacja i Terapia"], imageUrl: "images/devices/brother-mfc-j2330dw.jpg" },
-                            { name: "Brother DCP-T720DW", desc: "Ekonomiczne urządzenie z systemem stałego zasilania atramentem. Zapewnia tanie drukowanie materiałów terapeutycznych.", features: ["Stacjonarne", "Edukacja i Terapia"], imageUrl: "images/devices/brother-dcp-t720dw.jpg" }
+                            { name: "Brother DCP-T720DW", desc: "Ekonomiczne urządzenie z systemem stałego zasilania atramentem. Zapewnia tanie drukowanie materiałów terapeutycznych.", features: ["Stacjonarne", "Edukacja i Terapia"], imageUrl: "images/devices/brother-dcp-t720dw.jpg" },
+                            { name: "Samsung Smart M7 LS32FM700UUXDU", desc: "32-calowy monitor 4K z systemem Smart TV, głośnikami i złączem USB-C z zasilaniem do 65 W. Duża powierzchnia robocza, tryb ochrony wzroku i funkcje bezprzewodowe ułatwiają pracę i prezentowanie treści.", features: ["Powiększenie ekranu", "Stacjonarne", "Wysoki kontrast"], imageUrl: "images/devices/samsung-smart-m7-ls32fm700uuxdu.png", quantity: 1 }
                         ]
                     },
                     {
@@ -3450,7 +3490,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                         items: [
                             { name: "Aftershokz OpenMove", desc: "Słuchawki z przewodnictwem kostnym. Nie zasłaniają uszu, pozwalając na swobodne słuchanie dźwięków otoczenia podczas nawigacji.", features: ["Wsparcie słuchu", "Bezprzewodowe (Bluetooth)", "Mobilne / Przenośne"], imageUrl: "images/devices/aftershokz-openmove.jpg" },
                             { name: "Beats Solo 4", desc: "Wysokiej jakości słuchawki z aktywną redukcją szumów. Charakteryzują się długim czasem pracy na baterii, wspierając aplikacje lektorskie i komunikacyjne.", features: ["Wsparcie słuchu", "Bezprzewodowe (Bluetooth)", "Mobilne / Przenośne"], imageUrl: "images/devices/beats-solo-4.jpg" },
-                            { name: "ClassVR Premium VRP64/4", desc: "Zestaw 4 sztuk okularów VR do edukacji. Pozwala na immersyjne doświadczanie przestrzeni i wirtualne wycieczki.", features: ["Integracja sensoryczna", "Edukacja i Terapia"], imageUrl: "images/devices/classvr-premium-vrp64-4.jpg" }
+                            { name: "ClassVR Premium VRP64/4", desc: "Zestaw 4 sztuk okularów VR do edukacji. Pozwala na immersyjne doświadczanie przestrzeni i wirtualne wycieczki.", features: ["Integracja sensoryczna", "Edukacja i Terapia"], imageUrl: "images/devices/classvr-premium-vrp64-4.jpg" },
+                            { name: "Sony Bravia Theatre U", desc: "Bezprzewodowy głośnik naramienny kierujący dźwięk w stronę użytkownika bez zasłaniania uszu. Oferuje wyraźne rozmowy, łączność Bluetooth, odporność IPX4 i do 12 godzin pracy.", features: ["Wsparcie słuchu", "Bezprzewodowe (Bluetooth)", "Mobilne / Przenośne"], imageUrl: "images/devices/sony-bravia-theatre-u.png", quantity: 2 }
                         ]
                     }
                 ]
@@ -3486,7 +3527,9 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                             { name: "Ruby 7HD", desc: "7-calowy powiększalnik z unikalną obrotową kamerą PivotCam, ułatwiającą wygodne czytanie, pisanie i oglądanie obiektów oddalonych.", features: ["Powiększenie ekranu", "Mobilne / Przenośne"], imageUrl: "images/devices/ruby-7hd.jpg" },
                             { name: "Ruby HD", desc: "Bardzo mała, kieszonkowa lupa elektroniczna (4.3 cala) z wbudowanym oświetleniem LED. Mieści się w każdej torebce lub kieszeni.", features: ["Powiększenie ekranu", "Mobilne / Przenośne"], imageUrl: "images/devices/ruby-hd.jpg" },
                             { name: "Ruby XL HD", desc: "5-calowy powiększalnik wyposażony w ergonomiczną, rozkładaną rączkę, ułatwiającą płynne przesuwanie po czytanym tekście.", features: ["Powiększenie ekranu", "Mobilne / Przenośne"], imageUrl: "images/devices/ruby-xl-hd.jpg" },
-                            { name: "Mano Edu Lite", desc: "Przenośny, łatwy w obsłudze powiększalnik edukacyjny. Świetnie sprawdza się zarówno na zajęciach szkolnych, jak i do czytania w domu.", features: ["Powiększenie ekranu", "Mobilne / Przenośne", "Edukacja i Terapia"], imageUrl: "images/devices/mano-edu-lite.jpg" }
+                            { name: "Mano Edu Lite", desc: "Przenośny, łatwy w obsłudze powiększalnik edukacyjny. Świetnie sprawdza się zarówno na zajęciach szkolnych, jak i do czytania w domu.", features: ["Powiększenie ekranu", "Mobilne / Przenośne", "Edukacja i Terapia"], imageUrl: "images/devices/mano-edu-lite.jpg" },
+                            { name: "Exigo", desc: "Przenośny powiększalnik edukacyjny z dwoma ekranami 10,5 cala oraz kamerami do bliży i dali. Umożliwia jednoczesne obserwowanie materiałów na biurku i treści prezentowanych z odległości.", features: ["Powiększenie ekranu", "Mobilne / Przenośne", "Edukacja i Terapia"], imageUrl: "images/devices/exigo.png", quantity: 1 },
+                            { name: "MANO EDU + ekran + bateria + stacja ładująca", desc: "Rozbudowany zestaw edukacyjny z powiększalnikiem MANO EDU, dodatkowym ekranem MultiView, zapasową baterią i stacją ładującą. Pozwala wygodnie pracować z tekstem z bliska oraz obrazem z tablicy.", features: ["Powiększenie ekranu", "Mobilne / Przenośne", "Edukacja i Terapia"], imageUrl: "images/devices/mano-edu-zestaw.png", quantity: 2 }
                         ]
                     },
                     {
@@ -3494,7 +3537,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                         icon: "book-open",
                         items: [
                             { name: "SuperNova Magnifier & Reader", desc: "Kompleksowe oprogramowanie dla systemu Windows. Łączy potężne narzędzie do powiększania ekranu z pełnoprawnym czytnikiem (mową).", features: ["Powiększenie ekranu", "Syntezator mowy (TTS)", "Środowisko Windows"], imageUrl: "images/devices/supernova-magnifier-reader.jpg" },
-                            { name: "ZoomText Magnifier and Reader", desc: "Popularny program dostosowujący środowisko pracy (kolory, wskaźniki, powiększenie) i odczytujący na głos dokumenty, maile oraz strony www.", features: ["Powiększenie ekranu", "Syntezator mowy (TTS)", "Środowisko Windows"], imageUrl: "images/devices/zoomtext-magnifier-and-reader.jpg" },
+                            { name: "ZoomText Magnifier and Reader", desc: "Popularny program dostosowujący środowisko pracy (kolory, wskaźniki, powiększenie) i odczytujący na głos dokumenty, maile oraz strony www.", features: ["Powiększenie ekranu", "Syntezator mowy (TTS)", "Środowisko Windows"], imageUrl: "images/devices/zoomtext-magnifier-and-reader.jpg", quantity: 1 },
                             { name: "One Step Reader", desc: "Aplikacja natychmiastowo rozpoznająca tekst (OCR) z użyciem kamery. Błyskawicznie czyta na głos menu, rachunki i dokumenty.", features: ["Rozpoznawanie tekstu (OCR)", "Syntezator mowy (TTS)", "Mobilne / Przenośne"], imageUrl: "images/devices/onestepreader.jpg" },
                             { name: "Clear Reader+", desc: "Samodzielne, przenośne urządzenie lektorskie. Wystarczy podłożyć kartkę – sprzęt błyskawicznie ją zeskanuje i przeczyta wyraźnym głosem.", features: ["Rozpoznawanie tekstu (OCR)", "Syntezator mowy (TTS)", "Mobilne / Przenośne"], imageUrl: "images/devices/clear-reader.jpg" },
                             { name: "Euler Science", desc: "Oprogramowanie tyfloinformatyczne ułatwiające dostęp do złożonych tekstów naukowych, edycji dokumentów i wzorów matematycznych.", features: ["Syntezator mowy (TTS)", "Edukacja i Terapia", "Środowisko Windows"], imageUrl: "images/devices/euler-science.jpg" },
@@ -3521,6 +3564,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                             { name: "Czytak 4", desc: "Najpopularniejszy w Polsce, bardzo intuicyjny cyfrowy odtwarzacz książek mówionych dla osób niewidomych z polskim menu głosowym.", features: ["Syntezator mowy (TTS)", "Obsługa bezwzrokowa", "Dla seniora", "Mobilne / Przenośne"], imageUrl: "images/devices/czytak-4.jpg" },
                             { name: "Hark Reader", desc: "Eleganckie, zintegrowane urządzenie lektorskie w formie ramienia. Błyskawicznie skanuje i czyta na głos wszystko, co pod nim umieścisz.", features: ["Rozpoznawanie tekstu (OCR)", "Syntezator mowy (TTS)", "Stacjonarne"], imageUrl: "images/devices/hark-reader.jpg" },
                             { name: "OrCam MyEye 2.0", desc: "Rewolucyjne urządzenie AI doczepiane do okularów. Słuchając poleceń, samo czyta teksty, rozpoznaje twarze i nominały banknotów.", features: ["Rozpoznawanie tekstu (OCR)", "Syntezator mowy (TTS)", "Mobilne / Przenośne"], imageUrl: "images/devices/orcam-myeye-2-0.jpg" },
+                            { name: "NaviBelt", desc: "Wibracyjny pas nawigacyjny prowadzący użytkownika sygnałami dotykowymi wokół talii. Współpracuje ze smartfonem i pozostawia wolne ręce oraz słuch podczas poruszania się.", features: ["Obsługa bezwzrokowa", "Integracja sensoryczna", "Mobilne / Przenośne"], imageUrl: "images/devices/navibelt.png", quantity: 1 },
                         ]
                     }
                 ]
@@ -3589,7 +3633,19 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                             { name: "Mysz adaptowana - interfejs", desc: "Moduł umożliwiający podłączenie kilku standardowych switchy, symulujących kliknięcia myszy lub klawiatury.", features: ["Alternatywny dostęp", "Stacjonarne"], imageUrl: "images/devices/mysz-adaptowana.jpg" },
                             { name: "Bigtrack Wireless", desc: "Bezprzewodowa mysz typu trackball z dużą kulką. Umożliwia sterowanie dłonią, łokciem lub stopą dla osób z problemami motorycznymi.", features: ["Alternatywny dostęp", "Bezprzewodowe (Bluetooth)"], imageUrl: "images/devices/bigtrack-wireless.jpg" },
                             { name: "Adaptacyjny kontroler Xbox", desc: "Przełomowy hub (rozdzielacz) z gniazdami Jack do podłączania zewnętrznych przycisków i joysticków, tworzący spersonalizowany pad.", features: ["Alternatywny dostęp", "Środowisko Windows"], imageUrl: "images/devices/adaptacyjny-kontroler-xbox.jpg" },
-                            { name: "Head Pointer", desc: "Lekki kask z wskaźnikiem (pałąkiem). Pozwala osobom kontrolującym jedynie ruchy głowy na naciskanie klawiszy czy ekranu.", features: ["Alternatywny dostęp", "Mobilne / Przenośne"], imageUrl: "images/devices/head-pointer.jpg" }
+                            { name: "Head Pointer", desc: "Lekki kask z wskaźnikiem (pałąkiem). Pozwala osobom kontrolującym jedynie ruchy głowy na naciskanie klawiszy czy ekranu.", features: ["Alternatywny dostęp", "Mobilne / Przenośne"], imageUrl: "images/devices/head-pointer.jpg" },
+                            { name: "GlassOuse Pro", desc: "Modułowy kontroler 3w1 działający jako mysz sterowana ruchem głowy, interfejs switchy lub joystick. Łączy się przez Bluetooth, obsługuje do trzech urządzeń i pozwala podłączyć do ośmiu switchy.", features: ["Alternatywny dostęp", "Bezprzewodowe (Bluetooth)", "Mobilne / Przenośne"], imageUrl: "images/devices/glassouse-pro.png", quantity: 2 },
+                            { name: "GlassOuse v1.4", desc: "Lekka mysz nagłowna sterująca kursorem za pomocą ruchów głowy. Łączy się przez Bluetooth, współpracuje ze switchami przez gniazdo 3,5 mm i oferuje bardzo długi czas pracy na baterii.", features: ["Alternatywny dostęp", "Bezprzewodowe (Bluetooth)", "Mobilne / Przenośne"], imageUrl: "images/devices/glassouse-v1-4.png", quantity: 2 },
+                            { name: "Bite Switch do GlassOuse", desc: "Switch aktywowany lekkim ugryzieniem lub naciśnięciem ustami. Miękka silikonowa końcówka jest łatwa do utrzymania w czystości, a złącze 3,5 mm umożliwia współpracę z urządzeniami GlassOuse.", features: ["Alternatywny dostęp", "Komunikacja (AAC)", "Mobilne / Przenośne"], imageUrl: "images/devices/glassouse-bite-switch.png", quantity: 2 },
+                            { name: "Blink Switch do GlassOuse", desc: "Czujnikowy switch uruchamiany mrugnięciem. Regulowana czułość pomaga dopasować reakcję urządzenia do możliwości użytkownika, a przewodowe złącze zapewnia stabilne działanie.", features: ["Alternatywny dostęp", "Komunikacja (AAC)", "Mobilne / Przenośne"], imageUrl: "images/devices/glassouse-blink-switch.png", quantity: 2 },
+                            { name: "Cheek Switch do GlassOuse", desc: "Bezdotykowy czujnik wykrywający ruch mięśnia policzka. Umożliwia wywołanie kliknięcia bardzo niewielkim ruchem twarzy i współpracuje z kontrolerami GlassOuse.", features: ["Alternatywny dostęp", "Komunikacja (AAC)", "Mobilne / Przenośne"], imageUrl: "images/devices/glassouse-cheek-switch.png", quantity: 2 },
+                            { name: "Finger Switch do GlassOuse", desc: "Kompaktowy przycisk do aktywacji palcem, możliwy do zamocowania na pasku lub odzieży. Wymaga niewielkiego ruchu i podłącza się standardowym złączem 3,5 mm.", features: ["Alternatywny dostęp", "Komunikacja (AAC)", "Mobilne / Przenośne"], imageUrl: "images/devices/glassouse-finger-switch.png", quantity: 2 },
+                            { name: "Puff Switch do GlassOuse", desc: "Switch oddechowy aktywowany dmuchnięciem w ustnik. Pozwala wykonywać kliknięcia bez użycia rąk i może służyć do obsługi komputera lub urządzeń komunikacyjnych.", features: ["Alternatywny dostęp", "Komunikacja (AAC)", "Mobilne / Przenośne"], imageUrl: "images/devices/glassouse-puff-switch.png", quantity: 2 },
+                            { name: "Switch nożny do GlassOuse", desc: "Wytrzymały przycisk aktywowany naciskiem stopy. Antypoślizgowa podstawa stabilizuje go na podłodze, a przewodowe złącze 3,5 mm zapewnia prostą współpracę z urządzeniami adaptacyjnymi.", features: ["Alternatywny dostęp", "Komunikacja (AAC)", "Stacjonarne"], imageUrl: "images/devices/glassouse-foot-switch.png", quantity: 2 },
+                            { name: "Switch zbliżeniowy do GlassOuse", desc: "Bezdotykowy switch wykrywający zbliżenie dłoni lub innej części ciała. Sprawdza się u osób, dla których naciskanie klasycznego przycisku jest trudne lub niemożliwe.", features: ["Alternatywny dostęp", "Komunikacja (AAC)", "Stacjonarne"], imageUrl: "images/devices/glassouse-proximity-switch.png", quantity: 2 },
+                            { name: "Czapka G-Beanie do GlassOuse", desc: "Miękka czapka z punktem mocowania kontrolera GlassOuse Pro. Stabilizuje urządzenie na głowie i stanowi wygodną alternatywę dla oprawek okularowych.", features: ["Alternatywny dostęp", "Mobilne / Przenośne"], imageUrl: "images/devices/glassouse-g-beanie.png", quantity: 2 },
+                            { name: "Czapka z daszkiem G-Cap do GlassOuse", desc: "Czapka z daszkiem z bocznym mocowaniem kontrolera GlassOuse Pro. Ułatwia stabilne i powtarzalne ustawienie myszy nagłownej bez używania oprawek.", features: ["Alternatywny dostęp", "Mobilne / Przenośne"], imageUrl: "images/devices/glassouse-g-cap.png", quantity: 2 },
+                            { name: "Opaska G-HandBand do GlassOuse", desc: "Regulowana opaska na głowę przeznaczona do mocowania kontrolera GlassOuse Pro po lewej lub prawej stronie. Zapewnia stabilne ułożenie urządzenia podczas sterowania kursorem.", features: ["Alternatywny dostęp", "Mobilne / Przenośne"], imageUrl: "images/devices/glassouse-g-headband.png", quantity: 2 }
                         ]
                     },
                     {
@@ -3657,7 +3713,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
         function getAvailabilityBadge(item) {
             const dbKey = getDbKey(item.name);
             const invData = inventoryData[dbKey] || {};
-            const itemTotal = invData.total || 1;
+            const itemTotal = invData.total || item.quantity || 1;
             const rentals = invData.rentals || [];
             const availableCount = Math.max(0, parseInt(itemTotal) - rentals.length);
             if (availableCount > 0) {
