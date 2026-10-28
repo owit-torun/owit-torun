@@ -1678,6 +1678,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="data/equipment-codes.js"></script>
 
     <!-- BAZA DANYCH I SKRYPT GENERUJĄCY -->
     <script>
@@ -2900,6 +2901,43 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             }
         }
 
+        // --- KODY SPRZĘTU: podpowiedzi w polu „Kod urządzenia” (można też wpisać dowolny kod ręcznie) ---
+        const equipNorm = s => String(s || '').toLowerCase().replace(/ł/g, 'l').normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+        const equipEsc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const codeListIds = {};   // dbKey → id elementu <datalist>
+
+        // Kody pasujące do pozycji katalogu (po nazwie lub aliasie); pusta tablica = brak dopasowania
+        function equipmentCodesFor(name) {
+            const data = window.EQUIPMENT_CODES;
+            if (!data) return [];
+            const wanted = [name, ...((data.aliases || {})[name] || [])].map(equipNorm);
+            return data.groups
+                .filter(([groupName]) => wanted.includes(equipNorm(groupName)))
+                .flatMap(([groupName, codes]) => codes.map(code => ({ code, label: groupName })));
+        }
+
+        // Pozycja bez dopasowania dostaje wspólną listę wszystkich kodów
+        function ensureAllCodesDatalist() {
+            const data = window.EQUIPMENT_CODES;
+            if (!data || document.getElementById('equipment-codes-all')) return;
+            const options = data.groups.flatMap(([groupName, codes]) =>
+                codes.map(code => `<option value="${code}">${equipEsc(groupName)}</option>`)).join('');
+            document.body.insertAdjacentHTML('beforeend', `<datalist id="equipment-codes-all">${options}</datalist>`);
+        }
+
+        function deviceCodeList(itemName, dbKey) {
+            if (!window.EQUIPMENT_CODES) return { id: '', html: '' };
+            const own = equipmentCodesFor(itemName);
+            if (own.length === 0) {
+                ensureAllCodesDatalist();
+                return { id: 'equipment-codes-all', html: '' };
+            }
+            const id = codeListIds[dbKey] || (codeListIds[dbKey] = 'codes_' + Object.keys(codeListIds).length);
+            const options = own.map(o => `<option value="${o.code}">${equipEsc(o.label)}</option>`).join('');
+            return { id, html: `<datalist id="${id}">${options}</datalist>` };
+        }
+
         function getDbKey(name) {
             return name.replace(/[.$#\[\]/]/g, '').replace(/\s+/g, '_');
         }
@@ -3117,9 +3155,11 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             const availableCount = Math.max(0, parseInt(itemTotal) - rentals.length);
 
             let html = '';
+            const codeList = isEmployeeMode ? deviceCodeList(item.name, dbKey) : { id: '', html: '' };
+            const codeListAttr = codeList.id ? `list="${codeList.id}" autocomplete="off"` : '';
 
             if (isEmployeeMode) {
-                html += `<div class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm print-hide">`;
+                html += `<div class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm print-hide">${codeList.html}`;
 
                 // Sekcja Administratora: Zmiana ilości całkowitej
                 if (isAdminMode) {
@@ -3187,7 +3227,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                         </div>
                         <div class="flex flex-col">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Kod urządzenia <span class="text-red-500">*</span></span>
-                            <input type="text" placeholder="XXX-00" value="${r.deviceCode || ''}" oninput="this.value = this.value.toUpperCase()" onchange="updateRental('${dbKey}', ${idx}, 'deviceCode', this.value)" aria-label="Kod urządzenia – wypożyczenie ${displayIdx + 1}" ${roAttr} class="w-full p-1 border ${canEditFields && !r.deviceCode ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none font-mono ${roClass}">
+                            <input type="text" placeholder="XXX-00" ${codeListAttr} value="${r.deviceCode || ''}" oninput="this.value = this.value.toUpperCase()" onchange="updateRental('${dbKey}', ${idx}, 'deviceCode', this.value)" aria-label="Kod urządzenia – wypożyczenie ${displayIdx + 1}" ${roAttr} class="w-full p-1 border ${canEditFields && !r.deviceCode ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none font-mono ${roClass}">
                         </div>
                         <div class="flex flex-col">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Nazwisko beneficjenta <span class="text-red-500">*</span></span>
@@ -3215,7 +3255,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                         </div>
                         <div class="flex flex-col">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Kod urządzenia <span class="text-red-500">*</span></span>
-                            <input type="text" placeholder="XXX-00" value="${p.deviceCode}" oninput="this.value=this.value.toUpperCase();updatePendingRental('${dbKey}','deviceCode',this.value)" class="w-full p-1 border ${!p.deviceCode ? 'border-red-300 bg-red-50' : 'border-gray-200'} rounded text-xs focus:ring-1 outline-none font-mono">
+                            <input type="text" placeholder="XXX-00" ${codeListAttr} value="${p.deviceCode}" oninput="this.value=this.value.toUpperCase();updatePendingRental('${dbKey}','deviceCode',this.value)" class="w-full p-1 border ${!p.deviceCode ? 'border-red-300 bg-red-50' : 'border-gray-200'} rounded text-xs focus:ring-1 outline-none font-mono">
                         </div>
                         <div class="flex flex-col">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Nazwisko beneficjenta <span class="text-red-500">*</span></span>
@@ -3320,7 +3360,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                         </div>
                         <div class="flex flex-col mt-1 pl-5">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Kod urządzenia <span class="text-red-500">*</span></span>
-                            <input type="text" placeholder="XXX-00" value="${res.deviceCode || ''}" oninput="this.value=this.value.toUpperCase()" onchange="updateReservation('${dbKey}', ${idx}, 'deviceCode', this.value)" aria-label="Kod urządzenia – rezerwacja ${idx + 1}" ${roAttrR} class="w-full p-1 border ${canEditFieldsR && !res.deviceCode ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none font-mono ${roClassR}">
+                            <input type="text" placeholder="XXX-00" ${codeListAttr} value="${res.deviceCode || ''}" oninput="this.value=this.value.toUpperCase()" onchange="updateReservation('${dbKey}', ${idx}, 'deviceCode', this.value)" aria-label="Kod urządzenia – rezerwacja ${idx + 1}" ${roAttrR} class="w-full p-1 border ${canEditFieldsR && !res.deviceCode ? 'border-red-300 bg-red-50' : 'border-gray-100'} rounded text-xs focus:ring-1 outline-none font-mono ${roClassR}">
                         </div>
                         <div class="flex flex-col mt-1 pl-5">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Data rozpoczęcia wypożyczenia <span class="text-red-500">*</span></span>
@@ -3343,7 +3383,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                         </div>
                         <div class="flex flex-col pl-1">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Kod urządzenia <span class="text-red-500">*</span></span>
-                            <input type="text" placeholder="XXX-00" value="${pr.deviceCode}" oninput="this.value=this.value.toUpperCase();updatePendingReservation('${dbKey}','deviceCode',this.value)" class="w-full p-1 border ${!pr.deviceCode ? 'border-red-300 bg-red-50' : 'border-gray-200'} rounded text-xs focus:ring-1 outline-none font-mono">
+                            <input type="text" placeholder="XXX-00" ${codeListAttr} value="${pr.deviceCode}" oninput="this.value=this.value.toUpperCase();updatePendingReservation('${dbKey}','deviceCode',this.value)" class="w-full p-1 border ${!pr.deviceCode ? 'border-red-300 bg-red-50' : 'border-gray-200'} rounded text-xs focus:ring-1 outline-none font-mono">
                         </div>
                         <div class="flex flex-col pl-1">
                             <span class="text-[9px] text-gray-400 leading-tight px-1">Data rozpoczęcia wypożyczenia <span class="text-red-500">*</span></span>
