@@ -439,6 +439,82 @@
             opacity: 1;
         }
 
+        /* ========= LISTA PODPOWIEDZI KODÓW URZĄDZEŃ (panel pracownika) ========= */
+        .code-dd {
+            position: fixed;
+            z-index: 9999;
+            display: none;
+            overflow-y: auto;
+            padding: 4px;
+            font-size: 12px;
+            background-color: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 4px 10px -6px rgba(0, 0, 0, 0.15);
+        }
+
+        .code-dd.open {
+            display: block;
+        }
+
+        .code-dd-opt {
+            display: flex;
+            align-items: baseline;
+            gap: 0.6rem;
+            padding: 0.4rem 0.55rem;
+            border-radius: 0.375rem;
+            color: #1f2937;
+            cursor: pointer;
+        }
+
+        .code-dd-opt .code {
+            flex: none;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-weight: 700;
+        }
+
+        .code-dd-opt .label {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #6b7280;
+        }
+
+        .code-dd-opt[aria-selected="true"] {
+            background-color: #dcfce7;
+        }
+
+        .code-dd-note {
+            padding: 0.35rem 0.55rem 0.2rem;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        body.dark-mode .code-dd {
+            background-color: #1f2937;
+            border-color: #4b5563;
+        }
+
+        body.dark-mode .code-dd-opt {
+            color: #f3f4f6;
+        }
+
+        body.dark-mode .code-dd-opt .label,
+        body.dark-mode .code-dd-note {
+            color: #9ca3af;
+        }
+
+        body.dark-mode .code-dd-opt[aria-selected="true"] {
+            background-color: #14532d;
+        }
+
+        body.high-contrast .code-dd-opt[aria-selected="true"],
+        body.high-contrast .code-dd-opt[aria-selected="true"] * {
+            background-color: #ff0 !important;
+            color: #000 !important;
+        }
+
         /* ========= TRYB CIEMNY ========= */
         body.dark-mode {
             background-color: #111827;
@@ -2901,11 +2977,12 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             }
         }
 
-        // --- KODY SPRZĘTU: podpowiedzi w polu „Kod urządzenia” (można też wpisać dowolny kod ręcznie) ---
+        // --- KODY SPRZĘTU: lista podpowiedzi w polu „Kod urządzenia” (można też wpisać dowolny kod ręcznie) ---
         const equipNorm = s => String(s || '').toLowerCase().replace(/ł/g, 'l').normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
         const equipEsc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const codeListIds = {};   // dbKey → id elementu <datalist>
+        const codeLists = {};     // id listy → [{ code, label }]
+        const codeListIds = {};   // dbKey → id listy
 
         // Kody pasujące do pozycji katalogu (po nazwie lub aliasie); pusta tablica = brak dopasowania
         function equipmentCodesFor(name) {
@@ -2917,26 +2994,163 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 .flatMap(([groupName, codes]) => codes.map(code => ({ code, label: groupName })));
         }
 
-        // Pozycja bez dopasowania dostaje wspólną listę wszystkich kodów
-        function ensureAllCodesDatalist() {
+        // Id listy kodów dla pozycji katalogu; pozycja bez dopasowania dostaje wspólną listę wszystkich kodów
+        function deviceCodeListId(itemName, dbKey) {
             const data = window.EQUIPMENT_CODES;
-            if (!data || document.getElementById('equipment-codes-all')) return;
-            const options = data.groups.flatMap(([groupName, codes]) =>
-                codes.map(code => `<option value="${code}">${equipEsc(groupName)}</option>`)).join('');
-            document.body.insertAdjacentHTML('beforeend', `<datalist id="equipment-codes-all">${options}</datalist>`);
-        }
-
-        function deviceCodeList(itemName, dbKey) {
-            if (!window.EQUIPMENT_CODES) return { id: '', html: '' };
+            if (!data) return '';
             const own = equipmentCodesFor(itemName);
             if (own.length === 0) {
-                ensureAllCodesDatalist();
-                return { id: 'equipment-codes-all', html: '' };
+                if (!codeLists.all) codeLists.all = data.groups.flatMap(([label, codes]) => codes.map(code => ({ code, label })));
+                return 'all';
             }
             const id = codeListIds[dbKey] || (codeListIds[dbKey] = 'codes_' + Object.keys(codeListIds).length);
-            const options = own.map(o => `<option value="${o.code}">${equipEsc(o.label)}</option>`).join('');
-            return { id, html: `<datalist id="${id}">${options}</datalist>` };
+            codeLists[id] = own;
+            return id;
         }
+
+        // Jedna lista na całą stronę, pokazywana pod aktywnym polem kodu (pola mają atrybut data-codes).
+        // Karty są renderowane od nowa, więc obsługa działa na delegacji zdarzeń na document.
+        (function initDeviceCodeDropdown() {
+            const MAX_ROWS = 50;
+            const dd = document.createElement('div');
+            dd.id = 'code-dd';
+            dd.className = 'code-dd';
+            dd.setAttribute('role', 'listbox');
+            dd.setAttribute('aria-label', 'Kody urządzeń');
+            document.body.appendChild(dd);
+
+            let input = null, rows = [], active = -1, typed = false;
+            const compact = s => equipNorm(s).replace(/ /g, '');
+
+            function matches() {
+                const list = codeLists[input.dataset.codes] || [];
+                const q = typed ? compact(input.value) : '';
+                if (!q) return list;
+                return list
+                    .filter(o => compact(o.code).includes(q) || compact(o.label).includes(q))
+                    .sort((a, b) => compact(b.code).startsWith(q) - compact(a.code).startsWith(q));
+            }
+
+            function close() {
+                dd.classList.remove('open');
+                if (input) {
+                    input.setAttribute('aria-expanded', 'false');
+                    input.removeAttribute('aria-activedescendant');
+                }
+            }
+
+            function position() {
+                if (!input || !input.isConnected) { close(); return; }
+                const r = input.getBoundingClientRect();
+                const vw = window.innerWidth, vh = window.innerHeight;
+                if (r.bottom < 0 || r.top > vh) { close(); return; }   // pole przewinięte poza ekran
+                const width = Math.min(Math.max(r.width, 220), vw - 16);
+                const below = vh - r.bottom - 8, above = r.top - 8;
+                const placeAbove = below < 140 && above > below;
+                dd.style.width = width + 'px';
+                dd.style.left = Math.max(8, Math.min(r.left, vw - width - 8)) + 'px';
+                dd.style.maxHeight = Math.max(100, Math.min(240, placeAbove ? above : below)) + 'px';
+                dd.style.top = placeAbove ? 'auto' : (r.bottom + 4) + 'px';
+                dd.style.bottom = placeAbove ? (vh - r.top + 4) + 'px' : 'auto';
+            }
+
+            function mark() {
+                [...dd.querySelectorAll('.code-dd-opt')].forEach((el, i) => el.setAttribute('aria-selected', String(i === active)));
+                const el = dd.querySelector(`#code-dd-opt-${active}`);
+                if (el) {
+                    el.scrollIntoView({ block: 'nearest' });
+                    input.setAttribute('aria-activedescendant', el.id);
+                } else {
+                    input.removeAttribute('aria-activedescendant');
+                }
+            }
+
+            function render() {
+                const all = matches();
+                rows = all.slice(0, MAX_ROWS);
+                if (rows.length === 0) { close(); return; }
+                if (active >= rows.length) active = -1;
+                dd.innerHTML = rows.map((o, i) =>
+                    `<div id="code-dd-opt-${i}" class="code-dd-opt" role="option" data-i="${i}" aria-selected="${i === active}">` +
+                    `<span class="code">${equipEsc(o.code)}</span><span class="label">${equipEsc(o.label)}</span></div>`).join('') +
+                    (all.length > rows.length ? `<div class="code-dd-note">Pokazano ${rows.length} z ${all.length} — wpisz, aby zawęzić</div>` : '');
+                dd.classList.add('open');
+                input.setAttribute('aria-expanded', 'true');
+                position();
+                mark();
+            }
+
+            function choose(i) {
+                const o = rows[i];
+                if (!o || !input) return;
+                input.value = o.code;
+                // istniejące atrybuty oninput / onchange pól zapisują wartość jak przy wpisaniu z ręki
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                close();
+            }
+
+            document.addEventListener('focusin', e => {
+                const t = e.target;
+                if (!(t instanceof HTMLInputElement) || !t.dataset.codes || t.readOnly) return;
+                input = t;
+                typed = false;
+                t.setAttribute('role', 'combobox');
+                t.setAttribute('aria-autocomplete', 'list');
+                t.setAttribute('aria-controls', 'code-dd');
+                active = matches().findIndex(o => o.code === t.value.trim().toUpperCase());
+                render();
+            });
+
+            document.addEventListener('input', e => {
+                if (e.target !== input) return;
+                typed = true;
+                active = -1;
+                render();
+            });
+
+            document.addEventListener('keydown', e => {
+                if (e.target !== input) return;
+                const open = dd.classList.contains('open');
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    if (!open) { typed = false; render(); }
+                    if (rows.length === 0) return;
+                    e.preventDefault();
+                    const step = e.key === 'ArrowDown' ? 1 : -1;
+                    active = active < 0 ? (step > 0 ? 0 : rows.length - 1) : (active + step + rows.length) % rows.length;
+                    mark();
+                } else if (e.key === 'Enter' && open && active >= 0) {
+                    e.preventDefault();
+                    choose(active);
+                } else if (e.key === 'Escape' && open) {
+                    e.preventDefault();
+                    e.stopPropagation();   // Escape zamyka tylko listę, nie okno z formularzem
+                    close();
+                } else if (e.key === 'Tab') {
+                    close();
+                }
+            }, true);
+
+            document.addEventListener('focusout', e => {
+                if (e.target !== input) return;
+                close();
+                input = null;
+            });
+
+            // mousedown z preventDefault, żeby kliknięcie w listę nie odbierało fokusu polu
+            dd.addEventListener('mousedown', e => {
+                e.preventDefault();
+                const el = e.target.closest('.code-dd-opt');
+                if (el) choose(Number(el.dataset.i));
+            });
+            dd.addEventListener('mousemove', e => {
+                const el = e.target.closest('.code-dd-opt');
+                if (el && Number(el.dataset.i) !== active) { active = Number(el.dataset.i); mark(); }
+            });
+
+            window.addEventListener('resize', position);
+            window.addEventListener('scroll', position, true);
+        })();
 
         function getDbKey(name) {
             return name.replace(/[.$#\[\]/]/g, '').replace(/\s+/g, '_');
@@ -3155,11 +3369,11 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             const availableCount = Math.max(0, parseInt(itemTotal) - rentals.length);
 
             let html = '';
-            const codeList = isEmployeeMode ? deviceCodeList(item.name, dbKey) : { id: '', html: '' };
-            const codeListAttr = codeList.id ? `list="${codeList.id}" autocomplete="off"` : '';
+            const codeListId = isEmployeeMode ? deviceCodeListId(item.name, dbKey) : '';
+            const codeListAttr = codeListId ? `data-codes="${codeListId}" autocomplete="off"` : '';
 
             if (isEmployeeMode) {
-                html += `<div class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm print-hide">${codeList.html}`;
+                html += `<div class="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm print-hide">`;
 
                 // Sekcja Administratora: Zmiana ilości całkowitej
                 if (isAdminMode) {
