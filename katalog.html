@@ -2080,6 +2080,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 document.getElementById('chargingBtn').classList.remove('hidden');
                 document.getElementById('chargingBtn').classList.add('flex');
                 updateMyRentalsBadge();
+                startChargingListener();
                 updateChargingBadge();
                 // Renderuj tylko gdy dane już załadowane (unikamy pustego renderowania przed danymi)
                 if (_inventoryReady && _customReady && document.getElementById('catalog-container')) {
@@ -2102,6 +2103,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 document.getElementById('docsGeneratorBtn').classList.remove('flex');
                 document.getElementById('chargingBtn').classList.add('hidden');
                 document.getElementById('chargingBtn').classList.remove('flex');
+                stopChargingListener();
                 if (_inventoryReady && _customReady && document.getElementById('catalog-container')) {
                     renderCatalog();
                 }
@@ -2209,12 +2211,26 @@ document.getElementById('adminReportBtn').classList.add('hidden');
         const _chargingOpen = { nodata: false, ok: false };
         const CHARGE_DAY = 86400000;
 
-        database.ref('charging').on('value', (snapshot) => {
-            chargingData = snapshot.val() || {};
-            updateChargingBadge();
-            const modal = document.getElementById('chargingModal');
-            if (modal && !modal.classList.contains('hidden')) renderCharging();
-        });
+        // Nasłuch tylko dla zalogowanych: odmowa odczytu w Firebase trwale odpina listener,
+        // więc podłączamy go dopiero po zalogowaniu (reguły: odczyt charging tylko dla auth != null).
+        let _chargingRef = null;
+        function startChargingListener() {
+            if (_chargingRef) return;
+            const ref = _chargingRef = database.ref('charging');
+            ref.on('value', (snapshot) => {
+                chargingData = snapshot.val() || {};
+                updateChargingBadge();
+                const modal = document.getElementById('chargingModal');
+                if (modal && !modal.classList.contains('hidden')) renderCharging();
+            }, (err) => {
+                console.warn('Ładowanie: brak dostępu do charging', err);
+                if (_chargingRef === ref) _chargingRef = null;
+            });
+        }
+        function stopChargingListener() {
+            if (_chargingRef) { _chargingRef.off(); _chargingRef = null; }
+            chargingData = {};
+        }
 
         function _chargeRules() {
             return window.BATTERY_RULES || { windows: {}, groups: {}, issueWarnDays: 30, urgentDays: 2 };
