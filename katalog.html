@@ -2208,7 +2208,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
         // Historia: chargingLog/{id} = { code, itemName, action: 'charged' | 'returned', at, by, byName }
         let chargingData = {};
         let _chargingModalTrigger = null;
-        const _chargingOpen = { nodata: false, ok: false };
+        const _chargingOpen = { ok: false };
         const CHARGE_DAY = 86400000;
 
         // Nasłuch tylko dla zalogowanych: odmowa odczytu w Firebase trwale odpina listener,
@@ -2280,7 +2280,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             const ageDays = last ? Math.floor((ctx.now - last) / CHARGE_DAY) : null;
             let kind = 'ok', reason = '';
             if (rec.needsCharge) { kind = 'returned'; reason = 'po zwrocie'; }
-            else if (!last) { kind = 'nodata'; reason = 'brak odnotowanego ładowania'; }
+            else if (!last) { kind = 'nodata'; reason = 'jeszcze nie odhaczony'; }
             else if (ageDays >= windowDays) { kind = 'stale'; reason = 'ostatnio ładowany ' + ageDays + ' dni temu'; }
             return {
                 code, group: info.group, cls: info.cls, kind, reason, last, ageDays,
@@ -2289,7 +2289,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             };
         }
 
-        const _isDue = s => s.kind === 'returned' || s.kind === 'stale';
+        // Brak odnotowanego ładowania traktujemy jak „do naładowania” (nieznany stan = zakładamy, że trzeba)
+        const _isDue = s => s.kind !== 'ok';
 
         function _allChargeStatuses() {
             const ctx = _chargeContext();
@@ -2394,10 +2395,9 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             const q = equipNorm(document.getElementById('chargingSearch').value).replace(/ /g, '');
             let all = _allChargeStatuses();
             if (q) all = all.filter(s => equipNorm(s.code + ' ' + s.group).replace(/ /g, '').includes(q));
-            const order = { returned: 0, stale: 1 };
+            const order = { returned: 0, stale: 1, nodata: 2 };
             const due = all.filter(_isDue).sort((a, b) =>
                 (b.urgent - a.urgent) || (order[a.kind] - order[b.kind]) || ((a.last || 0) - (b.last || 0)) || a.code.localeCompare(b.code));
-            const nodata = all.filter(s => s.kind === 'nodata').sort((a, b) => (b.urgent - a.urgent) || a.code.localeCompare(b.code));
             const ok = all.filter(s => s.kind === 'ok').sort((a, b) => a.last - b.last);
 
             const section = (title, items, key, hint) => {
@@ -2415,7 +2415,6 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             let html = '';
             if (due.length) html += section('Do naładowania', due, null);
             else if (!q) html += '<p class="text-center text-green-700 font-semibold py-4 text-sm">Wszystko podtrzymane. Nic do naładowania. 🎉</p>';
-            html += section('Bez odnotowanego ładowania', nodata, 'nodata', 'Nie wiadomo, kiedy były ładowane. Jeśli masz je pod ręką, naładuj i odhacz.');
             html += section('Naładowane', ok, 'ok', '');
             if (!html) html = '<p class="text-center text-gray-500 py-8 text-sm">Brak wyników.</p>';
             body.innerHTML = html;
