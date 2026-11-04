@@ -2372,7 +2372,20 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             _logCharge(code, info.group, 'returned');
         }
 
-        function _chargeRow(s) {
+        // kod → numer szafy (nrSzafy jest ustawiany per pozycja katalogu, kody łączymy po nazwie jak przy podpowiedziach)
+        function _chargeCabinetMap() {
+            const map = {};
+            const data = combinedCatalogData.length ? combinedCatalogData : catalogData;
+            data.forEach(dept => dept.categories.forEach(cat => cat.items.forEach(item => {
+                if (!item.nrSzafy) return;
+                equipmentCodesFor(item.name).forEach(o => { map[o.code] = item.nrSzafy; });
+            })));
+            return map;
+        }
+
+        function _chargeRow(s, cabinets) {
+            const cabinet = (cabinets || {})[s.code];
+            const cabinetBadge = cabinet ? `<span class="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 text-gray-700 whitespace-nowrap" title="Numer szafy">${/^\d/.test(String(cabinet)) ? 'Szafa ' : ''}${equipEsc(cabinet)}</span>` : '';
             const urgentBadge = s.urgent ? '<span class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border bg-red-100 text-red-700 border-red-300 whitespace-nowrap">rezerwacja wkrótce</span>' : '';
             let sub;
             if (s.kind === 'ok') {
@@ -2389,7 +2402,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                     <p class="text-sm leading-tight"><span class="font-mono font-bold text-gray-900">${equipEsc(s.code)}</span> <span class="text-gray-600">${equipEsc(s.group)}</span></p>
                     <p class="text-xs text-gray-500 mt-0.5">${sub}</p>
                 </div>
-                ${urgentBadge}${btn}
+                ${cabinetBadge}${urgentBadge}${btn}
             </li>`;
         }
 
@@ -2397,8 +2410,9 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             const body = document.getElementById('chargingBody');
             if (!body) return;
             const q = equipNorm(document.getElementById('chargingSearch').value).replace(/ /g, '');
+            const cabinets = _chargeCabinetMap();
             let all = _allChargeStatuses();
-            if (q) all = all.filter(s => equipNorm(s.code + ' ' + s.group).replace(/ /g, '').includes(q));
+            if (q) all = all.filter(s => equipNorm(s.code + ' ' + s.group + ' ' + (cabinets[s.code] || '')).replace(/ /g, '').includes(q));
             const order = { returned: 0, stale: 1, nodata: 2 };
             const due = all.filter(_isDue).sort((a, b) =>
                 (b.urgent - a.urgent) || (order[a.kind] - order[b.kind]) || ((a.last || 0) - (b.last || 0)) || a.code.localeCompare(b.code));
@@ -2406,7 +2420,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
 
             const section = (title, items, key, hint) => {
                 if (!items.length) return '';
-                const rows = items.map(_chargeRow).join('');
+                const rows = items.map(s => _chargeRow(s, cabinets)).join('');
                 if (!key) {
                     return `<h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">${title} (${items.length})</h4><ul class="space-y-2 mb-5">${rows}</ul>`;
                 }
