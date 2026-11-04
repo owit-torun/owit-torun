@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wskaźniki – panel pracownika | OWiT Toruń</title>
+    <meta name="description" content="Wewnętrzny panel realizacji wskaźników projektu – OWiT Toruń.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" sizes="64x64" href="images/ui/favicon-64.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind = { config: { theme: { extend: { colors: { green: {
+            50: '#edf9ee', 100: '#d1f2d4', 200: '#a3e5a9', 300: '#6fd278', 400: '#45a94d', 500: '#45a94d',
+            600: '#389140', 700: '#2b7333', 800: '#1f5526', 900: '#13381a' } } } } } };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        body { font-family: 'Lexend', sans-serif; background: #f9fafb; }
+        .skip-link { position: absolute; left: -9999px; top: 1rem; background: #1f5526; color: #fff; padding: .5rem 1.25rem; border-radius: 0 0 .5rem .5rem; font-weight: 700; z-index: 9999; text-decoration: none; transition: left .2s; }
+        .skip-link:focus { left: 0; }
+        :focus-visible { outline: 3px solid #2b7333 !important; outline-offset: 3px !important; border-radius: 4px; }
+        .fld { width: 100%; padding: .5rem .75rem; border: 1px solid #e5e7eb; border-radius: .5rem; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+        .fld:focus { outline: none; border-color: #45a94d; box-shadow: 0 0 0 2px #a3e5a9; }
+        .lbl { display: block; font-size: .7rem; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .25rem; }
+        .btn { display: inline-flex; align-items: center; gap: .5rem; padding: .5rem 1rem; border-radius: .75rem; font-weight: 600; font-size: .875rem; cursor: pointer; transition: background .15s; }
+        .btn-primary { background: #2b7333; color: #fff; } .btn-primary:hover { background: #1f5526; }
+        .btn-ghost { background: #fff; color: #374151; border: 1px solid #e5e7eb; } .btn-ghost:hover { background: #edf9ee; border-color: #6fd278; color: #2b7333; }
+        .tab { padding: .5rem 1rem; font-size: .875rem; font-weight: 600; border-bottom: 2px solid transparent; color: #6b7280; white-space: nowrap; cursor: pointer; }
+        .tab:hover { color: #374151; background: #f9fafb; }
+        .tab[aria-selected="true"] { color: #2b7333; border-color: #2b7333; background: #edf9ee; }
+        th { text-align: left; font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; color: #6b7280; font-weight: 700; padding: .5rem .6rem; background: #f9fafb; white-space: nowrap; }
+        td { padding: .5rem .6rem; border-top: 1px solid #f3f4f6; vertical-align: top; }
+        .bar { height: .6rem; background: #e5e7eb; border-radius: 999px; position: relative; overflow: visible; }
+        .bar > i { display: block; height: 100%; border-radius: 999px; }
+        .bar > b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #374151; opacity: .55; }
+        @media print { #site-header, #site-footer, .no-print { display: none !important; } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-gray-800">
+    <a href="#main" class="skip-link">Przejdź do treści głównej</a>
+    <header id="site-header"></header>
+
+    <main id="main" class="flex-1 pt-32 pb-20 px-4">
+        <div class="max-w-6xl mx-auto" id="root">
+            <div class="flex items-center justify-center py-24 text-gray-400 gap-3">
+                <i data-lucide="loader-2" class="w-6 h-6 animate-spin"></i><span class="text-sm">Ładowanie…</span>
+            </div>
+        </div>
+    </main>
+
+    <div id="modalRoot"></div>
+    <div id="site-footer"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script>
+        firebase.initializeApp({
+            apiKey: "AIzaSyBqb71Xupzcv4aEaszY7kIqwjyWbdJge3s",
+            authDomain: "katalog-owit.firebaseapp.com",
+            databaseURL: "https://katalog-owit-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "katalog-owit",
+            storageBucket: "katalog-owit.firebasestorage.app",
+            messagingSenderId: "884136463755",
+            appId: "1:884136463755:web:d5f89d99b723fe0b73b38e"
+        });
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // ===== KONFIGURACJA =====
+        // Konta z dostępem do wskaźników. Kolejni pracownicy: dopisz e-mail do ALLOWED.
+        const ALLOWED = ['admin@owit.pl', 'adrian@owit.pl', 'marcin@owit.pl'];
+        const ADMINS = ['admin@owit.pl'];
+        const NAMES = { 'adrian@owit.pl': 'Adrian Kędzior', 'marcin@owit.pl': 'Marcin Kos' };
+        // Wymagane wskaźniki (jak w arkuszu Excel dla Adriana i Marcina). Admin może zmienić per pracownik/rok.
+        const DEFAULT_TARGETS = { newPesel: 17, porada: 57, instruktaz: 40, testowanie: 26, wypozyczenie: 40 };
+        const INDICATORS = [
+            { key: 'newPesel', label: 'Nowy PESEL', icon: 'user-plus' },
+            { key: 'porada', label: 'Porada', icon: 'message-circle' },
+            { key: 'instruktaz', label: 'Instruktaż', icon: 'book-open' },
+            { key: 'testowanie', label: 'Testowanie', icon: 'flask-conical' },
+            { key: 'wypozyczenie', label: 'Wypożyczenie', icon: 'package-check' },
+        ];
+        const MONTHS = ['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'];
+
+        // ===== STAN =====
+        let me = null, isAdmin = false;
+        let year = String(new Date().getFullYear());
+        let DB = { entries: {}, network: {}, targets: {} };
+        let inventoryData = {}, historyData = null, historyError = false;
+        let tab = 'osit', adminTab = 'team', selectedEmp = null;
+        let listeners = [];
+
+        // ===== NARZĘDZIA =====
+        const $ = (id) => document.getElementById(id);
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const n = (v) => Math.max(0, parseInt(v, 10) || 0);
+        const ek = (email) => email.replace(/[@.]/g, '_');
+        const todayStr = () => new Date().toISOString().split('T')[0];
+        const fmt = (d) => d ? d.split('-').reverse().join('.') : '–';
+        const nameOf = (email) => NAMES[email] || email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        const employees = () => ALLOWED.filter(e => !ADMINS.includes(e));
+        const icons = () => { if (window.lucide) lucide.createIcons({ attrs: { 'aria-hidden': 'true' } }); };
+
+        // ===== DANE =====
+        function targetsFor(email) {
+            const t = ((DB.targets[ek(email)] || {})[year]) || {};
+            const out = {};
+            for (const k in DEFAULT_TARGETS) out[k] = t[k] != null ? n(t[k]) : DEFAULT_TARGETS[k];
+            return out;
+        }
+        function entriesFor(email) {
+            const o = DB.entries[ek(email)] || {};
+            return Object.entries(o).map(([id, e]) => ({ ...e, id }));
+        }
+        function networkFor(email) {
+            const o = DB.network[ek(email)] || {};
+            return Object.entries(o).map(([id, e]) => ({ ...e, id }));
+        }
+        function rentalsFor(email) {
+            const em = email.toLowerCase(), out = [];
+            for (const [dbKey, item] of Object.entries(inventoryData || {})) {
+                Object.values((item && item.rentals) || {}).filter(Boolean).forEach(r => {
+                    if ((r.addedBy || '').toLowerCase() === em)
+                        out.push({ itemName: dbKey.replace(/_/g, ' '), deviceCode: r.deviceCode || '', beneficiary: r.beneficiaryLastName || '', rentedAt: r.rentedAt || '', returnedAt: '', active: true });
+                });
+            }
+            Object.values(historyData || {}).forEach(h => {
+                if (h && (h.addedBy || '').toLowerCase() === em)
+                    out.push({ itemName: h.itemName || h.dbKey || '', deviceCode: h.deviceCode || '', beneficiary: h.beneficiaryLastName || '', rentedAt: h.rentedAt || '', returnedAt: h.returnedAt || '', active: false });
+            });
+            return out.sort((a, b) => (b.rentedAt || '').localeCompare(a.rentedAt || ''));
+        }
+        // Wkład pojedynczego wpisu we wskaźniki (jak formuły w arkuszu Excel)
+        function entryDelta(e) {
+            const d = { newPesel: 0, porada: 0, instruktaz: 0, szkolenie: 0, testowanie: 0, kontakt: 0, technologia: 0, rentManual: 0, rentOgol: 0 };
+            if (e.newPesel) d.newPesel = 1;
+            if (e.scope === 'ogol') {
+                d.porada = n(e.porada); d.instruktaz = n(e.instruktaz); d.kontakt = n(e.kontakt); d.technologia = n(e.technologia);
+                if (e.wypozyczenieTak) d.rentOgol = 1;
+            } else {
+                d.porada = n(e.poradaOzn) + n(e.poradaOozn);
+                d.instruktaz = n(e.instruktazOzn) + n(e.instruktazOozn);
+                d.szkolenie = n(e.szkolenieOzn) + n(e.szkolenieOozn);
+                d.testowanie = n(e.testowanieOzn) + n(e.testowanieOozn);
+                d.rentManual = n(e.wypozyczenie);
+            }
+            return d;
+        }
+        function computeStats(email, y = year) {
+            const s = { newPesel: 0, porada: 0, instruktaz: 0, szkolenie: 0, testowanie: 0, kontakt: 0, technologia: 0, rentManual: 0, rentOgol: 0, rentAuto: 0, wypozyczenie: 0, rentNoDate: 0 };
+            entriesFor(email).filter(e => (e.date || '').startsWith(y)).forEach(e => {
+                const d = entryDelta(e); for (const k in d) s[k] += d[k];
+            });
+            rentalsFor(email).forEach(r => { if (!r.rentedAt) s.rentNoDate++; else if (r.rentedAt.startsWith(y)) s.rentAuto++; });
+            s.wypozyczenie = s.rentAuto + s.rentManual + s.rentOgol;
+            return s;
+        }
+        function monthlyStats(emails) {
+            const m = Array.from({ length: 12 }, () => ({ newPesel: 0, porada: 0, instruktaz: 0, szkolenie: 0, testowanie: 0, kontakt: 0, technologia: 0, wypozyczenie: 0 }));
+            emails.forEach(email => {
+                entriesFor(email).filter(e => (e.date || '').startsWith(year)).forEach(e => {
+                    const i = parseInt(e.date.slice(5, 7), 10) - 1; if (i < 0 || i > 11) return;
+                    const d = entryDelta(e);
+                    ['newPesel', 'porada', 'instruktaz', 'szkolenie', 'testowanie', 'kontakt', 'technologia'].forEach(k => m[i][k] += d[k]);
+                    m[i].wypozyczenie += d.rentManual + d.rentOgol;
+                });
+                rentalsFor(email).filter(r => (r.rentedAt || '').startsWith(year)).forEach(r => {
+                    const i = parseInt(r.rentedAt.slice(5, 7), 10) - 1; if (i >= 0 && i < 12) m[i].wypozyczenie++;
+                });
+            });
+            return m;
+        }
+        const pct = (v, t) => t > 0 ? Math.round(v / t * 100) : 0;
+        // Oczekiwany postęp wg kalendarza (tylko bieżący rok)
+        function expectedPct() {
+            const now = new Date();
+            if (String(now.getFullYear()) !== year) return null;
+            const start = new Date(now.getFullYear(), 0, 1), end = new Date(now.getFullYear() + 1, 0, 1);
+            return Math.round((now - start) / (end - start) * 100);
+        }
+        const barColor = (p, exp) => p >= 100 ? '#2b7333' : (exp != null && p < exp - 15) ? '#dc2626' : (exp != null && p < exp) ? '#d97706' : '#45a94d';
+
+        // ===== NASŁUCH FIREBASE =====
+        function stopListeners() { listeners.forEach(([ref, fn]) => ref.off('value', fn)); listeners = []; }
+        function listen(path, cb) {
+            const ref = database.ref(path);
+            const fn = (snap) => { cb(snap.val() || {}); render(); };
+            ref.on('value', fn, (err) => console.warn('Wskaźniki: brak odczytu', path, err.message));
+            listeners.push([ref, fn]);
+        }
+        function startListeners() {
+            stopListeners();
+            const own = ek(me.email);
+            if (isAdmin) {
+                listen('indicators/entries', v => DB.entries = v);
+                listen('indicators/network', v => DB.network = v);
+                listen('indicators/targets', v => DB.targets = v);
+            } else {
+                listen('indicators/entries/' + own, v => DB.entries = { [own]: v });
+                listen('indicators/network/' + own, v => DB.network = { [own]: v });
+                listen('indicators/targets/' + own, v => DB.targets = { [own]: v });
+            }
+            listen('inventory', v => inventoryData = v);
+            loadHistory();
+        }
+        async function loadHistory() {
+            try {
+                const snap = isAdmin
+                    ? await database.ref('history').once('value')
+                    : await database.ref('history').orderByChild('addedBy').equalTo(me.email).once('value');
+                historyData = snap.val() || {}; historyError = false;
+            } catch (e) {
+                console.warn('Historia: brak uprawnień', e.message);
+                historyData = {}; historyError = true;
+            }
+            render();
+        }
+
+        // ===== AUTH =====
+        auth.onAuthStateChanged((user) => {
+            stopListeners();
+            DB = { entries: {}, network: {}, targets: {} }; historyData = null;
+            me = user && user.email ? { email: user.email.toLowerCase(), uid: user.uid } : null;
+            isAdmin = !!me && ADMINS.includes(me.email);
+            if (me && ALLOWED.includes(me.email)) {
+                selectedEmp = null; adminTab = 'team'; tab = 'osit';
+                startListeners();
+            }
+            render();
+        });
+        function submitLogin(ev) {
+            ev.preventDefault();
+            const err = $('loginErr'); err.textContent = '';
+            auth.signInWithEmailAndPassword($('loginEmail').value.trim(), $('loginPassword').value)
+                .catch(() => { err.textContent = 'Nieprawidłowy e-mail lub hasło.'; });
+        }
+
+        // ===== RENDER GŁÓWNY =====
+        function render() {
+            const root = $('root');
+            if (!me) { root.innerHTML = loginView(); }
+            else if (!ALLOWED.includes(me.email)) { root.innerHTML = deniedView(); }
+            else { root.innerHTML = appView(); }
+            icons();
+        }
+        function loginView() {
+            return `<div class="max-w-sm mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mt-6">
+                <h1 class="text-xl font-bold text-green-800 flex items-center gap-2 mb-1"><i data-lucide="lock" class="w-5 h-5"></i> Wskaźniki – logowanie</h1>
+                <p class="text-sm text-gray-500 mb-5">Użyj tego samego konta, co w panelu pracownika katalogu.</p>
+                <form onsubmit="submitLogin(event)" class="space-y-4">
+                    <div><label class="lbl" for="loginEmail">E-mail</label><input id="loginEmail" type="email" class="fld" required autocomplete="email"></div>
+                    <div><label class="lbl" for="loginPassword">Hasło</label><input id="loginPassword" type="password" class="fld" required autocomplete="current-password"></div>
+                    <p id="loginErr" class="text-sm text-red-600" role="alert"></p>
+                    <button class="btn btn-primary w-full justify-center" type="submit">Zaloguj</button>
+                </form></div>`;
+        }
+        function deniedView() {
+            return `<div class="max-w-md mx-auto bg-white rounded-2xl shadow border border-gray-100 p-8 text-center mt-6">
+                <i data-lucide="shield-off" class="w-10 h-10 mx-auto text-gray-400 mb-3"></i>
+                <h1 class="text-xl font-bold mb-2">Brak dostępu</h1>
+                <p class="text-gray-600 text-sm mb-5">Konto ${esc(me.email)} nie ma jeszcze włączonego modułu wskaźników.</p>
+                <div class="flex justify-center gap-2"><a class="btn btn-ghost" href="katalog.html">Wróć do katalogu</a>
+                <button class="btn btn-ghost" onclick="auth.signOut()">Wyloguj</button></div></div>`;
+        }
+        function appView() {
+            const years = new Set([String(new Date().getFullYear() - 1), String(new Date().getFullYear()), year]);
+            const yearSel = `<select class="fld !w-auto" aria-label="Rok" onchange="year=this.value;render()">${[...years].sort().map(y => `<option ${y === year ? 'selected' : ''}>${y}</option>`).join('')}</select>`;
+            const head = `<div class="flex flex-wrap items-center justify-between gap-3 mb-6 no-print">
+                <div><p class="text-green-700 text-xs font-bold uppercase tracking-widest">Panel wewnętrzny</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">${isAdmin ? 'Wskaźniki – administrator' : 'Moje wskaźniki'}</h1></div>
+                <div class="flex flex-wrap items-center gap-2">${yearSel}
+                    <a class="btn btn-ghost" href="katalog.html"><i data-lucide="package" class="w-4 h-4"></i> Katalog</a>
+                    <button class="btn btn-ghost" onclick="auth.signOut()"><i data-lucide="log-out" class="w-4 h-4"></i> ${esc(nameOf(me.email))}</button></div></div>`;
+            return head + (isAdmin ? adminView() : employeeView(me.email, false));
+        }
+
+        // ===== WIDOK PRACOWNIKA =====
+        function indicatorCards(email) {
+            const s = computeStats(email), t = targetsFor(email), exp = expectedPct();
+            const cards = INDICATORS.map(ind => {
+                const v = s[ind.key], tg = t[ind.key], p = pct(v, tg), c = barColor(p, exp);
+                let sub = '';
+                if (ind.key === 'wypozyczenie') sub = `<p class="text-[11px] text-gray-500 mt-2">katalog ${s.rentAuto} · ręcznie ${s.rentManual} · ogólnopolska ${s.rentOgol}</p>`;
+                return `<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                    <div class="flex items-center justify-between text-gray-500 text-xs font-bold uppercase tracking-wide"><span>${ind.label}</span><i data-lucide="${ind.icon}" class="w-4 h-4"></i></div>
+                    <p class="mt-2"><span class="text-3xl font-bold text-gray-900">${v}</span><span class="text-gray-400 text-sm"> / ${tg}</span>
+                    <span class="float-right text-sm font-bold" style="color:${c}">${p}%</span></p>
+                    <div class="bar mt-3" role="progressbar" aria-valuenow="${Math.min(p, 100)}" aria-valuemin="0" aria-valuemax="100" aria-label="${ind.label}">
+                        <i style="width:${Math.min(p, 100)}%;background:${c}"></i>${exp != null ? `<b style="left:${exp}%" title="Oczekiwany postęp wg kalendarza: ${exp}%"></b>` : ''}</div>${sub}</div>`;
+            }).join('');
+            const extra = `<div class="flex flex-wrap gap-2 text-xs mt-3">
+                <span class="bg-white border border-gray-200 rounded-full px-3 py-1">Kontakt (ogólnopolska): <b>${s.kontakt}</b></span>
+                <span class="bg-white border border-gray-200 rounded-full px-3 py-1">Zaproponowanie technologii: <b>${s.technologia}</b></span>
+                <span class="bg-white border border-gray-200 rounded-full px-3 py-1">Szkolenia: <b>${s.szkolenie}</b></span>
+                ${exp != null ? `<span class="text-gray-400 px-1 py-1">Kreska na pasku = oczekiwany postęp wg kalendarza (${exp}%)</span>` : ''}</div>`;
+            return `<div class="grid grid-cols-2 lg:grid-cols-5 gap-3">${cards}</div>${extra}`;
+        }
+        function employeeView(email, readOnly) {
+            const tabs = [['osit', 'Ośrodek Wsparcia i Testów'], ['ogol', 'Wypożyczalnia ogólnopolska'], ['rentals', 'Wypożyczenia z katalogu'], ['network', 'Sieć współpracy']];
+            const nav = `<div class="flex gap-1 border-b border-gray-200 mt-8 overflow-x-auto no-print" role="tablist">${tabs.map(([k, l]) =>
+                `<button role="tab" class="tab" aria-selected="${tab === k}" onclick="tab='${k}';render()">${l}</button>`).join('')}</div>`;
+            let body = '';
+            if (tab === 'osit') body = entriesTable(email, 'osit', readOnly);
+            else if (tab === 'ogol') body = entriesTable(email, 'ogol', readOnly);
+            else if (tab === 'rentals') body = rentalsTable(email);
+            else body = networkTable(email, readOnly);
+            return indicatorCards(email) + nav + `<div class="bg-white rounded-b-2xl rounded-tr-2xl border border-t-0 border-gray-100 shadow-sm p-4">${body}</div>`;
+        }
+        function addBtn(label, scope, readOnly) {
+            return readOnly ? '' : `<button class="btn btn-primary no-print" onclick="openEntryModal('${scope}')"><i data-lucide="plus" class="w-4 h-4"></i> ${label}</button>`;
+        }
+        function rowActions(id, scope, readOnly) {
+            if (readOnly) return '';
+            return `<td class="whitespace-nowrap no-print"><button class="p-1.5 text-gray-400 hover:text-green-700" aria-label="Edytuj" onclick="openEntryModal('${scope}','${id}')"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                <button class="p-1.5 text-gray-400 hover:text-red-600" aria-label="Usuń" onclick="deleteItem('${scope === 'network' ? 'network' : 'entries'}','${id}')"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>`;
+        }
+        const cnt = (a, b) => (n(a) + n(b)) ? `<b>${n(a) + n(b)}</b> <span class="text-gray-400 text-xs">(${n(a)}+${n(b)})</span>` : '<span class="text-gray-300">–</span>';
+        const num = (v) => n(v) ? `<b>${n(v)}</b>` : '<span class="text-gray-300">–</span>';
+        const yes = (v) => v ? '<span class="text-green-700 font-bold">tak</span>' : '<span class="text-gray-400">nie</span>';
+
+        function entriesTable(email, scope, readOnly) {
+            const list = entriesFor(email).filter(e => (e.scope || 'osit') === scope && (e.date || '').startsWith(year)).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+            const isO = scope === 'osit';
+            const title = isO ? 'Beneficjenci – Ośrodek Wsparcia i Testów' : 'Beneficjenci – Wypożyczalnia ogólnopolska';
+            const head = isO
+                ? '<th>Data</th><th>OzN</th><th>OOzN</th><th>Nowy PESEL</th><th>Porada</th><th>Instruktaż</th><th>Szkolenie</th><th>Testowanie</th><th>Wypożyczenie (ręcznie)</th><th>Przedmiot / inna czynność</th>'
+                : '<th>Data</th><th>OzN</th><th>OOzN</th><th>Nowy PESEL</th><th>Porada</th><th>Instruktaż</th><th>Kontakt</th><th>Zaproponowana technologia</th><th>Przedmiot wniosku</th><th>Wypożyczenie</th>';
+            const rows = list.map(e => isO
+                ? `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(e.ozn)}</td><td>${esc(e.oozn)}</td><td>${yes(e.newPesel)}</td>
+                    <td>${cnt(e.poradaOzn, e.poradaOozn)}</td><td>${cnt(e.instruktazOzn, e.instruktazOozn)}</td><td>${cnt(e.szkolenieOzn, e.szkolenieOozn)}</td><td>${cnt(e.testowanieOzn, e.testowanieOozn)}</td>
+                    <td>${num(e.wypozyczenie)}</td><td class="text-xs text-gray-600 max-w-[16rem]">${esc(e.przedmiot)}${e.inna ? `<br><i>${esc(e.inna)}</i>` : ''}${e.note ? `<br><span class="text-gray-400">${esc(e.note)}</span>` : ''}</td>${rowActions(e.id, scope, readOnly)}</tr>`
+                : `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(e.ozn)}</td><td>${esc(e.oozn)}</td><td>${yes(e.newPesel)}</td>
+                    <td>${num(e.porada)}</td><td>${num(e.instruktaz)}</td><td>${num(e.kontakt)}</td><td>${num(e.technologia)}</td>
+                    <td class="text-xs text-gray-600">${esc(e.przedmiotWniosku)}${e.note ? `<br><span class="text-gray-400">${esc(e.note)}</span>` : ''}</td><td>${yes(e.wypozyczenieTak)}</td>${rowActions(e.id, scope, readOnly)}</tr>`).join('');
+            return `<div class="flex flex-wrap items-center justify-between gap-2 mb-3"><h2 class="font-bold text-gray-800">${title} <span class="text-gray-400 font-normal text-sm">(${list.length})</span></h2>${addBtn('Dodaj beneficjenta', scope, readOnly)}</div>
+                ${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr>${head}${readOnly ? '' : '<th class="no-print"></th>'}</tr></thead><tbody>${rows}</tbody></table></div>`
+                    : `<p class="text-gray-400 text-sm py-8 text-center">Brak wpisów w ${year}.</p>`}`;
+        }
+        function rentalsTable(email) {
+            const all = rentalsFor(email);
+            const list = all.filter(r => (r.rentedAt || '').startsWith(year));
+            const noDate = all.filter(r => !r.rentedAt).length;
+            const rows = list.map(r => `<tr><td class="whitespace-nowrap">${fmt(r.rentedAt)}</td><td>${esc(r.itemName)}</td><td>${esc(r.deviceCode)}</td><td>${esc(r.beneficiary)}</td>
+                <td>${r.active ? '<span class="text-amber-700 font-semibold">wypożyczone</span>' : `zwrócone ${fmt(r.returnedAt)}`}</td></tr>`).join('');
+            return `<div class="mb-3"><h2 class="font-bold text-gray-800">Wypożyczenia policzone automatycznie z katalogu <span class="text-gray-400 font-normal text-sm">(${list.length})</span></h2>
+                <p class="text-xs text-gray-500 mt-1">Każde wypożyczenie zarejestrowane w katalogu na to konto liczy się do wskaźnika „Wypożyczenie”. Nic nie trzeba wpisywać.</p></div>
+                ${historyError ? '<p class="text-sm bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-3 mb-3">Nie udało się wczytać historii zwrotów (brak uprawnień w bazie) – liczone są tylko aktualnie wypożyczone urządzenia.</p>' : ''}
+                ${noDate ? `<p class="text-xs text-gray-500 mb-3">${noDate} starszych wypożyczeń bez daty nie jest liczonych do żadnego roku.</p>` : ''}
+                ${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Data wypożyczenia</th><th>Sprzęt</th><th>Kod</th><th>Beneficjent</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`
+                    : `<p class="text-gray-400 text-sm py-8 text-center">Brak wypożyczeń w ${year}.</p>`}`;
+        }
+        function networkTable(email, readOnly) {
+            const list = networkFor(email).filter(e => (e.date || '').startsWith(year)).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+            const rows = list.map(e => `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(e.place)}</td><td>${esc(e.desc)}</td>${rowActions(e.id, 'network', readOnly)}</tr>`).join('');
+            return `<div class="flex flex-wrap items-center justify-between gap-2 mb-3"><h2 class="font-bold text-gray-800">Sieć współpracy międzyinstytucjonalnej <span class="text-gray-400 font-normal text-sm">(${list.length})</span></h2>${addBtn('Dodaj wydarzenie', 'network', readOnly)}</div>
+                ${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Data</th><th>Miejsce</th><th>Krótki opis wydarzenia</th>${readOnly ? '' : '<th class="no-print"></th>'}</tr></thead><tbody>${rows}</tbody></table></div>`
+                    : `<p class="text-gray-400 text-sm py-8 text-center">Brak wydarzeń w ${year}.</p>`}`;
+        }
+
+        // ===== FORMULARZE =====
+        function openModal(inner) {
+            $('modalRoot').innerHTML = `<div class="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 backdrop-blur-sm" role="dialog" aria-modal="true" onclick="if(event.target===this)closeModal()">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto border border-gray-100">${inner}</div></div>`;
+            icons();
+            const f = $('modalRoot').querySelector('input,select,textarea'); if (f) f.focus();
+        }
+        function closeModal() { $('modalRoot').innerHTML = ''; }
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+        const inp = (name, label, v, type = 'text', extra = '') => `<div><label class="lbl" for="f_${name}">${label}</label><input class="fld" id="f_${name}" name="${name}" type="${type}" value="${esc(v)}" ${extra}></div>`;
+        const numInp = (name, v) => `<input class="fld text-center" aria-label="${name}" name="${name}" type="number" min="0" step="1" value="${n(v) || ''}" placeholder="0">`;
+        const chk = (name, label, v) => `<label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" name="${name}" class="w-5 h-5 accent-green-700" ${v ? 'checked' : ''}> ${label}</label>`;
+
+        function openEntryModal(scope, id) {
+            const isNet = scope === 'network';
+            const cur = id ? (isNet ? networkFor(me.email) : entriesFor(me.email)).find(e => e.id === id) || {} : {};
+            const titles = { osit: 'Beneficjent – Ośrodek Wsparcia i Testów', ogol: 'Beneficjent – Wypożyczalnia ogólnopolska', network: 'Sieć współpracy – wydarzenie' };
+            let fields = '';
+            if (isNet) {
+                fields = `${inp('date', 'Data', cur.date || todayStr(), 'date', 'required')}${inp('place', 'Miejsce', cur.place)}
+                    <div><label class="lbl" for="f_desc">Krótki opis wydarzenia</label><textarea class="fld" id="f_desc" name="desc" rows="3">${esc(cur.desc)}</textarea></div>`;
+            } else if (scope === 'osit') {
+                const row = (label, k) => `<tr><td class="font-semibold whitespace-nowrap pr-3">${label}</td><td>${numInp(k + 'Ozn', cur[k + 'Ozn'])}</td><td>${numInp(k + 'Oozn', cur[k + 'Oozn'])}</td></tr>`;
+                fields = `${inp('date', 'Data', cur.date || todayStr(), 'date', 'required')}
+                    <div class="grid sm:grid-cols-2 gap-3">${inp('ozn', 'Imię i nazwisko OzN', cur.ozn)}${inp('oozn', 'Imię i nazwisko OOzN', cur.oozn)}</div>
+                    ${chk('newPesel', 'Nowy PESEL (pierwszy raz w OWiT)', cur.newPesel)}
+                    <table class="w-full text-sm"><thead><tr><th></th><th class="text-center">dla OzN</th><th class="text-center">dla OOzN</th></tr></thead><tbody>
+                        ${row('Porada', 'porada')}${row('Instruktaż', 'instruktaz')}${row('Szkolenie', 'szkolenie')}${row('Testowanie', 'testowanie')}</tbody></table>
+                    <div class="grid sm:grid-cols-3 gap-3 items-end"><div><label class="lbl">Wypożyczenie spoza katalogu (szt.)</label>${numInp('wypozyczenie', cur.wypozyczenie)}</div>
+                        <div class="sm:col-span-2">${inp('przedmiot', 'Przedmiot wypożyczenia', cur.przedmiot)}</div></div>
+                    <p class="text-xs text-gray-500 -mt-2">Wypożyczenia z katalogu liczą się same – tu wpisuj tylko te, których nie ma w katalogu.</p>
+                    ${inp('inna', 'Inna czynność', cur.inna)}`;
+            } else {
+                fields = `${inp('date', 'Data', cur.date || todayStr(), 'date', 'required')}
+                    <div class="grid sm:grid-cols-2 gap-3">${inp('ozn', 'Imię i nazwisko OzN', cur.ozn)}${inp('oozn', 'Imię i nazwisko OOzN', cur.oozn)}</div>
+                    ${chk('newPesel', 'Nowy PESEL', cur.newPesel)}
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div><label class="lbl">Porada</label>${numInp('porada', cur.porada)}</div><div><label class="lbl">Instruktaż</label>${numInp('instruktaz', cur.instruktaz)}</div>
+                        <div><label class="lbl">Kontakt</label>${numInp('kontakt', cur.kontakt)}</div><div><label class="lbl">Zaproponowanie technologii</label>${numInp('technologia', cur.technologia)}</div></div>
+                    ${inp('przedmiotWniosku', 'Przedmiot wniosku', cur.przedmiotWniosku)}
+                    ${chk('wypozyczenieTak', 'Wypożyczenie zrealizowane', cur.wypozyczenieTak)}`;
+            }
+            if (!isNet) fields += `<div><label class="lbl" for="f_note">Notatka (opcjonalnie)</label><textarea class="fld" id="f_note" name="note" rows="2">${esc(cur.note)}</textarea></div>`;
+            openModal(`<form onsubmit="saveEntry(event,'${scope}','${id || ''}')">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-green-50/50 sticky top-0">
+                    <h2 class="text-lg font-bold text-green-800">${id ? 'Edytuj: ' : 'Dodaj: '}${titles[scope]}</h2>
+                    <button type="button" class="p-1 text-gray-400 hover:text-gray-600" aria-label="Zamknij" onclick="closeModal()"><i data-lucide="x"></i></button></div>
+                <div class="p-6 space-y-4">${fields}<p id="formErr" class="text-sm text-red-600" role="alert"></p></div>
+                <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-2"><button type="button" class="btn btn-ghost" onclick="closeModal()">Anuluj</button><button type="submit" class="btn btn-primary">Zapisz</button></div></form>`);
+        }
+        function saveEntry(ev, scope, id) {
+            ev.preventDefault();
+            const f = ev.target, g = (k) => (f.elements[k] ? f.elements[k].value.trim() : ''), c = (k) => !!(f.elements[k] && f.elements[k].checked);
+            const date = g('date'), err = $('formErr');
+            if (!date) { err.textContent = 'Podaj datę.'; return; }
+            let data, path;
+            const base = 'indicators/' + (scope === 'network' ? 'network' : 'entries') + '/' + ek(me.email);
+            if (scope === 'network') {
+                if (!g('place') && !g('desc')) { err.textContent = 'Uzupełnij miejsce lub opis.'; return; }
+                data = { date, place: g('place'), desc: g('desc') };
+            } else {
+                if (!g('ozn') && !g('oozn')) { err.textContent = 'Podaj imię i nazwisko OzN lub OOzN.'; return; }
+                data = { scope, date, ozn: g('ozn'), oozn: g('oozn'), newPesel: c('newPesel'), note: g('note') };
+                if (scope === 'osit') {
+                    ['poradaOzn', 'poradaOozn', 'instruktazOzn', 'instruktazOozn', 'szkolenieOzn', 'szkolenieOozn', 'testowanieOzn', 'testowanieOozn', 'wypozyczenie'].forEach(k => data[k] = n(g(k)));
+                    data.przedmiot = g('przedmiot'); data.inna = g('inna');
+                } else {
+                    ['porada', 'instruktaz', 'kontakt', 'technologia'].forEach(k => data[k] = n(g(k)));
+                    data.przedmiotWniosku = g('przedmiotWniosku'); data.wypozyczenieTak = c('wypozyczenieTak');
+                }
+            }
+            data.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+            const ref = id ? database.ref(base + '/' + id) : database.ref(base).push();
+            ref.set(data).then(closeModal).catch(e => { err.textContent = 'Błąd zapisu: ' + e.message; });
+        }
+        function deleteItem(kind, id) {
+            if (!confirm('Na pewno usunąć ten wpis?')) return;
+            database.ref('indicators/' + kind + '/' + ek(me.email) + '/' + id).remove().catch(e => alert('Błąd: ' + e.message));
+        }
+
+        // ===== WIDOK ADMINA =====
+        function adminView() {
+            const tabs = [['team', 'Zespół – przegląd'], ['stats', 'Statystyki miesięczne'], ['emp', 'Pracownik – szczegóły']];
+            const nav = `<div class="flex gap-1 border-b border-gray-200 overflow-x-auto no-print" role="tablist">${tabs.map(([k, l]) =>
+                `<button role="tab" class="tab" aria-selected="${adminTab === k}" onclick="adminTab='${k}';render()">${l}</button>`).join('')}</div>`;
+            let body = adminTab === 'team' ? teamOverview() : adminTab === 'stats' ? teamStats() : empDetail();
+            return nav + `<div class="mt-5">${body}</div>`;
+        }
+        function cell(v, t) {
+            const p = pct(v, t), c = barColor(p, expectedPct());
+            return `<td><span class="font-bold">${v}</span><span class="text-gray-400"> / ${t}</span><div class="bar mt-1 w-24" aria-hidden="true"><i style="width:${Math.min(p, 100)}%;background:${c}"></i></div><span class="text-[11px] font-semibold" style="color:${c}">${p}%</span></td>`;
+        }
+        function teamOverview() {
+            const emps = employees(), tot = { s: {}, t: {} };
+            INDICATORS.forEach(i => { tot.s[i.key] = 0; tot.t[i.key] = 0; });
+            let extra = { kontakt: 0, technologia: 0, szkolenie: 0 };
+            const rows = emps.map(em => {
+                const s = computeStats(em), t = targetsFor(em);
+                INDICATORS.forEach(i => { tot.s[i.key] += s[i.key]; tot.t[i.key] += t[i.key]; });
+                for (const k in extra) extra[k] += s[k];
+                return `<tr class="hover:bg-green-50/40 cursor-pointer" onclick="selectedEmp='${em}';adminTab='emp';tab='osit';render()">
+                    <td class="font-semibold whitespace-nowrap">${esc(nameOf(em))}<br><span class="text-xs text-gray-400 font-normal">${esc(em)}</span></td>
+                    ${INDICATORS.map(i => cell(s[i.key], t[i.key])).join('')}
+                    <td class="text-xs text-gray-600 whitespace-nowrap">kontakt ${s.kontakt}<br>technologia ${s.technologia}<br>szkolenia ${s.szkolenie}</td></tr>`;
+            }).join('');
+            const total = `<tr class="bg-gray-50 font-bold"><td>Razem zespół</td>${INDICATORS.map(i => cell(tot.s[i.key], tot.t[i.key])).join('')}
+                <td class="text-xs text-gray-600 whitespace-nowrap">kontakt ${extra.kontakt}<br>technologia ${extra.technologia}<br>szkolenia ${extra.szkolenie}</td></tr>`;
+            const exp = expectedPct();
+            return `<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3"><div><h2 class="font-bold text-gray-800">Realizacja wskaźników ${year}</h2>
+                    <p class="text-xs text-gray-500">${exp != null ? `Oczekiwany postęp wg kalendarza: ${exp}%. Kolor: zielony – w normie, żółty – lekko w tyle, czerwony – ponad 15 p.p. w tyle. ` : ''}Kliknij pracownika, by zobaczyć szczegóły.</p></div>
+                    <div class="flex gap-2 no-print"><button class="btn btn-ghost" onclick="exportCsv()"><i data-lucide="download" class="w-4 h-4"></i> Eksport CSV</button>
+                    <button class="btn btn-ghost" onclick="window.print()"><i data-lucide="printer" class="w-4 h-4"></i> Drukuj</button></div></div>
+                ${historyError ? '<p class="text-sm bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-3 mb-3">Nie udało się wczytać historii zwrotów – wypożyczenia liczone tylko z aktywnych.</p>' : ''}
+                <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Pracownik</th>${INDICATORS.map(i => `<th>${i.label}</th>`).join('')}<th>Pozostałe</th></tr></thead><tbody>${rows}${total}</tbody></table></div></div>`;
+        }
+        function teamStats() {
+            const m = monthlyStats(employees());
+            const keys = [['newPesel', 'Nowy PESEL'], ['porada', 'Porady'], ['instruktaz', 'Instruktaże'], ['testowanie', 'Testowania'], ['wypozyczenie', 'Wypożyczenia'], ['kontakt', 'Kontakty'], ['technologia', 'Zaproponowana tech.'], ['szkolenie', 'Szkolenia']];
+            const tot = m.map(r => keys.reduce((a, [k]) => a + r[k], 0)), max = Math.max(1, ...tot);
+            const rows = m.map((r, i) => `<tr><td class="font-semibold">${MONTHS[i]}</td>${keys.map(([k]) => `<td class="${r[k] ? '' : 'text-gray-300'}">${r[k]}</td>`).join('')}
+                <td class="min-w-[10rem]"><div class="flex items-center gap-2"><div class="bar flex-1" aria-hidden="true"><i style="width:${tot[i] / max * 100}%;background:#45a94d"></i></div><b class="w-8 text-right">${tot[i]}</b></div></td></tr>`).join('');
+            const sum = keys.map(([k]) => m.reduce((a, r) => a + r[k], 0));
+            // Udział pracowników w sumie wszystkich czynności
+            const share = employees().map(em => {
+                const s = computeStats(em); return { em, total: s.newPesel + s.porada + s.instruktaz + s.testowanie + s.wypozyczenie + s.kontakt + s.technologia + s.szkolenie };
+            });
+            const smax = Math.max(1, ...share.map(x => x.total));
+            return `<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                <h2 class="font-bold text-gray-800 mb-1">Aktywność zespołu w ${year} – miesiąc po miesiącu</h2>
+                <p class="text-xs text-gray-500 mb-3">Wypożyczenia: z katalogu (wg daty wypożyczenia) + wpisane ręcznie + ogólnopolska.</p>
+                <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Miesiąc</th>${keys.map(([, l]) => `<th>${l}</th>`).join('')}<th>Razem</th></tr></thead><tbody>${rows}
+                    <tr class="bg-gray-50 font-bold"><td>Suma</td>${sum.map(v => `<td>${v}</td>`).join('')}<td>${sum.reduce((a, b) => a + b, 0)}</td></tr></tbody></table></div></div>
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mt-5"><h2 class="font-bold text-gray-800 mb-3">Liczba czynności na pracownika</h2>
+                ${share.map(x => `<div class="flex items-center gap-3 mb-2"><span class="w-40 text-sm font-semibold truncate">${esc(nameOf(x.em))}</span><div class="bar flex-1" aria-hidden="true"><i style="width:${x.total / smax * 100}%;background:#2b7333"></i></div><b class="w-10 text-right">${x.total}</b></div>`).join('')}</div>`;
+        }
+        function empDetail() {
+            const emps = employees();
+            if (!selectedEmp || !emps.includes(selectedEmp)) selectedEmp = emps[0];
+            const t = targetsFor(selectedEmp);
+            const sel = `<select class="fld !w-auto" aria-label="Pracownik" onchange="selectedEmp=this.value;render()">${emps.map(e => `<option value="${esc(e)}" ${e === selectedEmp ? 'selected' : ''}>${esc(nameOf(e))}</option>`).join('')}</select>`;
+            const tform = `<details class="mt-4 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 no-print"><summary class="cursor-pointer font-semibold text-sm text-gray-700">Wymagane wskaźniki ${year} dla tego pracownika (edycja)</summary>
+                <form class="grid grid-cols-2 md:grid-cols-6 gap-3 mt-3 items-end" onsubmit="saveTargets(event)">
+                ${INDICATORS.map(i => `<div><label class="lbl" for="t_${i.key}">${i.label}</label><input class="fld" id="t_${i.key}" name="${i.key}" type="number" min="0" value="${t[i.key]}"></div>`).join('')}
+                <button class="btn btn-primary justify-center" type="submit">Zapisz</button></form></details>`;
+            return `<div class="flex flex-wrap items-center gap-3 mb-5 no-print"><span class="text-sm text-gray-500">Pracownik:</span>${sel}<span class="text-xs text-gray-400">podgląd tylko do odczytu</span></div>
+                ${employeeView(selectedEmp, true)}${tform}`;
+        }
+        function saveTargets(ev) {
+            ev.preventDefault();
+            const data = {}; INDICATORS.forEach(i => data[i.key] = n(ev.target.elements[i.key].value));
+            database.ref('indicators/targets/' + ek(selectedEmp) + '/' + year).set(data).catch(e => alert('Błąd zapisu: ' + e.message));
+        }
+        function exportCsv() {
+            const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+            const lines = [['Pracownik', 'Zakres', 'Data', 'OzN', 'OOzN', 'Nowy PESEL', 'Porada', 'Instruktaż', 'Szkolenie', 'Testowanie', 'Kontakt', 'Zaproponowana technologia', 'Wypożyczenie', 'Przedmiot', 'Notatka']];
+            employees().forEach(em => {
+                entriesFor(em).filter(e => (e.date || '').startsWith(year)).sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(e => {
+                    const d = entryDelta(e);
+                    lines.push([nameOf(em), e.scope === 'ogol' ? 'Ogólnopolska' : 'Ośrodek', e.date, e.ozn, e.oozn, d.newPesel ? 'tak' : 'nie', d.porada, d.instruktaz, d.szkolenie, d.testowanie, d.kontakt, d.technologia, d.rentManual + d.rentOgol, e.przedmiot || e.przedmiotWniosku || '', e.note || '']);
+                });
+                rentalsFor(em).filter(r => (r.rentedAt || '').startsWith(year)).forEach(r =>
+                    lines.push([nameOf(em), 'Katalog', r.rentedAt, '', r.beneficiary, '', '', '', '', '', '', '', 1, r.itemName + ' ' + r.deviceCode, r.active ? 'wypożyczone' : 'zwrócone ' + r.returnedAt]));
+            });
+            const blob = new Blob(['﻿' + lines.map(l => l.map(q).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'wskazniki_' + year + '.csv'; a.click(); URL.revokeObjectURL(a.href);
+        }
+    </script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons({ attrs: { 'aria-hidden': 'true' } });
+        if ("serviceWorker" in navigator) { navigator.serviceWorker.register("./sw.js").catch(() => {}); }
+    </script>
+</body>
+</html>
