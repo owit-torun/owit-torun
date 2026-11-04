@@ -2,17 +2,18 @@
  * data/battery-rules.js
  * Reguły ładowania sprzętu (zakładka „Ładowanie” w panelu pracownika, katalog.html).
  * Klucze w `groups` to nazwy grup z data/equipment-codes.js (dokładnie takie jak w arkuszu).
- * Grupa bez wpisu nie trafia do systemu ładowania (brak baterii, baterie jednorazowe, sprzęt medyczny).
+ * Grupa bez wpisu nie trafia do systemu ładowania (brak baterii lub baterie jednorazowe).
  * Szczegóły i źródła: baterie-sprzet.md.
  *
  * Klasy:
  *   A  — duży akumulator Li-ion (laptop, tablet, telefon, zegarek)
  *   B  — mały akumulator urządzenia asystującego
  *   B+ — mała bateria i duży pobór w uśpieniu (OrCam, switche Bluetooth, Roger)
+ *   D  — sprzęt medyczny i napędy z akumulatorem (koncentrator tlenu, napędy do wózka, podnośnik)
  */
 window.BATTERY_RULES = {
   // Po ilu dniach bez ładowania urządzenie wraca na listę „do naładowania” (podtrzymanie kondycji baterii)
-  windows: { "A": 90, "B": 60, "B+": 35 },
+  windows: { "A": 90, "B": 60, "B+": 35, "D": 90 },
   // Przy wydaniu: ostrzeżenie, jeśli ostatnie ładowanie było dawniej niż tyle dni
   issueWarnDays: 30,
   // Rezerwacja startująca w ciągu tylu dni podnosi urządzenie na górę listy
@@ -84,6 +85,12 @@ window.BATTERY_RULES = {
 
     // Mikrofony Roger
     "Roger ClipOn Mic": "B+",
-    "Roger Neckloop": "B+"
+    "Roger Neckloop": "B+",
+
+    // Sprzęt medyczny i napędy (zalecenia producentów: pełny cykl co ok. 90 dni, dłuższe przechowywanie naładowane)
+    "Inogen Rove 6": "D",
+    "Smart Drive MX2+": "D",
+    "Rehasense Eco Assist": "D",
+    "Podnośnik LeviCare": "D"
   }
 };
