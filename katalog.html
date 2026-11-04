@@ -1275,7 +1275,7 @@
                     <i data-lucide="x"></i>
                 </button>
             </div>
-            <div class="flex gap-1 px-5 pt-4 shrink-0 border-b border-gray-100">
+            <div class="flex gap-1 px-5 pt-4 shrink-0 border-b border-gray-100 overflow-x-auto">
                 <button id="reportTabDashboard" onclick="switchReportTab('dashboard')"
                     class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-red-600 text-red-700 bg-red-50 transition-colors">
                     Dashboard
@@ -1291,6 +1291,10 @@
                 <button id="reportTabHistory" onclick="switchReportTab('history')"
                     class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
                     Historia
+                </button>
+                <button id="reportTabCharging" onclick="switchReportTab('charging')"
+                    class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap">
+                    Ładowanie
                 </button>
             </div>
             <div id="adminReportContent" class="p-5 overflow-y-auto flex-grow bg-white text-sm"></div>
@@ -2512,17 +2516,125 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             const workers   = document.getElementById('reportTabWorkers');
             const overdue   = document.getElementById('reportTabOverdue');
             const history   = document.getElementById('reportTabHistory');
+            const charging  = document.getElementById('reportTabCharging');
+            _reportTab = tab;
             const active   = 'px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors border-red-600 text-red-700 bg-red-50';
             const inactive = 'px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50';
             dashboard.className = tab === 'dashboard' ? active : inactive;
             workers.className   = tab === 'workers'   ? active : inactive;
             overdue.className   = tab === 'overdue'   ? active : inactive;
             history.className   = tab === 'history'   ? active : inactive;
+            charging.className  = (tab === 'charging' ? active : inactive) + ' whitespace-nowrap';
             if      (tab === 'dashboard') document.getElementById('adminReportContent').innerHTML = _buildDashboard();
             else if (tab === 'workers')   document.getElementById('adminReportContent').innerHTML = _buildAdminReport();
             else if (tab === 'overdue')   document.getElementById('adminReportContent').innerHTML = _buildOverdueReport();
+            else if (tab === 'charging') {
+                document.getElementById('adminReportContent').innerHTML =
+                    '<div class="flex items-center justify-center py-16 text-gray-400 gap-3"><i data-lucide="loader-2" class="w-6 h-6 animate-spin"></i><span class="text-sm">Ładowanie danych…</span></div>';
+                loadChargingLog().then(() => { if (_reportTab === 'charging') { _showChargingReport(); lucide.createIcons(); } });
+            }
             else                          document.getElementById('adminReportContent').innerHTML = _buildHistoryTab();
             lucide.createIcons();
+        }
+
+        // RAPORT ŁADOWANIA (admin): podsumowanie, aktywność pracowników i historia z filtrami
+        let chargingLogData = null;
+        let _reportTab = 'dashboard';
+        let _chgLogFilter = { q: '', who: '', action: '' };
+
+        async function loadChargingLog() {
+            try {
+                const snap = await database.ref('chargingLog').orderByKey().limitToLast(1000).once('value');
+                chargingLogData = Object.values(snap.val() || {});
+            } catch (e) {
+                console.warn('Historia ładowania: brak uprawnień lub błąd odczytu', e.message);
+                chargingLogData = [];
+            }
+        }
+
+        function _showChargingReport() {
+            const log = chargingLogData || [];
+            const statuses = _allChargeStatuses();
+            const due = statuses.filter(_isDue);
+            const returned = statuses.filter(s => s.kind === 'returned').length;
+            const okCount = statuses.length - due.length;
+            const since = Date.now() - 30 * CHARGE_DAY;
+            const recent = log.filter(e => e.action === 'charged' && Date.parse(e.at) >= since);
+            const perWorker = {};
+            recent.forEach(e => { const k = e.byName || e.by || '(brak)'; perWorker[k] = (perWorker[k] || 0) + 1; });
+            const workers = Object.entries(perWorker).sort((a, b) => b[1] - a[1]);
+            const allWho = [...new Set(log.map(e => e.byName || e.by || '(brak)'))].sort((a, b) => a.localeCompare(b, 'pl'));
+
+            const card = (label, value, sub) =>
+                `<div class="flex flex-col bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <span class="text-[11px] font-bold uppercase text-gray-500 leading-tight">${label}</span>
+                    <span class="text-3xl font-extrabold text-gray-800 my-1">${value}</span>
+                    <span class="text-[11px] text-gray-400 leading-tight">${sub}</span>
+                </div>`;
+
+            const workersHtml = workers.length
+                ? workers.map(([n, c]) => `<div class="flex justify-between border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white"><span class="text-gray-700">${equipEsc(n)}</span><b class="text-gray-800">${c}</b></div>`).join('')
+                : '<p class="text-xs text-gray-400">Brak odhaczeń w ostatnich 30 dniach.</p>';
+
+            document.getElementById('adminReportContent').innerHTML = `
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    ${card('Do naładowania', due.length, 'Bez wypożyczonych')}
+                    ${card('Po zwrocie', returned, 'Wróciły i czekają na ładowanie')}
+                    ${card('Podtrzymane', okCount, 'W oknie ważności ładowania')}
+                    ${card('Ładowań (30 dni)', recent.length, 'Odhaczone przez pracowników')}
+                </div>
+                <p class="text-xs font-bold text-gray-500 uppercase mb-2">Kto ładował (ostatnie 30 dni)</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">${workersHtml}</div>
+                <p class="text-xs font-bold text-gray-500 uppercase mb-2">Historia ładowań i zwrotów</p>
+                <div class="flex flex-wrap gap-2 mb-3">
+                    <input type="search" id="chgLogQ" placeholder="Kod lub nazwa…" value="${equipEsc(_chgLogFilter.q)}" oninput="_setChgFilter('q', this.value)" aria-label="Szukaj w historii ładowania"
+                        class="flex-1 min-w-[10rem] border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-red-300">
+                    <select id="chgLogWho" onchange="_setChgFilter('who', this.value)" aria-label="Filtr po pracowniku" class="border border-gray-300 rounded-lg px-2 py-1.5 text-xs bg-white">
+                        <option value="">Wszyscy pracownicy</option>
+                        ${allWho.map(w => `<option value="${equipEsc(w)}" ${w === _chgLogFilter.who ? 'selected' : ''}>${equipEsc(w)}</option>`).join('')}
+                    </select>
+                    <select id="chgLogAction" onchange="_setChgFilter('action', this.value)" aria-label="Filtr po zdarzeniu" class="border border-gray-300 rounded-lg px-2 py-1.5 text-xs bg-white">
+                        <option value="">Ładowania i zwroty</option>
+                        <option value="charged" ${_chgLogFilter.action === 'charged' ? 'selected' : ''}>Tylko ładowania</option>
+                        <option value="returned" ${_chgLogFilter.action === 'returned' ? 'selected' : ''}>Tylko zwroty</option>
+                    </select>
+                </div>
+                <div id="chgLogList"></div>`;
+            _renderChgLogList();
+        }
+
+        function _setChgFilter(key, value) {
+            _chgLogFilter[key] = value;
+            _renderChgLogList();
+        }
+
+        function _renderChgLogList() {
+            const box = document.getElementById('chgLogList');
+            if (!box) return;
+            const q = equipNorm(_chgLogFilter.q).replace(/ /g, '');
+            const rows = (chargingLogData || [])
+                .filter(e => !_chgLogFilter.action || e.action === _chgLogFilter.action)
+                .filter(e => !_chgLogFilter.who || (e.byName || e.by || '(brak)') === _chgLogFilter.who)
+                .filter(e => !q || equipNorm((e.code || '') + ' ' + (e.itemName || '')).replace(/ /g, '').includes(q))
+                .sort((a, b) => (b.at || '').localeCompare(a.at || ''));
+            if (!rows.length) {
+                box.innerHTML = '<p class="text-center text-gray-400 py-8 text-xs">Brak wpisów. Historia zapełni się po pierwszych odhaczeniach i zwrotach.</p>';
+                return;
+            }
+            const fmt = d => d ? new Date(d).toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+            const MAX = 200;
+            box.innerHTML = `<p class="text-xs text-gray-500 mb-2">Wpisów: <b class="text-gray-800">${rows.length}</b>${rows.length > MAX ? ` (pokazano ${MAX} najnowszych)` : ''}</p><div class="space-y-1.5">` +
+                rows.slice(0, MAX).map(e => {
+                    const badge = e.action === 'returned'
+                        ? '<span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold shrink-0">zwrot</span>'
+                        : '<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold shrink-0">naładowany</span>';
+                    return `<div class="border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white flex flex-wrap items-center gap-x-3 gap-y-1">
+                        ${badge}
+                        <span class="font-mono font-bold text-gray-800">${equipEsc(e.code || '—')}</span>
+                        <span class="text-gray-600">${equipEsc(e.itemName || '')}</span>
+                        <span class="text-gray-400 ml-auto">${equipEsc(e.byName || e.by || '—')} · ${fmt(e.at)}</span>
+                    </div>`;
+                }).join('') + '</div>';
         }
 
         function _buildHistoryTab() {
