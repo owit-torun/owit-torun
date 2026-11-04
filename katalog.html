@@ -2453,12 +2453,13 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 : `<button type="button" onclick="markCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[44px] px-3 rounded-lg border-2 border-amber-500 bg-white hover:bg-amber-50 text-amber-800 text-sm font-semibold cursor-pointer" aria-label="Oznacz ${equipEsc(s.code)} jako naładowany">⚡ Oznacz jako naładowany</button>`;
             const bg = s.urgent ? 'border-red-200 bg-red-50/50' : s.kind === 'ok' ? 'border-green-100 bg-green-50/40' : 'border-amber-200 bg-amber-50/40';
             const imgAttr = ci.imageUrl ? ` data-img="${equipEsc(ci.imageUrl).replace(/"/g, '&quot;')}"` : '';
-            return `<li class="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 rounded-lg border ${bg}"${imgAttr}>
-                <div class="flex-1 min-w-[10rem]">
-                    <p class="text-sm leading-tight"><span class="font-mono font-bold text-gray-900">${equipEsc(s.code)}</span> <span class="text-gray-600">${equipEsc(s.group)}</span></p>
-                    <p class="text-xs text-gray-500 mt-0.5">${sub}</p>
+            return `<li class="p-3 rounded-lg border ${bg}"${imgAttr}>
+                <p class="text-sm leading-tight"><span class="font-mono font-bold text-gray-900">${equipEsc(s.code)}</span> <span class="text-gray-600">${equipEsc(s.group)}</span></p>
+                <p class="text-xs text-gray-500 mt-0.5">${sub}</p>
+                <div class="flex items-center gap-2 mt-2">
+                    <div class="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">${cabinetBadge}${urgentBadge}</div>
+                    ${btn}
                 </div>
-                ${cabinetBadge}${urgentBadge}${btn}
             </li>`;
         }
 
