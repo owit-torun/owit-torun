@@ -21,6 +21,13 @@ Bez nich dostęp zależy od dotychczasowych reguł bazy.
       ".write": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')"
     }
   },
+  "links": {
+    ".read": "auth != null && auth.token.email == 'admin@owit.pl'",
+    "$key": {
+      ".read": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')",
+      ".write": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')"
+    }
+  },
   "targets": {
     ".read": "auth != null && auth.token.email == 'admin@owit.pl'",
     ".write": "auth != null && auth.token.email == 'admin@owit.pl'",
