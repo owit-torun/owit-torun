@@ -2444,14 +2444,14 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             let sub;
             if (s.kind === 'ok') {
                 const d = new Date(s.last).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
-                sub = 'naładowany ' + d + (s.lastByName ? ' (' + equipEsc(s.lastByName) + ')' : '');
+                sub = '✓ naładowany ' + d + (s.lastByName ? ' (' + equipEsc(s.lastByName) + ')' : '');
             } else {
                 sub = equipEsc(s.reason);
             }
             const btn = s.kind === 'ok'
                 ? `<button type="button" onclick="undoCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[36px] px-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-gray-600 text-xs font-semibold cursor-pointer" aria-label="Cofnij odhaczenie ${equipEsc(s.code)}">Cofnij</button>`
-                : `<button type="button" onclick="markCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[44px] px-3 rounded-lg bg-green-700 hover:bg-green-800 text-white text-sm font-semibold cursor-pointer" aria-label="Oznacz ${equipEsc(s.code)} jako naładowany">Naładowany ✓</button>`;
-            const bg = s.urgent ? 'border-red-200 bg-red-50/50' : 'border-gray-100 bg-gray-50/40';
+                : `<button type="button" onclick="markCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[44px] px-3 rounded-lg border-2 border-amber-500 bg-white hover:bg-amber-50 text-amber-800 text-sm font-semibold cursor-pointer" aria-label="Oznacz ${equipEsc(s.code)} jako naładowany">⚡ Oznacz jako naładowany</button>`;
+            const bg = s.urgent ? 'border-red-200 bg-red-50/50' : s.kind === 'ok' ? 'border-green-100 bg-green-50/40' : 'border-amber-200 bg-amber-50/40';
             const imgAttr = ci.imageUrl ? ` data-img="${equipEsc(ci.imageUrl).replace(/"/g, '&quot;')}"` : '';
             return `<li class="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 rounded-lg border ${bg}"${imgAttr}>
                 <div class="flex-1 min-w-[10rem]">
