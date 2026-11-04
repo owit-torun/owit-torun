@@ -2350,24 +2350,66 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             return s && _isDue(s) ? '<span class="chg">⚡ do naładowania</span>' : '';
         }
 
+        // Zwraca klucz wpisu w chargingLog (potrzebny do oznaczenia wpisu jako cofniętego)
         function _logCharge(code, itemName, action) {
-            database.ref('chargingLog').push({
+            const ref = database.ref('chargingLog').push();
+            ref.set({
                 code, itemName, action, at: new Date().toISOString(),
                 by: currentUserEmail || '', byName: currentUserName || ''
             }).catch(e => console.warn('Historia ładowania: błąd zapisu', e));
+            return ref.key;
         }
 
         function markCharged(code) {
             const info = _chargeCodeInfo()[code];
             if (!info || !currentUserEmail) return;
+            const rec = chargingData[code] || {};
+            // Ochrona przed podwójnym kliknięciem tuż po odhaczeniu
+            if (!rec.needsCharge && rec.lastChargedAt && Date.now() - Date.parse(rec.lastChargedAt) < 10000) return;
+            // Poprzedni stan zapisujemy, żeby odhaczenie dało się cofnąć
+            const prev = {
+                lastChargedAt: rec.lastChargedAt || null,
+                lastChargedBy: rec.lastChargedBy || null,
+                lastChargedByName: rec.lastChargedByName || null,
+                needsCharge: !!rec.needsCharge,
+                returnedAt: rec.returnedAt || null
+            };
+            const logKey = _logCharge(code, info.group, 'charged');
             database.ref('charging/' + code).update({
                 lastChargedAt: new Date().toISOString(),
                 lastChargedBy: currentUserEmail,
                 lastChargedByName: currentUserName || currentUserEmail,
                 needsCharge: false,
-                itemName: info.group
+                itemName: info.group,
+                lastLogKey: logKey,
+                prev
             }).catch(e => alert('Błąd zapisu ładowania: ' + e.message));
-            _logCharge(code, info.group, 'charged');
+        }
+
+        // Cofnięcie ostatniego odhaczenia (przypadkowe kliknięcie): przywraca stan sprzed odhaczenia
+        function undoCharged(code) {
+            const info = _chargeCodeInfo()[code];
+            if (!info || !currentUserEmail) return;
+            showConfirm('Cofnąć odhaczenie ładowania dla ' + code + ' (' + info.group + ')? Urządzenie wróci na listę „do naładowania”.', () => {
+                const rec = chargingData[code] || {};
+                const prev = rec.prev || {};
+                database.ref('charging/' + code).update({
+                    lastChargedAt: prev.lastChargedAt || null,
+                    lastChargedBy: prev.lastChargedBy || null,
+                    lastChargedByName: prev.lastChargedByName || null,
+                    needsCharge: !!prev.needsCharge,
+                    returnedAt: prev.returnedAt || null,
+                    lastLogKey: null,
+                    prev: null
+                }).catch(e => alert('Błąd cofania: ' + e.message));
+                if (rec.lastLogKey) {
+                    database.ref('chargingLog/' + rec.lastLogKey).update({
+                        undone: true,
+                        undoneAt: new Date().toISOString(),
+                        undoneBy: currentUserName || currentUserEmail
+                    }).catch(e => console.warn('Historia ładowania: błąd oznaczenia cofnięcia', e));
+                }
+            });
         }
 
         // Wywoływane przy zwrocie sprzętu: urządzenie wraca częściowo rozładowane
@@ -2383,19 +2425,20 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             _logCharge(code, info.group, 'returned');
         }
 
-        // kod → numer szafy (nrSzafy jest ustawiany per pozycja katalogu, kody łączymy po nazwie jak przy podpowiedziach)
-        function _chargeCabinetMap() {
+        // kod → { cabinet, imageUrl } z katalogu (nrSzafy i zdjęcie są per pozycja katalogu, kody łączymy po nazwie jak przy podpowiedziach)
+        function _chargeCatalogInfo() {
             const map = {};
             const data = combinedCatalogData.length ? combinedCatalogData : catalogData;
             data.forEach(dept => dept.categories.forEach(cat => cat.items.forEach(item => {
-                if (!item.nrSzafy) return;
-                equipmentCodesFor(item.name).forEach(o => { map[o.code] = item.nrSzafy; });
+                if (!item.nrSzafy && !item.imageUrl) return;
+                equipmentCodesFor(item.name).forEach(o => { map[o.code] = { cabinet: item.nrSzafy || '', imageUrl: item.imageUrl || '' }; });
             })));
             return map;
         }
 
-        function _chargeRow(s, cabinets) {
-            const cabinet = (cabinets || {})[s.code];
+        function _chargeRow(s, catInfo) {
+            const ci = (catInfo || {})[s.code] || {};
+            const cabinet = ci.cabinet;
             const cabinetBadge = cabinet ? `<span class="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 text-gray-700 whitespace-nowrap" title="Numer szafy">${/^\d/.test(String(cabinet)) ? 'Szafa ' : ''}${equipEsc(cabinet)}</span>` : '';
             const urgentBadge = s.urgent ? '<span class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border bg-red-100 text-red-700 border-red-300 whitespace-nowrap">rezerwacja wkrótce</span>' : '';
             let sub;
@@ -2405,11 +2448,13 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             } else {
                 sub = equipEsc(s.reason);
             }
-            const btn = s.kind === 'ok' ? '' :
-                `<button type="button" onclick="markCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[44px] px-3 rounded-lg bg-green-700 hover:bg-green-800 text-white text-sm font-semibold cursor-pointer" aria-label="Oznacz ${equipEsc(s.code)} jako naładowany">Naładowany ✓</button>`;
+            const btn = s.kind === 'ok'
+                ? `<button type="button" onclick="undoCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[36px] px-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-gray-600 text-xs font-semibold cursor-pointer" aria-label="Cofnij odhaczenie ${equipEsc(s.code)}">Cofnij</button>`
+                : `<button type="button" onclick="markCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[44px] px-3 rounded-lg bg-green-700 hover:bg-green-800 text-white text-sm font-semibold cursor-pointer" aria-label="Oznacz ${equipEsc(s.code)} jako naładowany">Naładowany ✓</button>`;
             const bg = s.urgent ? 'border-red-200 bg-red-50/50' : 'border-gray-100 bg-gray-50/40';
-            return `<li class="flex items-center gap-3 p-3 rounded-lg border ${bg}">
-                <div class="flex-1 min-w-0">
+            const imgAttr = ci.imageUrl ? ` data-img="${equipEsc(ci.imageUrl).replace(/"/g, '&quot;')}"` : '';
+            return `<li class="flex flex-wrap items-center gap-x-3 gap-y-2 p-3 rounded-lg border ${bg}"${imgAttr}>
+                <div class="flex-1 min-w-[10rem]">
                     <p class="text-sm leading-tight"><span class="font-mono font-bold text-gray-900">${equipEsc(s.code)}</span> <span class="text-gray-600">${equipEsc(s.group)}</span></p>
                     <p class="text-xs text-gray-500 mt-0.5">${sub}</p>
                 </div>
@@ -2421,9 +2466,10 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             const body = document.getElementById('chargingBody');
             if (!body) return;
             const q = equipNorm(document.getElementById('chargingSearch').value).replace(/ /g, '');
-            const cabinets = _chargeCabinetMap();
+            hideChargeImg();
+            const catInfo = _chargeCatalogInfo();
             let all = _allChargeStatuses();
-            if (q) all = all.filter(s => equipNorm(s.code + ' ' + s.group + ' ' + (cabinets[s.code] || '')).replace(/ /g, '').includes(q));
+            if (q) all = all.filter(s => equipNorm(s.code + ' ' + s.group + ' ' + ((catInfo[s.code] || {}).cabinet || '')).replace(/ /g, '').includes(q));
             const order = { returned: 0, stale: 1, nodata: 2 };
             const due = all.filter(_isDue).sort((a, b) =>
                 (b.urgent - a.urgent) || (order[a.kind] - order[b.kind]) || ((a.last || 0) - (b.last || 0)) || a.code.localeCompare(b.code));
@@ -2431,7 +2477,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
 
             const section = (title, items, key, hint) => {
                 if (!items.length) return '';
-                const rows = items.map(s => _chargeRow(s, cabinets)).join('');
+                const rows = items.map(s => _chargeRow(s, catInfo)).join('');
                 if (!key) {
                     return `<h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">${title} (${items.length})</h4><ul class="space-y-2 mb-5">${rows}</ul>`;
                 }
@@ -2448,6 +2494,47 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             if (!html) html = '<p class="text-center text-gray-500 py-8 text-sm">Brak wyników.</p>';
             body.innerHTML = html;
         }
+
+        // Podgląd zdjęcia sprzętu po najechaniu na wiersz (na dotyku: dotknięcie wiersza)
+        const _chargeImg = document.createElement('div');
+        _chargeImg.id = 'chargeImgPreview';
+        _chargeImg.className = 'hidden fixed z-[60] pointer-events-none bg-white border border-gray-200 rounded-xl shadow-2xl p-2';
+        _chargeImg.innerHTML = '<img alt="" class="block w-48 h-48 object-contain">';
+        document.body.appendChild(_chargeImg);
+        _chargeImg.querySelector('img').addEventListener('error', () => hideChargeImg());
+
+        function hideChargeImg() { _chargeImg.classList.add('hidden'); }
+
+        function showChargeImg(row) {
+            const url = row.dataset.img;
+            if (!url) { hideChargeImg(); return; }
+            const img = _chargeImg.querySelector('img');
+            if (img.getAttribute('src') !== url) img.setAttribute('src', url);
+            _chargeImg.classList.remove('hidden');
+            const r = row.getBoundingClientRect();
+            const m = document.querySelector('#chargingModal > div').getBoundingClientRect();
+            const w = 208, h = 208;
+            let left = m.right + 12;
+            if (left + w > window.innerWidth - 8) left = m.left - 12 - w;
+            if (left < 8) left = Math.min(Math.max(8, r.left + (r.width - w) / 2), window.innerWidth - w - 8);
+            const top = Math.min(Math.max(8, r.top + r.height / 2 - h / 2), window.innerHeight - h - 8);
+            _chargeImg.style.left = left + 'px';
+            _chargeImg.style.top = top + 'px';
+        }
+
+        (function initChargeImgHover() {
+            const body = document.getElementById('chargingBody');
+            body.addEventListener('mouseover', e => { const row = e.target.closest('li[data-img]'); if (row) showChargeImg(row); });
+            body.addEventListener('mouseout', e => { if (!e.relatedTarget || !e.relatedTarget.closest || !e.relatedTarget.closest('li[data-img]')) hideChargeImg(); });
+            body.addEventListener('focusin', e => { const row = e.target.closest('li[data-img]'); if (row) showChargeImg(row); });
+            body.addEventListener('focusout', hideChargeImg);
+            body.addEventListener('scroll', hideChargeImg);
+            body.addEventListener('click', e => {
+                if (e.target.closest('button')) return;
+                const row = e.target.closest('li[data-img]');
+                if (row) showChargeImg(row); else hideChargeImg();
+            });
+        })();
 
         function openChargingModal() {
             _chargingModalTrigger = document.activeElement;
@@ -2473,6 +2560,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
         }
 
         function closeChargingModal() {
+            hideChargeImg();
             const modal = document.getElementById('chargingModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
@@ -2584,7 +2672,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             const returned = statuses.filter(s => s.kind === 'returned').length;
             const okCount = statuses.length - due.length;
             const since = Date.now() - 30 * CHARGE_DAY;
-            const recent = log.filter(e => e.action === 'charged' && Date.parse(e.at) >= since);
+            const recent = log.filter(e => e.action === 'charged' && !e.undone && Date.parse(e.at) >= since);
             const perWorker = {};
             recent.forEach(e => { const k = e.byName || e.by || '(brak)'; perWorker[k] = (perWorker[k] || 0) + 1; });
             const workers = Object.entries(perWorker).sort((a, b) => b[1] - a[1]);
@@ -2650,13 +2738,16 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             const MAX = 200;
             box.innerHTML = `<p class="text-xs text-gray-500 mb-2">Wpisów: <b class="text-gray-800">${rows.length}</b>${rows.length > MAX ? ` (pokazano ${MAX} najnowszych)` : ''}</p><div class="space-y-1.5">` +
                 rows.slice(0, MAX).map(e => {
-                    const badge = e.action === 'returned'
+                    const badge = e.undone
+                        ? '<span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-semibold shrink-0">cofnięte</span>'
+                        : e.action === 'returned'
                         ? '<span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold shrink-0">zwrot</span>'
                         : '<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold shrink-0">naładowany</span>';
                     return `<div class="border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white flex flex-wrap items-center gap-x-3 gap-y-1">
                         ${badge}
-                        <span class="font-mono font-bold text-gray-800">${equipEsc(e.code || '—')}</span>
-                        <span class="text-gray-600">${equipEsc(e.itemName || '')}</span>
+                        <span class="font-mono font-bold text-gray-800 ${e.undone ? 'line-through opacity-60' : ''}">${equipEsc(e.code || '—')}</span>
+                        <span class="text-gray-600 ${e.undone ? 'line-through opacity-60' : ''}">${equipEsc(e.itemName || '')}</span>
+                        ${e.undone ? `<span class="text-[10px] text-gray-400">cofnął(-ęła): ${equipEsc(e.undoneBy || '—')}</span>` : ''}
                         <span class="text-gray-400 ml-auto">${equipEsc(e.byName || e.by || '—')} · ${fmt(e.at)}</span>
                     </div>`;
                 }).join('') + '</div>';
