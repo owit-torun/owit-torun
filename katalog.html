@@ -1400,7 +1400,7 @@
             </div>
             <div class="px-5 pt-4 pb-2 border-b border-gray-100">
                 <p class="text-xs text-gray-500 mb-3">Podłącz urządzenie do ładowarki, a gdy będzie naładowane,
-                    kliknij „Naładowany”. Do podtrzymania baterii wystarczy ładowanie do 50–80%.</p>
+                    kliknij „Oznacz jako naładowany”. Do podtrzymania baterii wystarczy ładowanie do 50–80%.</p>
                 <label for="chargingSearch" class="sr-only">Szukaj urządzenia</label>
                 <input id="chargingSearch" type="search" oninput="renderCharging()" placeholder="Szukaj kodu lub nazwy…"
                     autocomplete="off"
@@ -2386,6 +2386,13 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             }).catch(e => alert('Błąd zapisu ładowania: ' + e.message));
         }
 
+        // Odhaczenie zawsze przez potwierdzenie: nazwa urządzenia, kod i co dokładnie znaczy „naładowany”
+        function confirmCharged(code) {
+            const info = _chargeCodeInfo()[code];
+            if (!info || !currentUserEmail) return;
+            showConfirm('Czy na pewno urządzenie ' + code + ' (' + info.group + ') zostało NAŁADOWANE? Kliknij „Tak” dopiero po fizycznym naładowaniu. Zapisze się Twoje imię i godzina.', () => markCharged(code));
+        }
+
         // Cofnięcie ostatniego odhaczenia (przypadkowe kliknięcie): przywraca stan sprzed odhaczenia
         function undoCharged(code) {
             const info = _chargeCodeInfo()[code];
@@ -2450,7 +2457,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             }
             const btn = s.kind === 'ok'
                 ? `<button type="button" onclick="undoCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[36px] px-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-gray-600 text-xs font-semibold cursor-pointer" aria-label="Cofnij odhaczenie ${equipEsc(s.code)}">Cofnij</button>`
-                : `<button type="button" onclick="markCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[44px] px-3 rounded-lg border-2 border-amber-500 bg-white hover:bg-amber-50 text-amber-800 text-sm font-semibold cursor-pointer" aria-label="Oznacz ${equipEsc(s.code)} jako naładowany">⚡ Oznacz jako naładowany</button>`;
+                : `<button type="button" onclick="confirmCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[44px] px-3 rounded-lg border-2 border-amber-500 bg-white hover:bg-amber-50 text-amber-800 text-sm font-semibold cursor-pointer" aria-label="Oznacz ${equipEsc(s.code)} jako naładowany">⚡ Oznacz jako naładowany</button>`;
             const bg = s.urgent ? 'border-red-200 bg-red-50/50' : s.kind === 'ok' ? 'border-green-100 bg-green-50/40' : 'border-amber-200 bg-amber-50/40';
             const imgAttr = ci.imageUrl ? ` data-img="${equipEsc(ci.imageUrl).replace(/"/g, '&quot;')}"` : '';
             return `<li class="p-3 rounded-lg border ${bg}"${imgAttr}>
