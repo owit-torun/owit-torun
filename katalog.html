@@ -1109,6 +1109,12 @@
                                 <span id="myRentalsBadge"
                                     class="hidden min-w-[1.25rem] h-5 bg-green-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"></span>
                             </button>
+                            <a id="indicatorsBtn" href="wskazniki.html"
+                                class="hidden items-center gap-2 bg-purple-50 text-purple-800 hover:bg-purple-100 border border-purple-300 hover:border-purple-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
+                                aria-label="Wskaźniki">
+                                <i data-lucide="target" class="w-4 h-4"></i>
+                                <span class="hidden md:inline">Wskaźniki</span>
+                            </a>
                             <button id="chargingBtn" onclick="openChargingModal()"
                                 class="hidden items-center gap-2 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-300 hover:border-amber-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
                                 aria-label="Ładowanie sprzętu">
@@ -2077,6 +2083,9 @@ document.getElementById('adminReportBtn').classList.remove('hidden');
 document.getElementById('adminReportBtn').classList.add('hidden');
                     document.getElementById('adminReportBtn').classList.remove('flex');
                 }
+                const _indOk = ['admin@owit.pl', 'adrian@owit.pl', 'marcin@owit.pl'].includes(user.email.toLowerCase());
+                document.getElementById('indicatorsBtn').classList.toggle('hidden', !_indOk);
+                document.getElementById('indicatorsBtn').classList.toggle('flex', _indOk);
                 document.getElementById('myRentalsBtn').classList.remove('hidden');
                 document.getElementById('myRentalsBtn').classList.add('flex');
                 document.getElementById('docsGeneratorBtn').classList.remove('hidden');
@@ -2101,6 +2110,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 document.getElementById('addGearBtn').classList.remove('flex');
 document.getElementById('adminReportBtn').classList.add('hidden');
                 document.getElementById('adminReportBtn').classList.remove('flex');
+                document.getElementById('indicatorsBtn').classList.add('hidden');
+                document.getElementById('indicatorsBtn').classList.remove('flex');
                 document.getElementById('myRentalsBtn').classList.add('hidden');
                 document.getElementById('myRentalsBtn').classList.remove('flex');
                 document.getElementById('docsGeneratorBtn').classList.add('hidden');
