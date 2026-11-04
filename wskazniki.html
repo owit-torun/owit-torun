@@ -343,6 +343,62 @@
             else body = networkTable(email, readOnly);
             return indicatorCards(email) + nav + `<div class="bg-white rounded-b-2xl rounded-tr-2xl border border-t-0 border-gray-100 shadow-sm p-4">${body}</div>`;
         }
+        let _benGroups = [];
+        const TYPE_LABELS = { porada: 'Porada', instruktaz: 'Instruktaż', szkolenie: 'Szkolenie', testowanie: 'Testowanie', kontakt: 'Kontakt', technologia: 'Zaproponowanie technologii', wypozyczenie: 'Wypożyczenie spoza katalogu' };
+        function entrySummary(e) {
+            const p = [];
+            if (e.newPesel) p.push('nowy PESEL');
+            if ((e.scope || 'osit') === 'ogol') {
+                ['porada', 'instruktaz', 'kontakt', 'technologia'].forEach(k => n(e[k]) && p.push(`${TYPE_LABELS[k].toLowerCase()} ×${n(e[k])}`));
+                if (e.wypozyczenieTak) p.push('wypożyczenie');
+            } else {
+                ['porada', 'instruktaz', 'szkolenie', 'testowanie'].forEach(k => {
+                    const a = n(e[k + 'Ozn']), b = n(e[k + 'Oozn']);
+                    if (a || b) p.push(`${TYPE_LABELS[k].toLowerCase()} ×${a + b}${a && b ? '' : b ? ' (OOzN)' : ''}`);
+                });
+                if (n(e.wypozyczenie)) p.push(`wypożyczenie spoza katalogu ×${n(e.wypozyczenie)}`);
+            }
+            if (e.inna) p.push(e.inna);
+            return p.length ? p.map(esc).join(', ') : 'wpis bez czynności';
+        }
+        function openQuickModal(idx, preType) {
+            const g = _benGroups[idx]; if (!g) return;
+            const hasO = g.scopes.has('osit') || !g.scopes.has('ogol'), hasG = g.scopes.has('ogol');
+            const optO = ['porada', 'instruktaz', 'szkolenie', 'testowanie', 'wypozyczenie'].map(k => `<option value="osit:${k}" ${preType === k && hasO ? 'selected' : ''}>${TYPE_LABELS[k]}</option>`).join('');
+            const optG = ['porada', 'instruktaz', 'kontakt', 'technologia'].map(k => `<option value="ogol:${k}" ${preType === k && !hasO ? 'selected' : ''}>${TYPE_LABELS[k]}</option>`).join('');
+            openModal(`<form onsubmit="saveQuick(event,${idx})">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-green-50/50 sticky top-0">
+                    <h2 class="text-lg font-bold text-green-800">Dodaj czynność: ${esc(g.ozn || g.oozn)}</h2>
+                    <button type="button" class="p-1 text-gray-400 hover:text-gray-600" aria-label="Zamknij" onclick="closeModal()"><i data-lucide="x"></i></button></div>
+                <div class="p-6 space-y-4">
+                    <div class="grid sm:grid-cols-2 gap-3"><div><label class="lbl" for="q_type">Czynność</label><select class="fld" id="q_type" name="type" onchange="quickToggle(this.form)">
+                        <optgroup label="Ośrodek Wsparcia i Testów">${optO}</optgroup><optgroup label="Wypożyczalnia ogólnopolska">${optG}</optgroup></select></div>
+                        ${inp('date', 'Data', todayStr(), 'date', 'required')}</div>
+                    <div class="grid grid-cols-2 gap-3"><div><label class="lbl" for="q_count">Liczba</label><input class="fld" id="q_count" name="count" type="number" min="1" value="1"></div>
+                        <div id="q_who" ${g.oozn && hasO ? '' : 'class="hidden"'}><label class="lbl" for="q_target">Dla</label><select class="fld" id="q_target" name="target"><option value="Ozn">OzN${g.ozn ? ' – ' + esc(g.ozn) : ''}</option>${g.oozn ? `<option value="Oozn">OOzN – ${esc(g.oozn)}</option>` : ''}</select></div></div>
+                    <div id="q_item" class="hidden">${inp('przedmiot', 'Przedmiot wypożyczenia', '')}</div>
+                    <div><label class="lbl" for="q_note">Notatka (opcjonalnie)</label><input class="fld" id="q_note" name="note"></div>
+                    <p id="formErr" class="text-sm text-red-600" role="alert"></p></div>
+                <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-2"><button type="button" class="btn btn-ghost" onclick="closeModal()">Anuluj</button><button type="submit" class="btn btn-primary">Dodaj</button></div></form>`);
+            quickToggle($('modalRoot').querySelector('form'));
+        }
+        function quickToggle(f) {
+            const [sc, k] = f.elements.type.value.split(':');
+            $('q_item').classList.toggle('hidden', k !== 'wypozyczenie');
+            const who = $('q_who'), hasOozn = f.elements.target && f.elements.target.options.length > 1;
+            who.classList.toggle('hidden', !(sc === 'osit' && k !== 'wypozyczenie' && hasOozn));
+        }
+        function saveQuick(ev, idx) {
+            ev.preventDefault();
+            const f = ev.target, g = _benGroups[idx], [scope, k] = f.elements.type.value.split(':'), cnt = Math.max(1, parseInt(f.elements.count.value, 10) || 1);
+            if (!f.elements.date.value) { $('formErr').textContent = 'Podaj datę.'; return; }
+            const data = { scope, date: f.elements.date.value, ozn: g.ozn, oozn: g.oozn, newPesel: false, note: f.elements.note.value.trim(), updatedAt: firebase.database.ServerValue.TIMESTAMP };
+            if (scope === 'osit') {
+                if (k === 'wypozyczenie') { data.wypozyczenie = cnt; data.przedmiot = f.elements.przedmiot.value.trim(); }
+                else data[k + (f.elements.target.value || 'Ozn')] = cnt;
+            } else data[k] = cnt;
+            database.ref('indicators/entries/' + ek(me.email)).push().set(data).then(closeModal).catch(e => { $('formErr').textContent = 'Błąd zapisu: ' + e.message; });
+        }
         function filterBen(v) {
             const q = norm(v);
             document.querySelectorAll('[data-ben]').forEach(el => el.classList.toggle('hidden', !!q && !el.dataset.ben.includes(q)));
@@ -354,20 +410,24 @@
         function benView(email, readOnly) {
             const gs = beneficiaryGroups(email), { assigned, unassigned } = assignRentals(email, gs);
             gs.sort((a, b) => norm(a.ozn || a.oozn).localeCompare(norm(b.ozn || b.oozn)));
+            _benGroups = gs;
             const metric = (l, v) => v ? `<span class="bg-gray-50 border border-gray-200 rounded-full px-2.5 py-0.5 text-xs">${l}: <b>${v}</b></span>` : '';
-            const cards = gs.map(g => {
+            const cards = gs.map((g, gi) => {
                 const rs = assigned.get(g.key) || [], s = g.sum;
                 const rentTotal = rs.length + s.rentManual + s.rentOgol;
                 const rlist = rs.map(({ r, how }) => `<li class="flex flex-wrap items-center gap-x-2 text-xs py-0.5"><span class="text-gray-400">${fmt(r.rentedAt)}</span><span class="font-semibold">${esc(r.itemName)}</span><span class="text-gray-500">${esc(r.deviceCode)}</span>
                     <span class="${r.active ? 'text-amber-700' : 'text-gray-400'}">${r.active ? 'wypożyczone' : 'zwrócone ' + fmt(r.returnedAt)}</span>
                     ${how === 'manual' && !readOnly ? `<button class="text-gray-400 hover:text-red-600 no-print" title="Cofnij ręczne przypisanie" onclick="setLink('${r.key}',null)">✕ przypisane ręcznie</button>` : (how === 'manual' ? '<span class="text-gray-400">przypisane ręcznie</span>' : '')}</li>`).join('');
-                const elist = readOnly ? '' : `<div class="mt-2 pt-2 border-t border-gray-100 flex flex-wrap gap-x-4 gap-y-1 no-print">${g.entries.map(e => `<span class="text-xs text-gray-500">${e.scope === 'ogol' ? 'ogólnopolska' : 'Ośrodek'} ${fmt(e.date)}
-                    <button class="text-green-700 hover:underline" onclick="openEntryModal('${e.scope || 'osit'}','${e.id}')">edytuj</button> · <button class="text-red-600 hover:underline" onclick="deleteItem('entries','${e.id}')">usuń</button></span>`).join('')}</div>`;
+                const qb = (t, l) => `<button class="text-xs font-semibold text-green-800 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg px-2.5 py-1" onclick="openQuickModal(${gi},'${t}')">+ ${l}</button>`;
+                const quick = readOnly ? '' : `<div class="flex flex-wrap gap-1.5 mt-3 no-print">${qb('porada', 'Porada')}${qb('instruktaz', 'Instruktaż')}${qb('testowanie', 'Testowanie')}${qb('szkolenie', 'Szkolenie')}${qb('wypozyczenie', 'Wypożyczenie')}
+                    <button class="text-xs text-gray-600 hover:text-green-800 border border-gray-200 rounded-lg px-2.5 py-1" onclick="openQuickModal(${gi},'porada')">Więcej…</button></div>`;
+                const elist = `<details class="mt-3 pt-2 border-t border-gray-100"><summary class="text-xs text-gray-500 cursor-pointer">Historia wpisów (${g.entries.length})</summary><ul class="mt-1 space-y-1">${g.entries.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).map(e => `<li class="text-xs text-gray-600 flex flex-wrap items-center gap-x-2"><span class="text-gray-400">${fmt(e.date)}</span><span>${entrySummary(e)}</span>
+                    ${readOnly ? '' : `<button class="text-green-700 hover:underline no-print" onclick="openEntryModal('${e.scope || 'osit'}','${e.id}')">edytuj</button><button class="text-red-600 hover:underline no-print" onclick="deleteItem('entries','${e.id}')">usuń</button>`}</li>`).join('')}</ul></details>`;
                 return `<div class="border border-gray-200 rounded-xl p-4" data-ben="${esc(norm(g.ozn + ' ' + g.oozn))}">
                     <div class="flex flex-wrap items-baseline justify-between gap-2"><h3 class="font-bold text-gray-900">${esc(g.ozn || '—')}${g.oozn ? ` <span class="text-gray-500 font-normal text-sm">· OOzN: ${esc(g.oozn)}</span>` : ''}</h3>
                         <span class="text-xs flex gap-1">${[...g.scopes].map(sc => `<span class="rounded-full px-2 py-0.5 ${sc === 'ogol' ? 'bg-blue-50 text-blue-800' : 'bg-green-50 text-green-800'}">${sc === 'ogol' ? 'ogólnopolska' : 'Ośrodek'}</span>`).join('')}${s.newPesel ? '<span class="rounded-full px-2 py-0.5 bg-purple-50 text-purple-800">nowy PESEL</span>' : ''}</span></div>
                     <div class="flex flex-wrap gap-1.5 mt-2">${metric('Porada', s.porada)}${metric('Instruktaż', s.instruktaz)}${metric('Szkolenie', s.szkolenie)}${metric('Testowanie', s.testowanie)}${metric('Kontakt', s.kontakt)}${metric('Technologia', s.technologia)}${metric('Wypożyczenia', rentTotal)}</div>
-                    ${rs.length || s.rentManual || s.rentOgol ? `<ul class="mt-2">${rlist}</ul>${s.rentManual ? `<p class="text-xs text-gray-500">+ ${s.rentManual} szt. spoza katalogu${g.items.length ? ' (' + esc(g.items.join('; ')) + ')' : ''}</p>` : ''}${s.rentOgol ? '<p class="text-xs text-gray-500">+ wypożyczenie ogólnopolskie</p>' : ''}` : ''}${elist}</div>`;
+                    ${rs.length || s.rentManual || s.rentOgol ? `<ul class="mt-2">${rlist}</ul>${s.rentManual ? `<p class="text-xs text-gray-500">+ ${s.rentManual} szt. spoza katalogu${g.items.length ? ' (' + esc(g.items.join('; ')) + ')' : ''}</p>` : ''}${s.rentOgol ? '<p class="text-xs text-gray-500">+ wypożyczenie ogólnopolskie</p>' : ''}` : ''}${quick}${elist}</div>`;
             }).join('');
             const opts = gs.map(g => `<option value="${esc(g.entries[0].id)}">${esc(g.ozn || g.oozn)}</option>`).join('');
             const un = unassigned.length ? `<div class="mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4"><h3 class="font-bold text-amber-900 text-sm mb-1">Wypożyczenia bez beneficjenta (${unassigned.length})</h3>
