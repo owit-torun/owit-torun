@@ -481,6 +481,19 @@
             color: #6b7280;
         }
 
+        .code-dd-opt .chg {
+            flex: none;
+            margin-left: auto;
+            padding: 0 0.4rem;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #92400e;
+            background-color: #fef3c7;
+            border: 1px solid #fcd34d;
+            white-space: nowrap;
+        }
+
         .code-dd-opt[aria-selected="true"] {
             background-color: #dcfce7;
         }
@@ -1096,6 +1109,14 @@
                                 <span id="myRentalsBadge"
                                     class="hidden min-w-[1.25rem] h-5 bg-green-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"></span>
                             </button>
+                            <button id="chargingBtn" onclick="openChargingModal()"
+                                class="hidden items-center gap-2 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-300 hover:border-amber-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
+                                aria-label="Ładowanie sprzętu">
+                                <i data-lucide="battery-charging" class="w-4 h-4"></i>
+                                <span class="hidden md:inline">Ładowanie</span>
+                                <span id="chargingBadge"
+                                    class="hidden min-w-[1.25rem] h-5 bg-amber-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"></span>
+                            </button>
                             <button id="docsGeneratorBtn" onclick="openDocsGeneratorModal()"
                                 class="hidden items-center gap-2 bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-300 hover:border-blue-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
                                 aria-label="Generator dokumentów wypożyczenia">
@@ -1349,6 +1370,33 @@
                 <p id="myRentalsEmpty" class="hidden text-center text-gray-500 py-8 text-sm">Nie masz aktualnie żadnych
                     zarejestrowanych wypożyczeń.</p>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL ŁADOWANIE SPRZĘTU -->
+    <div id="chargingModal"
+        class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4 print:hidden backdrop-blur-sm"
+        role="dialog" aria-modal="true" aria-labelledby="chargingModalTitle">
+        <div
+            class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-amber-50/70">
+                <h3 id="chargingModalTitle" class="text-xl font-bold flex items-center gap-2 text-amber-800">
+                    <i data-lucide="battery-charging" class="text-amber-700"></i> Ładowanie sprzętu
+                </h3>
+                <button type="button" onclick="closeChargingModal()" aria-label="Zamknij okno ładowania"
+                    class="text-gray-400 hover:text-gray-600 cursor-pointer p-1 rounded transition-colors">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="px-5 pt-4 pb-2 border-b border-gray-100">
+                <p class="text-xs text-gray-500 mb-3">Podłącz urządzenie do ładowarki, a gdy będzie naładowane,
+                    kliknij „Naładowany”. Do podtrzymania baterii wystarczy ładowanie do 50–80%.</p>
+                <label for="chargingSearch" class="sr-only">Szukaj urządzenia</label>
+                <input id="chargingSearch" type="search" oninput="renderCharging()" placeholder="Szukaj kodu lub nazwy…"
+                    autocomplete="off"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+            </div>
+            <div id="chargingBody" class="p-5 overflow-y-auto flex-grow bg-white" aria-live="polite"></div>
         </div>
     </div>
 
@@ -1755,6 +1803,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="data/equipment-codes.js"></script>
+    <script src="data/battery-rules.js"></script>
 
     <!-- BAZA DANYCH I SKRYPT GENERUJĄCY -->
     <script>
@@ -1971,6 +2020,7 @@
             const wasReady = _inventoryReady;
             _inventoryReady = true;
             updateMyRentalsBadge();
+            updateChargingBadge();
             if (!wasReady) {
                 _renderWhenReady(); // pierwsze załadowanie: czekaj aż custom też będzie
             } else if (_customReady && document.getElementById('catalog-container')) {
@@ -2027,7 +2077,10 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 document.getElementById('myRentalsBtn').classList.add('flex');
                 document.getElementById('docsGeneratorBtn').classList.remove('hidden');
                 document.getElementById('docsGeneratorBtn').classList.add('flex');
+                document.getElementById('chargingBtn').classList.remove('hidden');
+                document.getElementById('chargingBtn').classList.add('flex');
                 updateMyRentalsBadge();
+                updateChargingBadge();
                 // Renderuj tylko gdy dane już załadowane (unikamy pustego renderowania przed danymi)
                 if (_inventoryReady && _customReady && document.getElementById('catalog-container')) {
                     renderCatalog();
@@ -2047,6 +2100,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 document.getElementById('myRentalsBtn').classList.remove('flex');
                 document.getElementById('docsGeneratorBtn').classList.add('hidden');
                 document.getElementById('docsGeneratorBtn').classList.remove('flex');
+                document.getElementById('chargingBtn').classList.add('hidden');
+                document.getElementById('chargingBtn').classList.remove('flex');
                 if (_inventoryReady && _customReady && document.getElementById('catalog-container')) {
                     renderCatalog();
                 }
@@ -2144,6 +2199,241 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             modal.classList.remove('flex');
             modal.removeEventListener('keydown', _myRentalsModalFocusTrap);
             if (_myRentalsModalTrigger) { _myRentalsModalTrigger.focus(); _myRentalsModalTrigger = null; }
+        }
+
+        // ŁADOWANIE SPRZĘTU (podtrzymanie kondycji baterii)
+        // Stan w Firebase: charging/{KOD} = { lastChargedAt, lastChargedBy, lastChargedByName, needsCharge, returnedAt, itemName }
+        // Historia: chargingLog/{id} = { code, itemName, action: 'charged' | 'returned', at, by, byName }
+        let chargingData = {};
+        let _chargingModalTrigger = null;
+        const _chargingOpen = { nodata: false, ok: false };
+        const CHARGE_DAY = 86400000;
+
+        database.ref('charging').on('value', (snapshot) => {
+            chargingData = snapshot.val() || {};
+            updateChargingBadge();
+            const modal = document.getElementById('chargingModal');
+            if (modal && !modal.classList.contains('hidden')) renderCharging();
+        });
+
+        function _chargeRules() {
+            return window.BATTERY_RULES || { windows: {}, groups: {}, issueWarnDays: 30, urgentDays: 2 };
+        }
+
+        let _chargeCodeInfoCache = null;
+        // kod → { group, cls } dla urządzeń objętych systemem ładowania
+        function _chargeCodeInfo() {
+            if (_chargeCodeInfoCache) return _chargeCodeInfoCache;
+            const eq = window.EQUIPMENT_CODES;
+            if (!eq) return {};
+            const rules = _chargeRules();
+            const map = {};
+            eq.groups.forEach(([group, codes]) => {
+                const cls = rules.groups[group];
+                if (cls) codes.forEach(code => { map[code] = { group, cls }; });
+            });
+            return (_chargeCodeInfoCache = map);
+        }
+
+        // Kody aktualnie wypożyczone i kody z rezerwacją startującą w najbliższych dniach
+        function _chargeContext() {
+            const rented = new Set(), urgent = new Set();
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const urgentDays = _chargeRules().urgentDays || 2;
+            Object.values(inventoryData || {}).forEach(inv => {
+                if (!inv) return;
+                (inv.rentals || []).forEach(r => { if (r && r.deviceCode) rented.add(String(r.deviceCode).trim().toUpperCase()); });
+                (inv.reservationsArr || []).forEach(r => {
+                    if (!r || !r.deviceCode || !r.startDate) return;
+                    const diff = Math.round((new Date(r.startDate) - today) / CHARGE_DAY);
+                    if (diff >= 0 && diff <= urgentDays) urgent.add(String(r.deviceCode).trim().toUpperCase());
+                });
+            });
+            return { now: Date.now(), rented, urgent };
+        }
+
+        // Stan ładowania jednego kodu; null = urządzenie poza systemem ładowania
+        // kind: returned (po zwrocie) | stale (minęło okno podtrzymania) | nodata (brak odhaczenia) | ok
+        function _chargeStatus(code, ctx) {
+            const info = _chargeCodeInfo()[code];
+            if (!info) return null;
+            ctx = ctx || _chargeContext();
+            const rec = chargingData[code] || {};
+            const windowDays = _chargeRules().windows[info.cls] || 60;
+            const last = rec.lastChargedAt ? Date.parse(rec.lastChargedAt) : null;
+            const ageDays = last ? Math.floor((ctx.now - last) / CHARGE_DAY) : null;
+            let kind = 'ok', reason = '';
+            if (rec.needsCharge) { kind = 'returned'; reason = 'po zwrocie'; }
+            else if (!last) { kind = 'nodata'; reason = 'brak odnotowanego ładowania'; }
+            else if (ageDays >= windowDays) { kind = 'stale'; reason = 'ostatnio ładowany ' + ageDays + ' dni temu'; }
+            return {
+                code, group: info.group, cls: info.cls, kind, reason, last, ageDays,
+                lastByName: rec.lastChargedByName || '',
+                rented: ctx.rented.has(code), urgent: ctx.urgent.has(code)
+            };
+        }
+
+        const _isDue = s => s.kind === 'returned' || s.kind === 'stale';
+
+        function _allChargeStatuses() {
+            const ctx = _chargeContext();
+            return Object.keys(_chargeCodeInfo()).map(code => _chargeStatus(code, ctx)).filter(s => !s.rented);
+        }
+
+        function updateChargingBadge() {
+            const btn = document.getElementById('chargingBtn');
+            const badge = document.getElementById('chargingBadge');
+            if (!btn || !badge || !currentUserEmail) return;
+            const count = _allChargeStatuses().filter(_isDue).length;
+            badge.textContent = count;
+            badge.classList.toggle('hidden', count === 0);
+            badge.classList.toggle('flex', count > 0);
+        }
+
+        // Ostrzeżenie przy wydaniu; pusty tekst = brak powodu do ostrzeżenia
+        function chargeWarningFor(code) {
+            const s = _chargeStatus(String(code || '').trim().toUpperCase());
+            if (!s) return '';
+            if (s.kind === 'returned') return 'To urządzenie wróciło z wypożyczenia i nie ma odhaczonego ładowania, więc może być nienaładowane.';
+            if (s.last && s.ageDays >= (_chargeRules().issueWarnDays || 30)) return 'To urządzenie było ostatnio ładowane ' + s.ageDays + ' dni temu, więc może być nienaładowane.';
+            return '';
+        }
+
+        // Kolejność podpowiedzi kodów przy wydaniu: najpierw naładowane (najdłużej leżące), na końcu do naładowania
+        function chargeSortCodes(list) {
+            const ctx = _chargeContext();
+            const rank = o => {
+                const s = _chargeStatus(o.code, ctx);
+                if (!s) return { r: 1, t: 0 };
+                if (s.kind === 'ok') return { r: 0, t: s.last };
+                return { r: _isDue(s) ? 2 : 1, t: 0 };
+            };
+            const keyed = list.map(o => ({ o, k: rank(o) }));
+            keyed.sort((a, b) => a.k.r - b.k.r || (a.k.r === 0 ? a.k.t - b.k.t : 0));
+            return keyed.map(x => x.o);
+        }
+
+        function chargeBadgeHtml(code) {
+            const s = _chargeStatus(code);
+            return s && _isDue(s) ? '<span class="chg">⚡ do naładowania</span>' : '';
+        }
+
+        function _logCharge(code, itemName, action) {
+            database.ref('chargingLog').push({
+                code, itemName, action, at: new Date().toISOString(),
+                by: currentUserEmail || '', byName: currentUserName || ''
+            }).catch(e => console.warn('Historia ładowania: błąd zapisu', e));
+        }
+
+        function markCharged(code) {
+            const info = _chargeCodeInfo()[code];
+            if (!info || !currentUserEmail) return;
+            database.ref('charging/' + code).update({
+                lastChargedAt: new Date().toISOString(),
+                lastChargedBy: currentUserEmail,
+                lastChargedByName: currentUserName || currentUserEmail,
+                needsCharge: false,
+                itemName: info.group
+            }).catch(e => alert('Błąd zapisu ładowania: ' + e.message));
+            _logCharge(code, info.group, 'charged');
+        }
+
+        // Wywoływane przy zwrocie sprzętu: urządzenie wraca częściowo rozładowane
+        function markReturnedForCharging(rawCode) {
+            const code = String(rawCode || '').trim().toUpperCase();
+            const info = _chargeCodeInfo()[code];
+            if (!info) return;
+            database.ref('charging/' + code).update({
+                needsCharge: true,
+                returnedAt: new Date().toISOString(),
+                itemName: info.group
+            }).catch(e => console.warn('Ładowanie: błąd zapisu po zwrocie', e));
+            _logCharge(code, info.group, 'returned');
+        }
+
+        function _chargeRow(s) {
+            const urgentBadge = s.urgent ? '<span class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border bg-red-100 text-red-700 border-red-300 whitespace-nowrap">rezerwacja wkrótce</span>' : '';
+            let sub;
+            if (s.kind === 'ok') {
+                const d = new Date(s.last).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+                sub = 'naładowany ' + d + (s.lastByName ? ' (' + equipEsc(s.lastByName) + ')' : '');
+            } else {
+                sub = equipEsc(s.reason);
+            }
+            const btn = s.kind === 'ok' ? '' :
+                `<button type="button" onclick="markCharged('${equipEsc(s.code)}')" class="shrink-0 min-h-[44px] px-3 rounded-lg bg-green-700 hover:bg-green-800 text-white text-sm font-semibold cursor-pointer" aria-label="Oznacz ${equipEsc(s.code)} jako naładowany">Naładowany ✓</button>`;
+            const bg = s.urgent ? 'border-red-200 bg-red-50/50' : 'border-gray-100 bg-gray-50/40';
+            return `<li class="flex items-center gap-3 p-3 rounded-lg border ${bg}">
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm leading-tight"><span class="font-mono font-bold text-gray-900">${equipEsc(s.code)}</span> <span class="text-gray-600">${equipEsc(s.group)}</span></p>
+                    <p class="text-xs text-gray-500 mt-0.5">${sub}</p>
+                </div>
+                ${urgentBadge}${btn}
+            </li>`;
+        }
+
+        function renderCharging() {
+            const body = document.getElementById('chargingBody');
+            if (!body) return;
+            const q = equipNorm(document.getElementById('chargingSearch').value).replace(/ /g, '');
+            let all = _allChargeStatuses();
+            if (q) all = all.filter(s => equipNorm(s.code + ' ' + s.group).replace(/ /g, '').includes(q));
+            const order = { returned: 0, stale: 1 };
+            const due = all.filter(_isDue).sort((a, b) =>
+                (b.urgent - a.urgent) || (order[a.kind] - order[b.kind]) || ((a.last || 0) - (b.last || 0)) || a.code.localeCompare(b.code));
+            const nodata = all.filter(s => s.kind === 'nodata').sort((a, b) => (b.urgent - a.urgent) || a.code.localeCompare(b.code));
+            const ok = all.filter(s => s.kind === 'ok').sort((a, b) => a.last - b.last);
+
+            const section = (title, items, key, hint) => {
+                if (!items.length) return '';
+                const rows = items.map(_chargeRow).join('');
+                if (!key) {
+                    return `<h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">${title} (${items.length})</h4><ul class="space-y-2 mb-5">${rows}</ul>`;
+                }
+                return `<details class="mb-4" ${_chargingOpen[key] || q ? 'open' : ''} ontoggle="_chargingOpen['${key}'] = this.open">
+                    <summary class="text-xs font-bold text-gray-500 uppercase tracking-wide cursor-pointer py-2">${title} (${items.length})</summary>
+                    ${hint ? `<p class="text-xs text-gray-400 mb-2">${hint}</p>` : ''}
+                    <ul class="space-y-2">${rows}</ul></details>`;
+            };
+
+            let html = '';
+            if (due.length) html += section('Do naładowania', due, null);
+            else if (!q) html += '<p class="text-center text-green-700 font-semibold py-4 text-sm">Wszystko podtrzymane. Nic do naładowania. 🎉</p>';
+            html += section('Bez odnotowanego ładowania', nodata, 'nodata', 'Nie wiadomo, kiedy były ładowane. Jeśli masz je pod ręką, naładuj i odhacz.');
+            html += section('Naładowane', ok, 'ok', '');
+            if (!html) html = '<p class="text-center text-gray-500 py-8 text-sm">Brak wyników.</p>';
+            body.innerHTML = html;
+        }
+
+        function openChargingModal() {
+            _chargingModalTrigger = document.activeElement;
+            document.getElementById('chargingSearch').value = '';
+            renderCharging();
+            const modal = document.getElementById('chargingModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.addEventListener('keydown', _chargingModalFocusTrap);
+            setTimeout(() => { const btn = modal.querySelector('button[aria-label="Zamknij okno ładowania"]'); if (btn) btn.focus(); }, 100);
+        }
+
+        function _chargingModalFocusTrap(e) {
+            const modal = document.getElementById('chargingModal');
+            const focusable = Array.from(modal.querySelectorAll('button, input, summary, [tabindex]:not([tabindex="-1"])')).filter(el => !el.disabled);
+            if (!focusable.length) return;
+            const first = focusable[0], last = focusable[focusable.length - 1];
+            if (e.key === 'Tab') {
+                if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
+                else { if (document.activeElement === last) { e.preventDefault(); first.focus(); } }
+            }
+            if (e.key === 'Escape') closeChargingModal();
+        }
+
+        function closeChargingModal() {
+            const modal = document.getElementById('chargingModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.removeEventListener('keydown', _chargingModalFocusTrap);
+            if (_chargingModalTrigger) { _chargingModalTrigger.focus(); _chargingModalTrigger = null; }
         }
 
         // RAPORT ADMINA
@@ -3025,7 +3315,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             function matches() {
                 const list = codeLists[input.dataset.codes] || [];
                 const q = typed ? compact(input.value) : '';
-                if (!q) return list;
+                if (!q) return chargeSortCodes(list);
                 return list
                     .filter(o => compact(o.code).includes(q) || compact(o.label).includes(q))
                     .sort((a, b) => compact(b.code).startsWith(q) - compact(a.code).startsWith(q));
@@ -3072,7 +3362,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 if (active >= rows.length) active = -1;
                 dd.innerHTML = rows.map((o, i) =>
                     `<div id="code-dd-opt-${i}" class="code-dd-opt" role="option" data-i="${i}" aria-selected="${i === active}">` +
-                    `<span class="code">${equipEsc(o.code)}</span><span class="label">${equipEsc(o.label)}</span></div>`).join('') +
+                    `<span class="code">${equipEsc(o.code)}</span><span class="label">${equipEsc(o.label)}</span>${chargeBadgeHtml(o.code)}</div>`).join('') +
                     (all.length > rows.length ? `<div class="code-dd-note">Pokazano ${rows.length} z ${all.length} — wpisz, aby zawęzić</div>` : '');
                 dd.classList.add('open');
                 input.setAttribute('aria-expanded', 'true');
@@ -3181,11 +3471,16 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             if (!p.date) { alert('Uzupełnij planowaną datę zwrotu.'); return; }
             if (!p.deviceCode) { alert('Uzupełnij kod urządzenia.'); return; }
             if (!p.beneficiaryLastName) { alert('Uzupełnij nazwisko beneficjenta.'); return; }
-            const rentals = ((inventoryData[dbKey] || {}).rentals || []).slice();
-            rentals.push({ name: p.name, date: p.date, deviceCode: p.deviceCode, beneficiaryLastName: p.beneficiaryLastName, addedBy: currentUserEmail, rentedAt: new Date().toISOString().split('T')[0] });
-            delete pendingRental[dbKey];
-            database.ref('inventory/' + dbKey + '/rentals').set(rentals)
-                .catch(e => alert("Błąd: " + e.message));
+            const doSave = () => {
+                const rentals = ((inventoryData[dbKey] || {}).rentals || []).slice();
+                rentals.push({ name: p.name, date: p.date, deviceCode: p.deviceCode, beneficiaryLastName: p.beneficiaryLastName, addedBy: currentUserEmail, rentedAt: new Date().toISOString().split('T')[0] });
+                delete pendingRental[dbKey];
+                database.ref('inventory/' + dbKey + '/rentals').set(rentals)
+                    .catch(e => alert("Błąd: " + e.message));
+            };
+            const warning = chargeWarningFor(p.deviceCode);
+            if (warning) showConfirm(warning + ' Wypożyczyć mimo to?', doSave);
+            else doSave();
         }
         function cancelPendingRental(dbKey) {
             delete pendingRental[dbKey];
@@ -3237,6 +3532,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                     plannedReturn: rental.date || '',
                     returnedAt: today
                 }).catch(e => console.warn('Historia: błąd zapisu', e));
+                markReturnedForCharging(rental.deviceCode);
                 rentals.splice(index, 1);
                 database.ref(`inventory/${dbKey}/rentals`).set(rentals)
                     .then(() => {
