@@ -471,38 +471,71 @@
             const ref = database.ref('indicators/links/' + ek(me.email) + '/' + rkey);
             (entryId ? ref.set(entryId) : ref.remove()).catch(e => alert('Błąd: ' + e.message));
         }
+        // Stan listy beneficjentów: rozwinięte wiersze, pełna historia, lista wypożyczeń bez beneficjenta
+        const openBen = new Set(), fullHist = new Set(); let unOpen = false;
+        function toggleBen(gi) { const g = _benGroups[gi]; if (!g) return; openBen.has(g.key) ? openBen.delete(g.key) : openBen.add(g.key); render(); }
+        function toggleHist(gi) { const g = _benGroups[gi]; if (!g) return; fullHist.has(g.key) ? fullHist.delete(g.key) : fullHist.add(g.key); render(); }
+        const plr = (n, a, b, c) => n === 1 ? a : (n % 10 >= 2 && n % 10 <= 4 && !(n % 100 >= 12 && n % 100 <= 14)) ? b : c;
+        function benSummary(sum) {
+            const parts = [['porada', 'porada', 'porady', 'porad'], ['instruktaz', 'instruktaż', 'instruktaże', 'instruktaży'], ['szkolenie', 'szkolenie', 'szkolenia', 'szkoleń'],
+                ['testowanie', 'testowanie', 'testowania', 'testowań'], ['kontakt', 'kontakt', 'kontakty', 'kontaktów'], ['technologia', 'technologia', 'technologie', 'technologii']]
+                .filter(([k]) => sum[k]).map(([k, a, b, c]) => `${sum[k]} ${plr(sum[k], a, b, c)}`);
+            return parts.length ? parts.join(' · ') : 'brak czynności';
+        }
         function benView(email, readOnly) {
             const gs = beneficiaryGroups(email), { assigned, unassigned } = assignRentals(email, gs);
             gs.sort((a, b) => norm(a.name).localeCompare(norm(b.name)));
             _benGroups = gs;
-            const metric = (l, v) => v ? `<span class="bg-gray-50 border border-gray-200 rounded-full px-2.5 py-0.5 text-xs">${l}: <b>${v}</b></span>` : '';
-            const cards = gs.map((g, gi) => {
-                const rs = assigned.get(g.key) || [], s = g.sum;
+            const qb = (gi, t, l) => `<button class="text-xs font-semibold text-green-800 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg px-2.5 py-1" onclick="openQuickModal(${gi},'${t}')">+ ${l}</button>`;
+            const rows = gs.map((g, gi) => {
+                const rs = assigned.get(g.key) || [], s = g.sum, active = rs.filter(x => x.r.active), open = openBen.has(g.key);
                 const rentTotal = rs.length + s.rentManual + s.rentOgol;
-                const rlist = rs.map(({ r, how }) => `<li class="flex flex-wrap items-center gap-x-2 text-xs py-0.5"><span class="text-gray-400">${fmt(r.rentedAt)}</span><span class="font-semibold">${esc(r.itemName)}</span><span class="text-gray-500">${esc(r.deviceCode)}</span>
-                    <span class="${r.active ? 'text-amber-700' : 'text-gray-400'}">${r.active ? 'wypożyczone' : 'zwrócone ' + fmt(r.returnedAt)}</span>
-                    ${how === 'manual' && !readOnly ? `<button class="text-gray-400 hover:text-red-600 no-print" title="Cofnij ręczne przypisanie" onclick="setLink('${r.key}',null)">✕ przypisane ręcznie</button>` : (how === 'manual' ? '<span class="text-gray-400">przypisane ręcznie</span>' : '')}</li>`).join('');
-                const qb = (t, l) => `<button class="text-xs font-semibold text-green-800 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg px-2.5 py-1" onclick="openQuickModal(${gi},'${t}')">+ ${l}</button>`;
-                const quick = readOnly ? '' : `<div class="flex flex-wrap gap-1.5 mt-3 no-print">${qb('porada', 'Porada')}${qb('instruktaz', 'Instruktaż')}${qb('testowanie', 'Testowanie')}${qb('szkolenie', 'Szkolenie')}${qb('wypozyczenie', 'Wypożyczenie')}
-                    <button class="text-xs text-gray-600 hover:text-green-800 border border-gray-200 rounded-lg px-2.5 py-1" onclick="openQuickModal(${gi},'porada')">Więcej…</button>${g.personId ? `<button class="text-xs text-gray-500 hover:text-green-800 border border-gray-200 rounded-lg px-2.5 py-1" onclick="openPersonModal(${gi})">Dane osoby</button>` : ''}</div>`;
-                const elist = `<details class="mt-3 pt-2 border-t border-gray-100"><summary class="text-xs text-gray-500 cursor-pointer">Historia wpisów (${g.entries.length})</summary><ul class="mt-1 space-y-1">${g.entries.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).map(e => `<li class="text-xs text-gray-600 flex flex-wrap items-center gap-x-2"><span class="text-gray-400">${fmt(e.date)}</span><span>${entrySummary(e)}</span>
-                    ${readOnly ? '' : `<button class="text-green-700 hover:underline no-print" onclick="openEntryModal('${e.scope || 'osit'}','${e.id}')">edytuj</button><button class="text-red-600 hover:underline no-print" onclick="deleteItem('entries','${e.id}')">usuń</button>`}</li>`).join('')}</ul></details>`;
-                return `<div class="border border-gray-200 rounded-xl p-4" data-ben="${esc(norm(g.ozn + ' ' + g.oozn))}">
-                    <div class="flex flex-wrap items-baseline justify-between gap-2"><h3 class="font-bold text-gray-900">${esc(g.name || '—')}${g.oznTag ? ` <span class="text-gray-400 font-normal text-sm">(${esc(g.oznTag)})</span>` : ''}${g.role === 'ozn' && g.oozn ? ` <span class="text-gray-500 font-normal text-sm">· OOzN: ${esc(g.oozn)}</span>` : (g.role === 'oozn' ? ' <span class="text-gray-500 font-normal text-sm">· OOzN</span>' : '')}</h3>
-                        <span class="text-xs flex gap-1">${[...g.scopes].map(sc => `<span class="rounded-full px-2 py-0.5 ${sc === 'ogol' ? 'bg-blue-50 text-blue-800' : 'bg-green-50 text-green-800'}">${sc === 'ogol' ? 'ogólnopolska' : 'Ośrodek'}</span>`).join('')}${s.newPesel ? '<span class="rounded-full px-2 py-0.5 bg-purple-50 text-purple-800">nowy PESEL</span>' : ''}</span></div>
-                    <div class="flex flex-wrap gap-1.5 mt-2">${metric('Porada', s.porada)}${metric('Instruktaż', s.instruktaz)}${metric('Szkolenie', s.szkolenie)}${metric('Testowanie', s.testowanie)}${metric('Kontakt', s.kontakt)}${metric('Technologia', s.technologia)}${metric('Wypożyczenia', rentTotal)}</div>
-                    ${rs.length || s.rentManual || s.rentOgol ? `<ul class="mt-2">${rlist}</ul>${s.rentManual ? `<p class="text-xs text-gray-500">+ ${s.rentManual} szt. spoza katalogu${g.items.length ? ' (' + esc(g.items.join('; ')) + ')' : ''}</p>` : ''}${s.rentOgol ? '<p class="text-xs text-gray-500">+ wypożyczenie ogólnopolskie</p>' : ''}` : ''}${quick}${elist}</div>`;
+                const rentLine = active.length
+                    ? `${active.length} ${plr(active.length, 'aktywne wypożyczenie', 'aktywne wypożyczenia', 'aktywnych wypożyczeń')}: <b class="font-semibold text-gray-800">${esc(active.slice(0, 2).map(x => x.r.itemName).join(', '))}${active.length > 2 ? '…' : ''}</b>`
+                    : rentTotal ? `${rentTotal} ${plr(rentTotal, 'wypożyczenie', 'wypożyczenia', 'wypożyczeń')} (brak aktywnych)` : '–';
+                const nameHtml = `${esc(g.name || '—')}${g.oznTag ? ` <span class="text-gray-400 font-normal text-sm">(${esc(g.oznTag)})</span>` : ''}${g.role === 'ozn' && g.oozn ? ` <span class="text-gray-500 font-normal text-sm">· OOzN: ${esc(g.oozn)}</span>` : (g.role === 'oozn' ? ' <span class="text-gray-500 font-normal text-sm">· OOzN</span>' : '')}`;
+                const badges = [...g.scopes].map(sc => `<span class="rounded-full px-2 py-0.5 text-xs ${sc === 'ogol' ? 'bg-blue-50 text-blue-800' : 'bg-green-50 text-green-800'}">${sc === 'ogol' ? 'ogólnopolska' : 'Ośrodek'}</span>`).join('')
+                    + (s.newPesel ? '<span class="rounded-full px-2 py-0.5 text-xs bg-purple-50 text-purple-800">nowy PESEL</span>' : '');
+                let detail = '';
+                if (open) {
+                    const alist = active.length ? `<ul class="space-y-1">${active.map(({ r, how }) => `<li class="flex flex-wrap items-center gap-x-2 text-sm"><span class="font-semibold">${esc(r.itemName)}</span><span class="text-gray-500 text-xs">${esc(r.deviceCode)}</span><span class="text-gray-400 text-xs">od ${fmt(r.rentedAt)}</span>
+                        ${how === 'manual' && !readOnly ? `<button class="text-xs text-gray-400 hover:text-red-600 no-print" title="Cofnij ręczne przypisanie" onclick="setLink('${r.key}',null)">✕ przypisane ręcznie</button>` : ''}</li>`).join('')}</ul>`
+                        : '<p class="text-sm text-green-800 bg-green-50 border border-green-100 rounded-lg px-3 py-2">Brak aktywnych wypożyczeń</p>';
+                    const extra = (s.rentManual ? `<p class="text-xs text-gray-500 mt-2">+ ${s.rentManual} szt. spoza katalogu${g.items.length ? ' (' + esc(g.items.join('; ')) + ')' : ''}</p>` : '') + (s.rentOgol ? '<p class="text-xs text-gray-500 mt-1">+ wypożyczenie ogólnopolskie</p>' : '');
+                    const quick = readOnly ? '' : `<div class="mt-4 pt-3 border-t border-gray-200 no-print"><p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Szybkie czynności</p><div class="flex flex-wrap gap-1.5">${qb(gi, 'porada', 'Porada')}${qb(gi, 'instruktaz', 'Instruktaż')}${qb(gi, 'testowanie', 'Testowanie')}${qb(gi, 'szkolenie', 'Szkolenie')}${qb(gi, 'wypozyczenie', 'Wypożyczenie')}</div>
+                        ${g.personId ? `<button class="mt-3 text-xs text-gray-500 hover:text-green-800 underline" onclick="openPersonModal(${gi})">Popraw imię i nazwisko osoby</button>` : ''}</div>`;
+                    // Historia: wpisy i wypożyczenia razem, od najnowszych
+                    const hist = [
+                        ...g.entries.map(e => ({ date: e.date || '', html: `<span>${entrySummary(e)}</span>${readOnly ? '' : `<button class="text-green-700 hover:underline no-print" onclick="openEntryModal('${e.scope || 'osit'}','${e.id}')">edytuj</button><button class="text-red-600 hover:underline no-print" onclick="deleteItem('entries','${e.id}')">usuń</button>`}` })),
+                        ...rs.map(({ r }) => ({ date: r.rentedAt || '', html: `<b>${esc(r.itemName)}</b><span class="text-gray-500">${esc(r.deviceCode)}</span><span class="${r.active ? 'text-amber-700 font-semibold' : 'text-gray-400'}">${r.active ? 'wypożyczone' : 'zwrócone ' + fmt(r.returnedAt)}</span>` }))
+                    ].sort((x, y) => y.date.localeCompare(x.date));
+                    const all = fullHist.has(g.key), shown = all ? hist : hist.slice(0, 5);
+                    detail = `<div class="grid md:grid-cols-2 gap-6 border-t border-gray-100 bg-gray-50/60 px-4 py-4">
+                        <div><h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Aktywne wypożyczenia</h4>${alist}${extra}${quick}</div>
+                        <div><div class="flex items-center justify-between mb-2"><h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide">Historia${all ? '' : ' (ostatnie 5)'}</h4>
+                            ${hist.length > 5 ? `<button class="text-xs text-green-800 hover:underline no-print" onclick="toggleHist(${gi})">${all ? 'Pokaż mniej' : `Pokaż pełną historię (${hist.length})`}</button>` : ''}</div>
+                            ${shown.length ? `<ul class="space-y-1">${shown.map(h => `<li class="text-xs text-gray-600 flex flex-wrap items-center gap-x-2"><span class="text-gray-400 w-20 shrink-0">${fmt(h.date)}</span>${h.html}</li>`).join('')}</ul>` : '<p class="text-xs text-gray-400">Brak historii.</p>'}</div></div>`;
+                }
+                return `<div class="border border-gray-200 rounded-xl bg-white overflow-hidden" data-ben="${esc(norm(g.name + ' ' + g.oozn))}">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+                        <button class="flex items-center gap-2 font-bold text-gray-900 text-left min-w-[11rem]" aria-expanded="${open}" onclick="toggleBen(${gi})"><i data-lucide="${open ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4 text-gray-400 shrink-0"></i><span>${nameHtml}</span></button>
+                        <span class="flex gap-1">${badges}</span>
+                        <span class="text-xs text-gray-600 flex-1 min-w-[12rem]">${benSummary(s)}</span>
+                        <span class="text-xs text-gray-500 flex-1 min-w-[12rem]">${rentLine}</span>
+                        <span class="flex gap-2 no-print">${readOnly ? '' : `<button class="btn btn-primary !py-1.5" onclick="openQuickModal(${gi},'porada')">+ Czynność</button>`}<button class="btn btn-ghost !py-1.5" onclick="toggleBen(${gi})">Szczegóły</button></span></div>${detail}</div>`;
             }).join('');
             const opts = gs.map(g => `<option value="${esc(g.entries[0].id)}">${esc(g.name)}</option>`).join('');
-            const un = unassigned.length ? `<div class="mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4"><h3 class="font-bold text-amber-900 text-sm mb-1">Wypożyczenia bez beneficjenta (${unassigned.length})</h3>
+            const unShown = unOpen ? unassigned : unassigned.slice(0, 3);
+            const un = unassigned.length ? `<div class="mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4"><div class="flex flex-wrap items-center justify-between gap-2 mb-1"><h3 class="font-bold text-amber-900 text-sm">Wypożyczenia bez beneficjenta (${unassigned.length})</h3>
+                ${unassigned.length > 3 ? `<button class="text-xs text-amber-900 underline no-print" onclick="unOpen=!unOpen;render()">${unOpen ? 'Pokaż mniej' : `Pokaż wszystkie (${unassigned.length})`}</button>` : ''}</div>
                 <p class="text-xs text-amber-800 mb-3">Nazwisko z katalogu nie pasuje do żadnego beneficjenta (lub pasuje do kilku). ${readOnly ? '' : 'Przypisz je ręcznie albo najpierw dodaj beneficjenta.'}</p>
-                <ul class="space-y-2">${unassigned.map(({ r, ambiguous }) => `<li class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"><span class="text-gray-500 text-xs">${fmt(r.rentedAt)}</span><b>${esc(r.itemName)}</b><span class="text-gray-500 text-xs">${esc(r.deviceCode)}</span>
+                <ul class="space-y-2">${unShown.map(({ r, ambiguous }) => `<li class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"><span class="text-gray-500 text-xs">${fmt(r.rentedAt)}</span><b>${esc(r.itemName)}</b><span class="text-gray-500 text-xs">${esc(r.deviceCode)}</span>
                     <span class="text-xs">nazwisko w katalogu: <b>${esc(r.beneficiary) || '–'}</b>${ambiguous ? ' (niejednoznaczne)' : ''}</span>
                     ${readOnly || !gs.length ? '' : `<select class="fld !w-auto !py-1 text-xs no-print" aria-label="Przypisz do beneficjenta" onchange="if(this.value)setLink('${r.key}',this.value)"><option value="">Przypisz do…</option>${opts}</select>`}</li>`).join('')}</ul></div>` : '';
             const stat = `<span class="text-xs text-gray-500">${gs.length} beneficjentów · ${gs.length ? (([...assigned.values()].reduce((a, l) => a + l.length, 0) + gs.reduce((a, g) => a + g.sum.rentManual + g.sum.rentOgol, 0)) / gs.length).toFixed(1) : 0} wypożyczeń na osobę</span>`;
             return `<div class="flex flex-wrap items-center justify-between gap-2 mb-4"><div class="flex flex-wrap items-center gap-3"><h2 class="font-bold text-gray-800">Beneficjenci ${year}</h2>${stat}</div>
-                <div class="flex flex-wrap gap-2 no-print"><input type="search" class="fld !w-48" placeholder="Szukaj nazwiska…" aria-label="Szukaj beneficjenta" oninput="filterBen(this.value)">${addBtn('Dodaj (Ośrodek)', 'osit', readOnly)}${addBtn('Dodaj (ogólnopolska)', 'ogol', readOnly)}</div></div>
-                ${un}${gs.length ? `<div class="grid md:grid-cols-2 gap-3">${cards}</div>` : `<p class="text-gray-400 text-sm py-8 text-center">Brak beneficjentów w ${year}. Dodaj pierwszego przyciskiem powyżej.</p>`}`;
+                <div class="flex flex-wrap gap-2 no-print"><input type="search" class="fld !w-48" placeholder="Szukaj beneficjenta…" aria-label="Szukaj beneficjenta" oninput="filterBen(this.value)">${addBtn('Dodaj (Ośrodek)', 'osit', readOnly)}${addBtn('Dodaj (ogólnopolska)', 'ogol', readOnly)}</div></div>
+                ${un}${gs.length ? `<div class="space-y-2">${rows}</div>` : `<p class="text-gray-400 text-sm py-8 text-center">Brak beneficjentów w ${year}. Dodaj pierwszego przyciskiem powyżej.</p>`}`;
         }
         function addBtn(label, scope, readOnly) {
             return readOnly ? '' : `<button class="btn btn-primary no-print" onclick="openEntryModal('${scope}')"><i data-lucide="plus" class="w-4 h-4"></i> ${label}</button>`;
