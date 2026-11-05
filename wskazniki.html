@@ -631,13 +631,30 @@
             data.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             const ref = id ? database.ref(base + '/' + id) : database.ref(base).push();
             const old = id && scope !== 'network' ? entriesFor(me.email).find(e => e.id === id) : null;
-            ref.set(data).then(() => {
+            const write = () => ref.set(data).then(() => {
                 if (scope !== 'network') {
                     if (old && personKey(old.ozn, old.oznTag) !== personKey(data.ozn, data.oznTag)) unindexPerson(id, old);
                     indexPerson(ref.key, data);
                 }
                 closeModal();
             }).catch(e => { err.textContent = 'Błąd zapisu: ' + e.message; });
+            // „Nowy PESEL” najpierw zajmuje rekord osoby w indeksie. To atomowe po stronie Firebase (transakcja + reguły),
+            // więc dwóch pracowników nie zaliczy tej samej osoby jednocześnie. Wpis zapisujemy dopiero po sukcesie.
+            if (scope !== 'network' && data.newPesel && data.ozn) {
+                claimNewPesel(ref.key, data).then(r => {
+                    if (r === 'taken') { err.textContent = 'Ta osoba została właśnie zgłoszona jako nowy PESEL przez kolegę. Odznacz „Nowy PESEL” albo dodaj dopisek, jeśli to inna osoba o tym samym imieniu i nazwisku.'; const b = ev.target.elements.newPesel; if (b) b.checked = false; return; }
+                    return write();
+                });
+            } else write();
+        }
+        async function claimNewPesel(entryId, e) {
+            const own = ek(me.email), mine = new Set(entriesFor(me.email).map(x => x.id));
+            try {
+                const res = await peopleRef(await hashKey(personKey(e.ozn, e.oznTag))).transaction(cur =>
+                    (!cur || (cur.by === own && (cur.entryId === entryId || !mine.has(cur.entryId)))) ? { by: own, entryId } : undefined);
+                const v = res.snapshot.val();
+                return v && v.by === own && v.entryId === entryId ? 'ok' : 'taken';
+            } catch (err) { console.warn('Indeks osób niedostępny, zapis bez blokady:', err.message); return 'ok'; }
         }
         function deleteItem(kind, id) {
             if (!confirm('Na pewno usunąć ten wpis?')) return;
