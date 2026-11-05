@@ -3715,7 +3715,60 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             if (field === 'deviceCode') value = value.toUpperCase();
             pendingRental[dbKey][field] = value;
         }
-        function saveRental(dbKey) {
+        // ===== LIMIT WYPOŻYCZEŃ Z RZĘDU =====
+        // Port logiki z OWiT-Baza (webapp/src/lib/rental-stats.ts): ten sam sprzęt można wypożyczyć MAX_STREAK razy
+        // z rzędu (miesiąc + przedłużenia). Seria wygasa, gdy osoba miała coś innego przez MIN_BREAK_DAYS.
+        // Uwaga: w katalogu beneficjent jest rozpoznawany tylko po nazwisku, więc to ostrzeżenie, nie twarda blokada.
+        const MAX_STREAK = 3, MIN_BREAK_DAYS = 28, RENEWAL_WINDOW_DAYS = 7, NOMINAL_LOAN_DAYS = 31, DAY_MS = 86400000;
+        const surnameKey = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l').toLowerCase().replace(/\s+/g, ' ').trim();
+        const isoMs = (d) => { const t = d ? new Date(d + 'T00:00:00').getTime() : NaN; return isNaN(t) ? null : t; };
+        function loansOfSurname(surname) {
+            const sk = surnameKey(surname), out = [];
+            const add = (r, key, label) => {
+                if (!sk || surnameKey(r.beneficiaryLastName) !== sk) return;
+                const start = isoMs(r.rentedAt); if (start == null) return;
+                const planned = isoMs(r.plannedReturn || r.date);
+                out.push({ key, label, start, end: planned != null && planned > start ? planned : start + NOMINAL_LOAN_DAYS * DAY_MS });
+            };
+            Object.values(historyData || {}).forEach(h => h && add(h, h.dbKey || getDbKey(h.itemName || ''), h.itemName || h.dbKey));
+            Object.entries(inventoryData || {}).forEach(([k, inv]) => Object.values((inv && inv.rentals) || {}).filter(Boolean).forEach(r => add(r, k, getItemName(k))));
+            return out;
+        }
+        const startsInside = (p, start) => start === p.start || (start > p.start && start < p.end - RENEWAL_WINDOW_DAYS * DAY_MS);
+        function buildPeriods(loans) {
+            const byKey = new Map(), periods = [];
+            loans.forEach(l => byKey.set(l.key, [...(byKey.get(l.key) || []), l]));
+            for (const [key, list] of byKey) {
+                let cur = null;
+                list.sort((a, b) => a.start - b.start).forEach(l => {
+                    if (cur && startsInside(cur, l.start)) cur.end = Math.max(cur.end, l.end);
+                    else { cur = { key, label: l.label, start: l.start, end: l.end }; periods.push(cur); }
+                });
+            }
+            return periods.sort((a, b) => b.start - a.start || b.end - a.end);
+        }
+        const hadSomethingElse = (periods, key, from, to) => periods.some(o => o.key !== key && Math.round((Math.min(o.end, to) - Math.max(o.start, from)) / DAY_MS) >= MIN_BREAK_DAYS);
+        // Która to będzie umowa z rzędu na ten sprzęt, jeśli nowa zaczyna się w `start`
+        function streakForNewRental(surname, key, start) {
+            const all = buildPeriods(loansOfSurname(surname)), list = all.filter(p => p.key === key);
+            const i = list.findIndex(p => p.start <= start);
+            if (i < 0) return { count: 0, joins: false };
+            const joins = startsInside(list[i], start);
+            if (!joins && hadSomethingElse(all, key, list[i].end, start)) return { count: 0, joins: false };
+            let count = 1;
+            for (let j = i + 1; j < list.length; j++) {
+                if (hadSomethingElse(all, key, list[j].end, list[j - 1].start)) break;
+                count++;
+            }
+            return { count, joins };
+        }
+        function rentalLimitWarning(dbKey, surname) {
+            const today = isoMs(new Date().toISOString().split('T')[0]);
+            const { count, joins } = streakForNewRental(surname, dbKey, today);
+            if (joins || count < MAX_STREAK) return '';
+            return `Beneficjent „${surname}” wypożyczył już „${getItemName(dbKey)}” ${count}× z rzędu (limit: ${MAX_STREAK}). Kolejne wypożyczenie przekroczy limit, dopóki osoba nie weźmie czegoś innego na co najmniej miesiąc.`;
+        }
+        async function saveRental(dbKey) {
             const p = pendingRental[dbKey];
             if (!p) return;
             if (!p.name) { alert('Uzupełnij imię / nazwę PUP.'); return; }
@@ -3729,7 +3782,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 database.ref('inventory/' + dbKey + '/rentals').set(rentals)
                     .catch(e => alert("Błąd: " + e.message));
             };
-            const warning = chargeWarningFor(p.deviceCode);
+            await loadHistoryData();
+            const warning = [rentalLimitWarning(dbKey, p.beneficiaryLastName), chargeWarningFor(p.deviceCode)].filter(Boolean).join(' ');
             if (warning) showConfirm(warning + ' Wypożyczyć mimo to?', doSave);
             else doSave();
         }

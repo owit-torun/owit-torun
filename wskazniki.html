@@ -95,6 +95,8 @@
         let inventoryData = {}, historyData = null, historyError = false;
         let tab = 'ben', adminTab = 'team', selectedEmp = null;
         let listeners = [];
+        // Wspólny indeks osób (hash klucza → kto i który wpis pierwszy), żeby „Nowy PESEL” sprawdzał cały zespół
+        let PEOPLE = {}, peopleLoaded = false;
 
         // ===== NARZĘDZIA =====
         const $ = (id) => document.getElementById(id);
@@ -125,12 +127,22 @@
         // Dopasowanie wypożyczeń z katalogu do beneficjentów
         const norm = (s) => String(s || '').normalize('NFD').toLowerCase().replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l').trim();
         const words = (s) => norm(s).split(/[\s\-]+/).filter(Boolean);
+        // Klucz osoby niezależny od kolejności: „Jan Kowalski” = „Kowalski Jan”
+        const nameKey = (s) => words(s).sort().join(' ');
+        // Osoba = imię i nazwisko + opcjonalny dopisek (rozróżnia imienników, np. rok urodzenia)
+        const personKey = (name, tag) => { const k = nameKey(name); return k ? k + (nameKey(tag) ? '#' + nameKey(tag) : '') : ''; };
+        async function hashKey(s) {
+            try {
+                const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('owit-wsk:' + s));
+                return [...new Uint8Array(b)].slice(0, 16).map(x => x.toString(16).padStart(2, '0')).join('');
+            } catch (_) { let h = 5381; for (const c of 'owit-wsk:' + s) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return 'f' + (h >>> 0).toString(16); }
+        }
         const rk = (r) => ((r.deviceCode || '?') + '_' + (r.rentedAt || '?')).replace(/[.$#\[\]\/]/g, '_');
         function beneficiaryGroups(email) {
             const map = new Map();
             entriesFor(email).filter(e => (e.date || '').startsWith(year)).sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(e => {
-                const key = norm(e.ozn) + '|' + norm(e.oozn);
-                if (!map.has(key)) map.set(key, { key, ozn: e.ozn || '', oozn: e.oozn || '', entries: [], ids: new Set(), sum: { newPesel: 0, porada: 0, instruktaz: 0, szkolenie: 0, testowanie: 0, kontakt: 0, technologia: 0, rentManual: 0, rentOgol: 0 }, scopes: new Set(), items: [] });
+                const key = personKey(e.ozn, e.oznTag) + '|' + nameKey(e.oozn);
+                if (!map.has(key)) map.set(key, { key, ozn: e.ozn || '', oozn: e.oozn || '', oznTag: e.oznTag || '', entries: [], ids: new Set(), sum: { newPesel: 0, porada: 0, instruktaz: 0, szkolenie: 0, testowanie: 0, kontakt: 0, technologia: 0, rentManual: 0, rentOgol: 0 }, scopes: new Set(), items: [] });
                 const g = map.get(key); g.entries.push(e); g.ids.add(e.id); g.scopes.add(e.scope || 'osit');
                 if (e.przedmiot) g.items.push(e.przedmiot);
                 const d = entryDelta(e); for (const k in d) g.sum[k] += d[k];
@@ -217,7 +229,7 @@
         function stopListeners() { listeners.forEach(([ref, fn]) => ref.off('value', fn)); listeners = []; }
         function listen(path, cb) {
             const ref = database.ref(path);
-            const fn = (snap) => { cb(snap.val() || {}); render(); };
+            const fn = (snap) => { cb(snap.val() || {}); render(); syncPeople(); };
             ref.on('value', fn, (err) => console.warn('Wskaźniki: brak odczytu', path, err.message));
             listeners.push([ref, fn]);
         }
@@ -235,8 +247,34 @@
                 listen('indicators/targets/' + own, v => DB.targets = { [own]: v });
                 listen('indicators/links/' + own, v => DB.links = { [own]: v });
             }
+            listen('indicators/people', v => { PEOPLE = v; peopleLoaded = true; });
             listen('inventory', v => inventoryData = v);
             loadHistory();
+        }
+        // Uzupełnia indeks osób wpisami, które już są w bazie (admin widzi wszystkie, pracownik swoje).
+        // Zapis jest „pierwszy wygrywa”: reguły nie pozwalają nadpisać cudzej osoby.
+        const _indexed = new Set();
+        const peopleRef = (h) => database.ref('indicators/people/' + h);
+        async function indexPerson(entryId, e) {
+            if (!me || !e.ozn) return;
+            const h = await hashKey(personKey(e.ozn, e.oznTag)), p = PEOPLE[h], own = ek(me.email);
+            const stale = p && p.by === own && !entriesFor(me.email).some(x => x.id === p.entryId);
+            if (!p || stale) peopleRef(h).set({ by: own, entryId }).catch(err => console.warn('Indeks osób:', err.message));
+        }
+        async function unindexPerson(entryId, e) {
+            if (!me || !e || !e.ozn) return;
+            const h = await hashKey(personKey(e.ozn, e.oznTag)), p = PEOPLE[h];
+            if (p && p.by === ek(me.email) && p.entryId === entryId) peopleRef(h).remove().catch(() => {});
+        }
+        async function syncPeople() {
+            if (!me || !peopleLoaded) return;
+            const all = Object.entries(DB.entries).flatMap(([, o]) => Object.entries(o || {}).map(([id, e]) => ({ ...e, id })))
+                .filter(e => e.ozn).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+            for (const e of all) {
+                const h = await hashKey(personKey(e.ozn, e.oznTag));
+                if (PEOPLE[h] || _indexed.has(h)) continue;
+                _indexed.add(h); indexPerson(e.id, e);
+            }
         }
         async function loadHistory() {
             try {
@@ -254,7 +292,7 @@
         // ===== AUTH =====
         auth.onAuthStateChanged((user) => {
             stopListeners();
-            DB = { entries: {}, network: {}, targets: {}, links: {} }; historyData = null;
+            DB = { entries: {}, network: {}, targets: {}, links: {} }; historyData = null; PEOPLE = {}; peopleLoaded = false; _indexed.clear();
             me = user && user.email ? { email: user.email.toLowerCase(), uid: user.uid } : null;
             isAdmin = !!me && ADMINS.includes(me.email);
             if (me && ALLOWED.includes(me.email)) {
@@ -392,7 +430,7 @@
             ev.preventDefault();
             const f = ev.target, g = _benGroups[idx], [scope, k] = f.elements.type.value.split(':'), cnt = Math.max(1, parseInt(f.elements.count.value, 10) || 1);
             if (!f.elements.date.value) { $('formErr').textContent = 'Podaj datę.'; return; }
-            const data = { scope, date: f.elements.date.value, ozn: g.ozn, oozn: g.oozn, newPesel: false, note: f.elements.note.value.trim(), updatedAt: firebase.database.ServerValue.TIMESTAMP };
+            const data = { scope, date: f.elements.date.value, ozn: g.ozn, oozn: g.oozn, oznTag: g.oznTag || '', newPesel: false, note: f.elements.note.value.trim(), updatedAt: firebase.database.ServerValue.TIMESTAMP };
             if (scope === 'osit') {
                 if (k === 'wypozyczenie') { data.wypozyczenie = cnt; data.przedmiot = f.elements.przedmiot.value.trim(); }
                 else data[k + (f.elements.target.value || 'Ozn')] = cnt;
@@ -424,7 +462,7 @@
                 const elist = `<details class="mt-3 pt-2 border-t border-gray-100"><summary class="text-xs text-gray-500 cursor-pointer">Historia wpisów (${g.entries.length})</summary><ul class="mt-1 space-y-1">${g.entries.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).map(e => `<li class="text-xs text-gray-600 flex flex-wrap items-center gap-x-2"><span class="text-gray-400">${fmt(e.date)}</span><span>${entrySummary(e)}</span>
                     ${readOnly ? '' : `<button class="text-green-700 hover:underline no-print" onclick="openEntryModal('${e.scope || 'osit'}','${e.id}')">edytuj</button><button class="text-red-600 hover:underline no-print" onclick="deleteItem('entries','${e.id}')">usuń</button>`}</li>`).join('')}</ul></details>`;
                 return `<div class="border border-gray-200 rounded-xl p-4" data-ben="${esc(norm(g.ozn + ' ' + g.oozn))}">
-                    <div class="flex flex-wrap items-baseline justify-between gap-2"><h3 class="font-bold text-gray-900">${esc(g.ozn || '—')}${g.oozn ? ` <span class="text-gray-500 font-normal text-sm">· OOzN: ${esc(g.oozn)}</span>` : ''}</h3>
+                    <div class="flex flex-wrap items-baseline justify-between gap-2"><h3 class="font-bold text-gray-900">${esc(g.ozn || '—')}${g.oznTag ? ` <span class="text-gray-400 font-normal text-sm">(${esc(g.oznTag)})</span>` : ''}${g.oozn ? ` <span class="text-gray-500 font-normal text-sm">· OOzN: ${esc(g.oozn)}</span>` : ''}</h3>
                         <span class="text-xs flex gap-1">${[...g.scopes].map(sc => `<span class="rounded-full px-2 py-0.5 ${sc === 'ogol' ? 'bg-blue-50 text-blue-800' : 'bg-green-50 text-green-800'}">${sc === 'ogol' ? 'ogólnopolska' : 'Ośrodek'}</span>`).join('')}${s.newPesel ? '<span class="rounded-full px-2 py-0.5 bg-purple-50 text-purple-800">nowy PESEL</span>' : ''}</span></div>
                     <div class="flex flex-wrap gap-1.5 mt-2">${metric('Porada', s.porada)}${metric('Instruktaż', s.instruktaz)}${metric('Szkolenie', s.szkolenie)}${metric('Testowanie', s.testowanie)}${metric('Kontakt', s.kontakt)}${metric('Technologia', s.technologia)}${metric('Wypożyczenia', rentTotal)}</div>
                     ${rs.length || s.rentManual || s.rentOgol ? `<ul class="mt-2">${rlist}</ul>${s.rentManual ? `<p class="text-xs text-gray-500">+ ${s.rentManual} szt. spoza katalogu${g.items.length ? ' (' + esc(g.items.join('; ')) + ')' : ''}</p>` : ''}${s.rentOgol ? '<p class="text-xs text-gray-500">+ wypożyczenie ogólnopolskie</p>' : ''}` : ''}${quick}${elist}</div>`;
@@ -504,6 +542,32 @@
         const numInp = (name, v) => `<input class="fld text-center" aria-label="${name}" name="${name}" type="number" min="0" step="1" value="${n(v) || ''}" placeholder="0">`;
         const chk = (name, label, v) => `<label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" name="${name}" class="w-5 h-5 accent-green-700" ${v ? 'checked' : ''}> ${label}</label>`;
 
+        const newPeselField = (label, cur) => chk('newPesel', label, cur.newPesel)
+            + '<p id="newPeselNote" class="hidden text-xs text-amber-700 -mt-2">Ta osoba jest już w bazie (Twoje wpisy lub kolegów), więc „Nowy PESEL” został wyłączony. Jeśli to <b>inna osoba o tym samym imieniu i nazwisku</b>, wpisz poniżej dopisek, np. rok urodzenia.</p>'
+            + `<div id="tagWrap" class="${cur.oznTag ? '' : 'hidden'}">${inp('oznTag', 'Dopisek rozróżniający imienników (opcjonalnie)', cur.oznTag, 'text', 'maxlength="40" placeholder="np. ur. 1985"')}</div>`;
+        // Podpowiedzi: wszystkie osoby z wpisów pracownika (wszystkie lata)
+        function nameSuggestions() {
+            const seen = new Map();
+            entriesFor(me.email).forEach(e => [e.ozn, e.oozn].forEach(v => { const k = nameKey(v); if (k && !seen.has(k)) seen.set(k, v.trim()); }));
+            return [...seen.values()].sort((a, b) => a.localeCompare(b, 'pl'));
+        }
+        // „Nowy PESEL” tylko dla osoby, której jeszcze nie ma w bazie: najpierw własne wpisy, potem wspólny indeks całego zespołu
+        let _npSeq = 0;
+        async function checkNewPesel(f, id) {
+            const box = f.elements.newPesel; if (!box || !f.elements.ozn) return;
+            const seq = ++_npSeq, tag = f.elements.oznTag ? f.elements.oznTag.value.trim() : '', key = personKey(f.elements.ozn.value, tag), date = f.elements.date ? f.elements.date.value : '';
+            let known = !!key && entriesFor(me.email).some(e => e.id !== id && personKey(e.ozn, e.oznTag) === key && (!date || (e.date || '') <= date));
+            if (!known && key) {
+                const p = PEOPLE[await hashKey(key)];
+                if (seq !== _npSeq) return;
+                known = !!p && p.entryId !== id && !(p.by === ek(me.email) && !entriesFor(me.email).some(e => e.id === p.entryId));
+            }
+            if (known) box.checked = false;
+            box.disabled = known;
+            const note = $('newPeselNote'), wrap = $('tagWrap');
+            if (note) note.classList.toggle('hidden', !known);
+            if (wrap) wrap.classList.toggle('hidden', !(known || tag));
+        }
         function openEntryModal(scope, id) {
             const isNet = scope === 'network';
             const cur = id ? (isNet ? networkFor(me.email) : entriesFor(me.email)).find(e => e.id === id) || {} : {};
@@ -515,8 +579,8 @@
             } else if (scope === 'osit') {
                 const row = (label, k) => `<tr><td class="font-semibold whitespace-nowrap pr-3">${label}</td><td>${numInp(k + 'Ozn', cur[k + 'Ozn'])}</td><td>${numInp(k + 'Oozn', cur[k + 'Oozn'])}</td></tr>`;
                 fields = `${inp('date', 'Data', cur.date || todayStr(), 'date', 'required')}
-                    <div class="grid sm:grid-cols-2 gap-3">${inp('ozn', 'Imię i nazwisko OzN', cur.ozn)}${inp('oozn', 'Imię i nazwisko OOzN', cur.oozn)}</div>
-                    ${chk('newPesel', 'Nowy PESEL (pierwszy raz w OWiT)', cur.newPesel)}
+                    <div class="grid sm:grid-cols-2 gap-3">${inp('ozn', 'Imię i nazwisko OzN', cur.ozn, 'text', 'list="dl_names" autocomplete="off"')}${inp('oozn', 'Imię i nazwisko OOzN', cur.oozn, 'text', 'list="dl_names" autocomplete="off"')}</div>
+                    ${newPeselField('Nowy PESEL (pierwszy raz w OWiT)', cur)}
                     <table class="w-full text-sm"><thead><tr><th></th><th class="text-center">dla OzN</th><th class="text-center">dla OOzN</th></tr></thead><tbody>
                         ${row('Porada', 'porada')}${row('Instruktaż', 'instruktaz')}${row('Szkolenie', 'szkolenie')}${row('Testowanie', 'testowanie')}</tbody></table>
                     <div class="grid sm:grid-cols-3 gap-3 items-end"><div><label class="lbl">Wypożyczenie spoza katalogu (szt.)</label>${numInp('wypozyczenie', cur.wypozyczenie)}</div>
@@ -525,8 +589,8 @@
                     ${inp('inna', 'Inna czynność', cur.inna)}`;
             } else {
                 fields = `${inp('date', 'Data', cur.date || todayStr(), 'date', 'required')}
-                    <div class="grid sm:grid-cols-2 gap-3">${inp('ozn', 'Imię i nazwisko OzN', cur.ozn)}${inp('oozn', 'Imię i nazwisko OOzN', cur.oozn)}</div>
-                    ${chk('newPesel', 'Nowy PESEL', cur.newPesel)}
+                    <div class="grid sm:grid-cols-2 gap-3">${inp('ozn', 'Imię i nazwisko OzN', cur.ozn, 'text', 'list="dl_names" autocomplete="off"')}${inp('oozn', 'Imię i nazwisko OOzN', cur.oozn, 'text', 'list="dl_names" autocomplete="off"')}</div>
+                    ${newPeselField('Nowy PESEL', cur)}
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div><label class="lbl">Porada</label>${numInp('porada', cur.porada)}</div><div><label class="lbl">Instruktaż</label>${numInp('instruktaz', cur.instruktaz)}</div>
                         <div><label class="lbl">Kontakt</label>${numInp('kontakt', cur.kontakt)}</div><div><label class="lbl">Zaproponowanie technologii</label>${numInp('technologia', cur.technologia)}</div></div>
@@ -534,12 +598,14 @@
                     ${chk('wypozyczenieTak', 'Wypożyczenie zrealizowane', cur.wypozyczenieTak)}`;
             }
             if (!isNet) fields += `<div><label class="lbl" for="f_note">Notatka (opcjonalnie)</label><textarea class="fld" id="f_note" name="note" rows="2">${esc(cur.note)}</textarea></div>`;
-            openModal(`<form onsubmit="saveEntry(event,'${scope}','${id || ''}')">
+            if (!isNet) fields += `<datalist id="dl_names">${nameSuggestions().map(v => `<option value="${esc(v)}">`).join('')}</datalist>`;
+            openModal(`<form onsubmit="saveEntry(event,'${scope}','${id || ''}')" ${isNet ? '' : `oninput="checkNewPesel(this,'${id || ''}')"`}>
                 <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-green-50/50 sticky top-0">
                     <h2 class="text-lg font-bold text-green-800">${id ? 'Edytuj: ' : 'Dodaj: '}${titles[scope]}</h2>
                     <button type="button" class="p-1 text-gray-400 hover:text-gray-600" aria-label="Zamknij" onclick="closeModal()"><i data-lucide="x"></i></button></div>
                 <div class="p-6 space-y-4">${fields}<p id="formErr" class="text-sm text-red-600" role="alert"></p></div>
                 <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-2"><button type="button" class="btn btn-ghost" onclick="closeModal()">Anuluj</button><button type="submit" class="btn btn-primary">Zapisz</button></div></form>`);
+            if (!isNet) checkNewPesel($('modalRoot').querySelector('form'), id || '');
         }
         function saveEntry(ev, scope, id) {
             ev.preventDefault();
@@ -553,7 +619,7 @@
                 data = { date, place: g('place'), desc: g('desc') };
             } else {
                 if (!g('ozn') && !g('oozn')) { err.textContent = 'Podaj imię i nazwisko OzN lub OOzN.'; return; }
-                data = { scope, date, ozn: g('ozn'), oozn: g('oozn'), newPesel: c('newPesel'), note: g('note') };
+                data = { scope, date, ozn: g('ozn'), oozn: g('oozn'), oznTag: g('oznTag'), newPesel: c('newPesel'), note: g('note') };
                 if (scope === 'osit') {
                     ['poradaOzn', 'poradaOozn', 'instruktazOzn', 'instruktazOozn', 'szkolenieOzn', 'szkolenieOozn', 'testowanieOzn', 'testowanieOozn', 'wypozyczenie'].forEach(k => data[k] = n(g(k)));
                     data.przedmiot = g('przedmiot'); data.inna = g('inna');
@@ -564,11 +630,19 @@
             }
             data.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             const ref = id ? database.ref(base + '/' + id) : database.ref(base).push();
-            ref.set(data).then(closeModal).catch(e => { err.textContent = 'Błąd zapisu: ' + e.message; });
+            const old = id && scope !== 'network' ? entriesFor(me.email).find(e => e.id === id) : null;
+            ref.set(data).then(() => {
+                if (scope !== 'network') {
+                    if (old && personKey(old.ozn, old.oznTag) !== personKey(data.ozn, data.oznTag)) unindexPerson(id, old);
+                    indexPerson(ref.key, data);
+                }
+                closeModal();
+            }).catch(e => { err.textContent = 'Błąd zapisu: ' + e.message; });
         }
         function deleteItem(kind, id) {
             if (!confirm('Na pewno usunąć ten wpis?')) return;
-            database.ref('indicators/' + kind + '/' + ek(me.email) + '/' + id).remove().catch(e => alert('Błąd: ' + e.message));
+            const old = kind === 'entries' ? entriesFor(me.email).find(e => e.id === id) : null;
+            database.ref('indicators/' + kind + '/' + ek(me.email) + '/' + id).remove().then(() => unindexPerson(id, old)).catch(e => alert('Błąd: ' + e.message));
         }
 
         // ===== WIDOK ADMINA =====
