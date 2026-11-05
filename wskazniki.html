@@ -18,6 +18,7 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
         body { font-family: 'Lexend', sans-serif; background: #f9fafb; }
@@ -258,7 +259,7 @@
         async function indexPerson(entryId, e) {
             if (!me || !e.ozn) return;
             const h = await hashKey(personKey(e.ozn, e.oznTag)), p = PEOPLE[h], own = ek(me.email);
-            const stale = p && p.by === own && !entriesFor(me.email).some(x => x.id === p.entryId);
+            const stale = p && p.by === own && p.entryId !== 'import' && !entriesFor(me.email).some(x => x.id === p.entryId);
             if (!p || stale) peopleRef(h).set({ by: own, entryId }).catch(err => console.warn('Indeks osób:', err.message));
         }
         async function unindexPerson(entryId, e) {
@@ -560,7 +561,7 @@
             if (!known && key) {
                 const p = PEOPLE[await hashKey(key)];
                 if (seq !== _npSeq) return;
-                known = !!p && p.entryId !== id && !(p.by === ek(me.email) && !entriesFor(me.email).some(e => e.id === p.entryId));
+                known = !!p && p.entryId !== id && !(p.by === ek(me.email) && p.entryId !== 'import' && !entriesFor(me.email).some(e => e.id === p.entryId));
             }
             if (known) box.checked = false;
             box.disabled = known;
@@ -651,7 +652,7 @@
             const own = ek(me.email), mine = new Set(entriesFor(me.email).map(x => x.id));
             try {
                 const res = await peopleRef(await hashKey(personKey(e.ozn, e.oznTag))).transaction(cur =>
-                    (!cur || (cur.by === own && (cur.entryId === entryId || !mine.has(cur.entryId)))) ? { by: own, entryId } : undefined);
+                    (!cur || (cur.by === own && cur.entryId !== 'import' && (cur.entryId === entryId || !mine.has(cur.entryId)))) ? { by: own, entryId } : undefined);
                 const v = res.snapshot.val();
                 return v && v.by === own && v.entryId === entryId ? 'ok' : 'taken';
             } catch (err) { console.warn('Indeks osób niedostępny, zapis bez blokady:', err.message); return 'ok'; }
@@ -664,10 +665,10 @@
 
         // ===== WIDOK ADMINA =====
         function adminView() {
-            const tabs = [['team', 'Zespół – przegląd'], ['stats', 'Statystyki miesięczne'], ['emp', 'Pracownik – szczegóły']];
+            const tabs = [['team', 'Zespół – przegląd'], ['stats', 'Statystyki miesięczne'], ['emp', 'Pracownik – szczegóły'], ['import', 'Import osób']];
             const nav = `<div class="flex gap-1 border-b border-gray-200 overflow-x-auto no-print" role="tablist">${tabs.map(([k, l]) =>
                 `<button role="tab" class="tab" aria-selected="${adminTab === k}" onclick="adminTab='${k}';render()">${l}</button>`).join('')}</div>`;
-            let body = adminTab === 'team' ? teamOverview() : adminTab === 'stats' ? teamStats() : empDetail();
+            let body = adminTab === 'team' ? teamOverview() : adminTab === 'stats' ? teamStats() : adminTab === 'import' ? importView() : empDetail();
             return nav + `<div class="mt-5">${body}</div>`;
         }
         function cell(v, t) {
@@ -717,6 +718,56 @@
                     <tr class="bg-gray-50 font-bold"><td>Suma</td>${sum.map(v => `<td>${v}</td>`).join('')}<td>${sum.reduce((a, b) => a + b, 0)}</td></tr></tbody></table></div></div>
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mt-5"><h2 class="font-bold text-gray-800 mb-3">Liczba czynności na pracownika</h2>
                 ${share.map(x => `<div class="flex items-center gap-3 mb-2"><span class="w-40 text-sm font-semibold truncate">${esc(nameOf(x.em))}</span><div class="bar flex-1" aria-hidden="true"><i style="width:${x.total / smax * 100}%;background:#2b7333"></i></div><b class="w-10 text-right">${x.total}</b></div>`).join('')}</div>`;
+        }
+        // ===== IMPORT STARYCH OSÓB =====
+        // Osoby obsłużone przed wdrożeniem aplikacji trafiają do indeksu (tylko skróty), żeby „Nowy PESEL” ich nie pozwalał.
+        let importPreview = null, importBusy = false;
+        async function readArchive(file) {
+            if (!file) return;
+            if (!window.XLSX) { alert('Biblioteka Excel nie załadowała się. Odśwież stronę.'); return; }
+            try {
+                const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+                const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, blankrows: false, defval: '' });
+                const seen = new Map(); let skipped = 0;
+                for (const raw of rows) {
+                    if (!Array.isArray(raw)) continue;
+                    const cells = raw.map(c => String(c == null ? '' : c).trim()).filter(Boolean); if (!cells.length) continue;
+                    const name = cells.slice(0, 2).join(' ').trim(), k = personKey(name);
+                    if (!k || ['imie', 'nazwisko', 'imie nazwisko', 'lp', 'beneficjent', 'ozn'].includes(norm(name))) continue;
+                    if (seen.has(k)) { skipped++; continue; }
+                    seen.set(k, name);
+                }
+                const items = [];
+                for (const [k, name] of seen) { const h = await hashKey(k); if (PEOPLE[h]) skipped++; else items.push({ h, name }); }
+                importPreview = { items, skipped };
+            } catch (e) { alert('Nie udało się odczytać pliku: ' + e.message); }
+            render();
+        }
+        async function confirmImport() {
+            if (!importPreview || !importPreview.items.length || importBusy) return;
+            importBusy = true; render();
+            const own = ek(me.email), items = importPreview.items;
+            try {
+                for (let i = 0; i < items.length; i += 400) {
+                    const upd = {}; items.slice(i, i + 400).forEach(it => upd[it.h] = { by: own, entryId: 'import' });
+                    await database.ref('indicators/people').update(upd);
+                }
+                alert('Zaimportowano ' + items.length + ' osób.'); importPreview = null;
+            } catch (e) { alert('Błąd importu (część osób mogła się zapisać, ponów import): ' + e.message); }
+            importBusy = false; render();
+        }
+        function importView() {
+            const p = importPreview, total = Object.keys(PEOPLE).length;
+            return `<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 max-w-3xl">
+                <h2 class="font-bold text-gray-800 mb-1">Import osób obsłużonych wcześniej</h2>
+                <p class="text-sm text-gray-600 mb-3">Wgraj plik Excel (.xlsx, .xls) lub .csv. Pierwsza kolumna to imię i nazwisko (albo imię w A, nazwisko w B). Te osoby nie będą mogły dostać „Nowy PESEL”. W bazie zapisują się tylko skróty, nie nazwiska. Duplikaty są pomijane.</p>
+                <p class="text-xs text-gray-500 mb-3">Aktualnie w indeksie: <b>${total}</b> osób.</p>
+                <input id="archFile" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="readArchive(this.files[0]);this.value=''">
+                <button class="btn btn-ghost" onclick="$('archFile').click()" ${importBusy ? 'disabled' : ''}><i data-lucide="upload" class="w-4 h-4"></i> Wybierz plik</button>
+                ${p ? `<div class="mt-4 border border-gray-200 rounded-xl p-3 bg-gray-50"><p class="text-sm">Do dodania: <b>${p.items.length}</b>${p.skipped ? ` · pominięto duplikaty: <b>${p.skipped}</b>` : ''}</p>
+                    ${p.items.length ? `<p class="text-xs text-gray-500 mt-2 max-h-40 overflow-auto">${p.items.slice(0, 60).map(i => esc(i.name)).join(', ')}${p.items.length > 60 ? ` … +${p.items.length - 60}` : ''}</p>` : ''}
+                    <div class="flex gap-2 mt-3"><button class="btn btn-primary" onclick="confirmImport()" ${importBusy || !p.items.length ? 'disabled' : ''}>${importBusy ? 'Importuję…' : `Zatwierdź import (${p.items.length})`}</button>
+                    <button class="btn btn-ghost" onclick="importPreview=null;render()" ${importBusy ? 'disabled' : ''}>Anuluj</button></div></div>` : ''}</div>`;
         }
         function empDetail() {
             const emps = employees();
