@@ -28,12 +28,19 @@ Bez nich dostęp zależy od dotychczasowych reguł bazy.
       ".write": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')"
     }
   },
-  "people": {
-    ".read": "auth != null",
-    "$h": {
-      ".write": "auth != null && (!data.exists() || data.child('by').val() == auth.token.email.replace('@','_').replace('.','_'))",
-      ".validate": "newData.hasChildren(['by','entryId']) && newData.child('by').val() == auth.token.email.replace('@','_').replace('.','_')"
+  "staff": {
+    "$k": { ".read": "auth != null && $k == auth.token.email.replace('@','_').replace('.','_').replace('.','_')" }
+  },
+  "persons": {
+    ".read": "root.child('indicators').child('staff').child(auth.token.email.replace('@','_').replace('.','_').replace('.','_')).val() === true",
+    "$id": {
+      ".write": "root.child('indicators').child('staff').child(auth.token.email.replace('@','_').replace('.','_').replace('.','_')).val() === true",
+      ".validate": "newData.hasChildren(['name','createdBy']) && newData.child('name').isString() && newData.child('name').val().length < 200"
     }
+  },
+  "personKeys": {
+    ".read": "root.child('indicators').child('staff').child(auth.token.email.replace('@','_').replace('.','_').replace('.','_')).val() === true",
+    "$h": { ".write": "(root.child('indicators').child('staff').child(auth.token.email.replace('@','_').replace('.','_').replace('.','_')).val() === true) && (!data.exists() || !newData.exists())" }
   },
   "targets": {
     ".read": "auth != null && auth.token.email == 'admin@owit.pl'",
@@ -45,11 +52,25 @@ Bez nich dostęp zależy od dotychczasowych reguł bazy.
 }
 ```
 
-Węzeł `people` to wspólny indeks osób: kluczem jest skrót (SHA-256) imienia i nazwiska, wartością tylko
-`{by, entryId}`, bez nazwisk jawnym tekstem. Dzięki niemu „Nowy PESEL” w formularzu sprawdza całą bazę, a nie tylko
-wpisy zalogowanego pracownika. Zapis działa na zasadzie „pierwszy wygrywa”: cudzego rekordu nie da się nadpisać.
-Bez tych reguł formularz działa, ale sprawdza tylko własne wpisy. Indeks uzupełnia się sam przy wejściu na stronę
-(admin uzupełnia wszystkie osoby, pracownik swoje). Imienników rozróżnia pole „Dopisek” w formularzu.
+## Rejestr osób (`staff`, `persons`, `personKeys`)
+
+Każdy beneficjent ma jeden trwały `personId` w `indicators/persons` (imię i nazwisko, dopisek, kto i kiedy dodał).
+Wpisy w `indicators/entries` zawierają `personId`, więc nazwisko można poprawić (przycisk „Dane osoby” na karcie
+beneficjenta) bez utraty historii. „Nowy PESEL” ustala się sam: dostaje go wpis, który jako pierwszy tworzy osobę w OWiT.
+
+- `personKeys/{skrót}` → `personId` to indeks wyszukiwania po imieniu i nazwisku. Reguła pozwala tylko **utworzyć** klucz
+  (nie nadpisać), a aplikacja tworzy go transakcją. Dzięki temu dwóch pracowników dodających tę samą nową osobę
+  w tej samej chwili dostanie ten sam `personId`, a „Nowy PESEL” tylko jeden z nich.
+- **Dane w rejestrze to jawne imiona i nazwiska osób korzystających ze wsparcia.** Nie są zahaszowane ani zanonimizowane.
+  Chroni je wyłącznie lista `indicators/staff`: odczyt i zapis mają tylko wymienione w niej konta, a nie każdy zalogowany
+  użytkownik projektu. Skrót w `personKeys` to tylko klucz wyszukiwania (prefiks jest w kodzie strony), nie zabezpieczenie.
+- **Lista `staff` ustawiana ręcznie w konsoli Firebase** (Realtime Database → Dane → `indicators/staff`): dla każdego konta
+  dodaj klucz `adres_owit_pl` (kropki i @ zamienione na `_`) z wartością `true`, także dla `admin@owit.pl`.
+  Przykład: `"adrian_owit_pl": true`. Bez wpisu konto nie widzi rejestru, a formularz wraca do ręcznego pola „Nowy PESEL”
+  (bez ochrony przed duplikatami).
+- Stare wpisy (bez `personId`) dostają go automatycznie, gdy pracownik wejdzie na stronę. Osoby sprzed wdrożenia
+  aplikacji dodaje admin w zakładce „Import osób”.
+- Węzeł `indicators/people` z poprzedniej wersji (skróty bez nazwisk) nie jest już używany. Można go usunąć w konsoli.
 
 Dodatkowo pracownik czyta swoje wypożyczenia z `history` (zapytanie po `addedBy`).
 Jeśli `history` jest dziś czytelne tylko dla admina, strona pokaże ostrzeżenie i policzy

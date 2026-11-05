@@ -96,8 +96,10 @@
         let inventoryData = {}, historyData = null, historyError = false;
         let tab = 'ben', adminTab = 'team', selectedEmp = null;
         let listeners = [];
-        // Wspólny indeks osób (hash klucza → kto i który wpis pierwszy), żeby „Nowy PESEL” sprawdzał cały zespół
-        let PEOPLE = {}, peopleLoaded = false;
+        // Rejestr osób: każdy beneficjent ma jeden trwały personId (indicators/persons), a personKeys pilnuje unikalności
+        let PERSONS = {}, KEYS = {}, _regP = false, _regK = false, _regErr = false, _migrating = false, _migFailed = false;
+        const _migDone = new Set();
+        const regOk = () => _regP && _regK && !_regErr;
 
         // ===== NARZĘDZIA =====
         const $ = (id) => document.getElementById(id);
@@ -130,7 +132,7 @@
         const words = (s) => norm(s).split(/[\s\-]+/).filter(Boolean);
         // Klucz osoby niezależny od kolejności: „Jan Kowalski” = „Kowalski Jan”
         const nameKey = (s) => words(s).sort().join(' ');
-        // Osoba = imię i nazwisko + opcjonalny dopisek (rozróżnia imienników, np. rok urodzenia)
+        // Osoba = imię i nazwisko + opcjonalny dopisek (rozróżnia imienników, np. rok urodzenia). Klucz służy tylko do wyszukiwania w rejestrze.
         const personKey = (name, tag) => { const k = nameKey(name); return k ? k + (nameKey(tag) ? '#' + nameKey(tag) : '') : ''; };
         async function hashKey(s) {
             try {
@@ -139,16 +141,26 @@
             } catch (_) { let h = 5381; for (const c of 'owit-wsk:' + s) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return 'f' + (h >>> 0).toString(16); }
         }
         const rk = (r) => ((r.deviceCode || '?') + '_' + (r.rentedAt || '?')).replace(/[.$#\[\]\/]/g, '_');
+        const personOf = (e) => (e && e.personId && PERSONS[e.personId]) || null;
+        // Imię i nazwisko OzN / OOzN wpisu: z rejestru (poprawka nazwiska działa wstecz), a dla starych wpisów z samego wpisu
+        function entNames(e) {
+            const p = personOf(e);
+            if (!p) return { ozn: e.ozn || '', oozn: e.oozn || '' };
+            return e.personRole === 'oozn' ? { ozn: '', oozn: p.name } : { ozn: p.name, oozn: e.oozn || '' };
+        }
+        // Grupowanie po osobie (personId), niezależnie od tego, z jakim opiekunem (OOzN) przyszła
         function beneficiaryGroups(email) {
             const map = new Map();
             entriesFor(email).filter(e => (e.date || '').startsWith(year)).sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(e => {
-                const key = personKey(e.ozn, e.oznTag) + '|' + nameKey(e.oozn);
-                if (!map.has(key)) map.set(key, { key, ozn: e.ozn || '', oozn: e.oozn || '', oznTag: e.oznTag || '', entries: [], ids: new Set(), sum: { newPesel: 0, porada: 0, instruktaz: 0, szkolenie: 0, testowanie: 0, kontakt: 0, technologia: 0, rentManual: 0, rentOgol: 0 }, scopes: new Set(), items: [] });
+                const nm = entNames(e), p = personOf(e), name = nm.ozn || nm.oozn;
+                const key = p ? 'p:' + e.personId : 'k:' + personKey(name, e.oznTag);
+                if (!map.has(key)) map.set(key, { key, personId: p ? e.personId : '', name, role: nm.ozn ? 'ozn' : 'oozn', oznTag: p ? (p.tag || '') : (e.oznTag || ''), latestOozn: '', entries: [], ids: new Set(), sum: { newPesel: 0, porada: 0, instruktaz: 0, szkolenie: 0, testowanie: 0, kontakt: 0, technologia: 0, rentManual: 0, rentOgol: 0 }, scopes: new Set(), items: [] });
                 const g = map.get(key); g.entries.push(e); g.ids.add(e.id); g.scopes.add(e.scope || 'osit');
+                if (nm.ozn && nm.oozn) g.latestOozn = nm.oozn;
                 if (e.przedmiot) g.items.push(e.przedmiot);
                 const d = entryDelta(e); for (const k in d) g.sum[k] += d[k];
             });
-            return [...map.values()];
+            return [...map.values()].map(g => ({ ...g, ozn: g.role === 'ozn' ? g.name : '', oozn: g.role === 'ozn' ? g.latestOozn : g.name }));
         }
         function assignRentals(email, groups) {
             const links = DB.links[ek(email)] || {}, assigned = new Map(), unassigned = [];
@@ -230,7 +242,7 @@
         function stopListeners() { listeners.forEach(([ref, fn]) => ref.off('value', fn)); listeners = []; }
         function listen(path, cb) {
             const ref = database.ref(path);
-            const fn = (snap) => { cb(snap.val() || {}); render(); syncPeople(); };
+            const fn = (snap) => { cb(snap.val() || {}); render(); migrateOwn(); };
             ref.on('value', fn, (err) => console.warn('Wskaźniki: brak odczytu', path, err.message));
             listeners.push([ref, fn]);
         }
@@ -248,34 +260,47 @@
                 listen('indicators/targets/' + own, v => DB.targets = { [own]: v });
                 listen('indicators/links/' + own, v => DB.links = { [own]: v });
             }
-            listen('indicators/people', v => { PEOPLE = v; peopleLoaded = true; });
+            listenRegistry();
             listen('inventory', v => inventoryData = v);
             loadHistory();
         }
-        // Uzupełnia indeks osób wpisami, które już są w bazie (admin widzi wszystkie, pracownik swoje).
-        // Zapis jest „pierwszy wygrywa”: reguły nie pozwalają nadpisać cudzej osoby.
-        const _indexed = new Set();
-        const peopleRef = (h) => database.ref('indicators/people/' + h);
-        async function indexPerson(entryId, e) {
-            if (!me || !e.ozn) return;
-            const h = await hashKey(personKey(e.ozn, e.oznTag)), p = PEOPLE[h], own = ek(me.email);
-            const stale = p && p.by === own && p.entryId !== 'import' && !entriesFor(me.email).some(x => x.id === p.entryId);
-            if (!p || stale) peopleRef(h).set({ by: own, entryId }).catch(err => console.warn('Indeks osób:', err.message));
+        function listenRegistry() {
+            const on = (path, cb) => {
+                const ref = database.ref(path);
+                const fn = (snap) => { cb(snap.val() || {}); render(); migrateOwn(); };
+                ref.on('value', fn, (err) => { _regErr = true; console.warn('Rejestr osób niedostępny:', path, err.message); render(); });
+                listeners.push([ref, fn]);
+            };
+            on('indicators/persons', v => { PERSONS = v; _regP = true; });
+            on('indicators/personKeys', v => { KEYS = v; _regK = true; });
         }
-        async function unindexPerson(entryId, e) {
-            if (!me || !e || !e.ozn) return;
-            const h = await hashKey(personKey(e.ozn, e.oznTag)), p = PEOPLE[h];
-            if (p && p.by === ek(me.email) && p.entryId === entryId) peopleRef(h).remove().catch(() => {});
+        // Znajduje osobę w rejestrze albo tworzy ją atomowo: transakcja na personKeys (reguły: tylko zapis nowego klucza).
+        // Dwóch pracowników dodających tę samą nową osobę dostanie ten sam personId, a created=true tylko jeden z nich.
+        async function resolvePerson(name, tag, entryId) {
+            const h = await hashKey(personKey(name, tag));
+            if (KEYS[h]) return { personId: KEYS[h], created: false, h };
+            const id = database.ref('indicators/persons').push().key;
+            await database.ref('indicators/persons/' + id).set({ name: name.trim(), tag: (tag || '').trim(), createdBy: ek(me.email), createdAt: firebase.database.ServerValue.TIMESTAMP, firstEntryId: entryId || '' });
+            const res = await database.ref('indicators/personKeys/' + h).transaction(cur => cur ? undefined : id);
+            if (res.snapshot.val() === id) return { personId: id, created: true, h };
+            database.ref('indicators/persons/' + id).remove().catch(() => {});
+            return { personId: res.snapshot.val(), created: false, h };
         }
-        async function syncPeople() {
-            if (!me || !peopleLoaded) return;
-            const all = Object.entries(DB.entries).flatMap(([, o]) => Object.entries(o || {}).map(([id, e]) => ({ ...e, id })))
-                .filter(e => e.ozn).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-            for (const e of all) {
-                const h = await hashKey(personKey(e.ozn, e.oznTag));
-                if (PEOPLE[h] || _indexed.has(h)) continue;
-                _indexed.add(h); indexPerson(e.id, e);
-            }
+        // Stare wpisy (bez personId) dostają go przy wejściu pracownika na stronę
+        async function migrateOwn() {
+            if (_migrating || _migFailed || !me || !ALLOWED.includes(me.email) || !regOk()) return;
+            const todo = entriesFor(me.email).filter(e => (e.ozn || e.oozn) && !_migDone.has(e.id) && (!e.personId || !PERSONS[e.personId]))
+                .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+            if (!todo.length) return;
+            _migrating = true;
+            try {
+                for (const e of todo) {
+                    const { personId } = await resolvePerson(e.ozn || e.oozn, e.oznTag, '');
+                    await database.ref('indicators/entries/' + ek(me.email) + '/' + e.id).update({ personId, personRole: e.ozn ? 'ozn' : 'oozn' });
+                    _migDone.add(e.id);
+                }
+            } catch (err) { _migFailed = true; console.warn('Migracja osób:', err.message); }
+            _migrating = false;
         }
         async function loadHistory() {
             try {
@@ -293,7 +318,7 @@
         // ===== AUTH =====
         auth.onAuthStateChanged((user) => {
             stopListeners();
-            DB = { entries: {}, network: {}, targets: {}, links: {} }; historyData = null; PEOPLE = {}; peopleLoaded = false; _indexed.clear();
+            DB = { entries: {}, network: {}, targets: {}, links: {} }; historyData = null; PERSONS = {}; KEYS = {}; _regP = _regK = _regErr = false; _migFailed = false; _migDone.clear();
             me = user && user.email ? { email: user.email.toLowerCase(), uid: user.uid } : null;
             isAdmin = !!me && ADMINS.includes(me.email);
             if (me && ALLOWED.includes(me.email)) {
@@ -407,7 +432,7 @@
             const optG = ['porada', 'instruktaz', 'kontakt', 'technologia'].map(k => `<option value="ogol:${k}" ${preType === k && !hasO ? 'selected' : ''}>${TYPE_LABELS[k]}</option>`).join('');
             openModal(`<form onsubmit="saveQuick(event,${idx})">
                 <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-green-50/50 sticky top-0">
-                    <h2 class="text-lg font-bold text-green-800">Dodaj czynność: ${esc(g.ozn || g.oozn)}</h2>
+                    <h2 class="text-lg font-bold text-green-800">Dodaj czynność: ${esc(g.name)}</h2>
                     <button type="button" class="p-1 text-gray-400 hover:text-gray-600" aria-label="Zamknij" onclick="closeModal()"><i data-lucide="x"></i></button></div>
                 <div class="p-6 space-y-4">
                     <div class="grid sm:grid-cols-2 gap-3"><div><label class="lbl" for="q_type">Czynność</label><select class="fld" id="q_type" name="type" onchange="quickToggle(this.form)">
@@ -431,7 +456,7 @@
             ev.preventDefault();
             const f = ev.target, g = _benGroups[idx], [scope, k] = f.elements.type.value.split(':'), cnt = Math.max(1, parseInt(f.elements.count.value, 10) || 1);
             if (!f.elements.date.value) { $('formErr').textContent = 'Podaj datę.'; return; }
-            const data = { scope, date: f.elements.date.value, ozn: g.ozn, oozn: g.oozn, oznTag: g.oznTag || '', newPesel: false, note: f.elements.note.value.trim(), updatedAt: firebase.database.ServerValue.TIMESTAMP };
+            const data = { scope, date: f.elements.date.value, ozn: g.ozn, oozn: g.oozn, oznTag: g.oznTag || '', ...(g.personId ? { personId: g.personId, personRole: g.role } : {}), newPesel: false, note: f.elements.note.value.trim(), updatedAt: firebase.database.ServerValue.TIMESTAMP };
             if (scope === 'osit') {
                 if (k === 'wypozyczenie') { data.wypozyczenie = cnt; data.przedmiot = f.elements.przedmiot.value.trim(); }
                 else data[k + (f.elements.target.value || 'Ozn')] = cnt;
@@ -448,7 +473,7 @@
         }
         function benView(email, readOnly) {
             const gs = beneficiaryGroups(email), { assigned, unassigned } = assignRentals(email, gs);
-            gs.sort((a, b) => norm(a.ozn || a.oozn).localeCompare(norm(b.ozn || b.oozn)));
+            gs.sort((a, b) => norm(a.name).localeCompare(norm(b.name)));
             _benGroups = gs;
             const metric = (l, v) => v ? `<span class="bg-gray-50 border border-gray-200 rounded-full px-2.5 py-0.5 text-xs">${l}: <b>${v}</b></span>` : '';
             const cards = gs.map((g, gi) => {
@@ -459,16 +484,16 @@
                     ${how === 'manual' && !readOnly ? `<button class="text-gray-400 hover:text-red-600 no-print" title="Cofnij ręczne przypisanie" onclick="setLink('${r.key}',null)">✕ przypisane ręcznie</button>` : (how === 'manual' ? '<span class="text-gray-400">przypisane ręcznie</span>' : '')}</li>`).join('');
                 const qb = (t, l) => `<button class="text-xs font-semibold text-green-800 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg px-2.5 py-1" onclick="openQuickModal(${gi},'${t}')">+ ${l}</button>`;
                 const quick = readOnly ? '' : `<div class="flex flex-wrap gap-1.5 mt-3 no-print">${qb('porada', 'Porada')}${qb('instruktaz', 'Instruktaż')}${qb('testowanie', 'Testowanie')}${qb('szkolenie', 'Szkolenie')}${qb('wypozyczenie', 'Wypożyczenie')}
-                    <button class="text-xs text-gray-600 hover:text-green-800 border border-gray-200 rounded-lg px-2.5 py-1" onclick="openQuickModal(${gi},'porada')">Więcej…</button></div>`;
+                    <button class="text-xs text-gray-600 hover:text-green-800 border border-gray-200 rounded-lg px-2.5 py-1" onclick="openQuickModal(${gi},'porada')">Więcej…</button>${g.personId ? `<button class="text-xs text-gray-500 hover:text-green-800 border border-gray-200 rounded-lg px-2.5 py-1" onclick="openPersonModal(${gi})">Dane osoby</button>` : ''}</div>`;
                 const elist = `<details class="mt-3 pt-2 border-t border-gray-100"><summary class="text-xs text-gray-500 cursor-pointer">Historia wpisów (${g.entries.length})</summary><ul class="mt-1 space-y-1">${g.entries.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).map(e => `<li class="text-xs text-gray-600 flex flex-wrap items-center gap-x-2"><span class="text-gray-400">${fmt(e.date)}</span><span>${entrySummary(e)}</span>
                     ${readOnly ? '' : `<button class="text-green-700 hover:underline no-print" onclick="openEntryModal('${e.scope || 'osit'}','${e.id}')">edytuj</button><button class="text-red-600 hover:underline no-print" onclick="deleteItem('entries','${e.id}')">usuń</button>`}</li>`).join('')}</ul></details>`;
                 return `<div class="border border-gray-200 rounded-xl p-4" data-ben="${esc(norm(g.ozn + ' ' + g.oozn))}">
-                    <div class="flex flex-wrap items-baseline justify-between gap-2"><h3 class="font-bold text-gray-900">${esc(g.ozn || '—')}${g.oznTag ? ` <span class="text-gray-400 font-normal text-sm">(${esc(g.oznTag)})</span>` : ''}${g.oozn ? ` <span class="text-gray-500 font-normal text-sm">· OOzN: ${esc(g.oozn)}</span>` : ''}</h3>
+                    <div class="flex flex-wrap items-baseline justify-between gap-2"><h3 class="font-bold text-gray-900">${esc(g.name || '—')}${g.oznTag ? ` <span class="text-gray-400 font-normal text-sm">(${esc(g.oznTag)})</span>` : ''}${g.role === 'ozn' && g.oozn ? ` <span class="text-gray-500 font-normal text-sm">· OOzN: ${esc(g.oozn)}</span>` : (g.role === 'oozn' ? ' <span class="text-gray-500 font-normal text-sm">· OOzN</span>' : '')}</h3>
                         <span class="text-xs flex gap-1">${[...g.scopes].map(sc => `<span class="rounded-full px-2 py-0.5 ${sc === 'ogol' ? 'bg-blue-50 text-blue-800' : 'bg-green-50 text-green-800'}">${sc === 'ogol' ? 'ogólnopolska' : 'Ośrodek'}</span>`).join('')}${s.newPesel ? '<span class="rounded-full px-2 py-0.5 bg-purple-50 text-purple-800">nowy PESEL</span>' : ''}</span></div>
                     <div class="flex flex-wrap gap-1.5 mt-2">${metric('Porada', s.porada)}${metric('Instruktaż', s.instruktaz)}${metric('Szkolenie', s.szkolenie)}${metric('Testowanie', s.testowanie)}${metric('Kontakt', s.kontakt)}${metric('Technologia', s.technologia)}${metric('Wypożyczenia', rentTotal)}</div>
                     ${rs.length || s.rentManual || s.rentOgol ? `<ul class="mt-2">${rlist}</ul>${s.rentManual ? `<p class="text-xs text-gray-500">+ ${s.rentManual} szt. spoza katalogu${g.items.length ? ' (' + esc(g.items.join('; ')) + ')' : ''}</p>` : ''}${s.rentOgol ? '<p class="text-xs text-gray-500">+ wypożyczenie ogólnopolskie</p>' : ''}` : ''}${quick}${elist}</div>`;
             }).join('');
-            const opts = gs.map(g => `<option value="${esc(g.entries[0].id)}">${esc(g.ozn || g.oozn)}</option>`).join('');
+            const opts = gs.map(g => `<option value="${esc(g.entries[0].id)}">${esc(g.name)}</option>`).join('');
             const un = unassigned.length ? `<div class="mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4"><h3 class="font-bold text-amber-900 text-sm mb-1">Wypożyczenia bez beneficjenta (${unassigned.length})</h3>
                 <p class="text-xs text-amber-800 mb-3">Nazwisko z katalogu nie pasuje do żadnego beneficjenta (lub pasuje do kilku). ${readOnly ? '' : 'Przypisz je ręcznie albo najpierw dodaj beneficjenta.'}</p>
                 <ul class="space-y-2">${unassigned.map(({ r, ambiguous }) => `<li class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"><span class="text-gray-500 text-xs">${fmt(r.rentedAt)}</span><b>${esc(r.itemName)}</b><span class="text-gray-500 text-xs">${esc(r.deviceCode)}</span>
@@ -499,10 +524,10 @@
                 ? '<th>Data</th><th>OzN</th><th>OOzN</th><th>Nowy PESEL</th><th>Porada</th><th>Instruktaż</th><th>Szkolenie</th><th>Testowanie</th><th>Wypożyczenie (ręcznie)</th><th>Przedmiot / inna czynność</th>'
                 : '<th>Data</th><th>OzN</th><th>OOzN</th><th>Nowy PESEL</th><th>Porada</th><th>Instruktaż</th><th>Kontakt</th><th>Zaproponowana technologia</th><th>Przedmiot wniosku</th><th>Wypożyczenie</th>';
             const rows = list.map(e => isO
-                ? `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(e.ozn)}</td><td>${esc(e.oozn)}</td><td>${yes(e.newPesel)}</td>
+                ? `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(entNames(e).ozn)}</td><td>${esc(entNames(e).oozn)}</td><td>${yes(e.newPesel)}</td>
                     <td>${cnt(e.poradaOzn, e.poradaOozn)}</td><td>${cnt(e.instruktazOzn, e.instruktazOozn)}</td><td>${cnt(e.szkolenieOzn, e.szkolenieOozn)}</td><td>${cnt(e.testowanieOzn, e.testowanieOozn)}</td>
                     <td>${num(e.wypozyczenie)}</td><td class="text-xs text-gray-600 max-w-[16rem]">${esc(e.przedmiot)}${e.inna ? `<br><i>${esc(e.inna)}</i>` : ''}${e.note ? `<br><span class="text-gray-400">${esc(e.note)}</span>` : ''}</td>${rowActions(e.id, scope, readOnly)}</tr>`
-                : `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(e.ozn)}</td><td>${esc(e.oozn)}</td><td>${yes(e.newPesel)}</td>
+                : `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(entNames(e).ozn)}</td><td>${esc(entNames(e).oozn)}</td><td>${yes(e.newPesel)}</td>
                     <td>${num(e.porada)}</td><td>${num(e.instruktaz)}</td><td>${num(e.kontakt)}</td><td>${num(e.technologia)}</td>
                     <td class="text-xs text-gray-600">${esc(e.przedmiotWniosku)}${e.note ? `<br><span class="text-gray-400">${esc(e.note)}</span>` : ''}</td><td>${yes(e.wypozyczenieTak)}</td>${rowActions(e.id, scope, readOnly)}</tr>`).join('');
             return `<div class="flex flex-wrap items-center justify-between gap-2 mb-3"><h2 class="font-bold text-gray-800">${title} <span class="text-gray-400 font-normal text-sm">(${list.length})</span></h2>${addBtn('Dodaj beneficjenta', scope, readOnly)}</div>
@@ -543,28 +568,42 @@
         const numInp = (name, v) => `<input class="fld text-center" aria-label="${name}" name="${name}" type="number" min="0" step="1" value="${n(v) || ''}" placeholder="0">`;
         const chk = (name, label, v) => `<label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" name="${name}" class="w-5 h-5 accent-green-700" ${v ? 'checked' : ''}> ${label}</label>`;
 
-        const newPeselField = (label, cur) => chk('newPesel', label, cur.newPesel)
-            + '<p id="newPeselNote" class="hidden text-xs text-amber-700 -mt-2">Ta osoba jest już w bazie (Twoje wpisy lub kolegów), więc „Nowy PESEL” został wyłączony. Jeśli to <b>inna osoba o tym samym imieniu i nazwisku</b>, wpisz poniżej dopisek, np. rok urodzenia.</p>'
+        // Przy działającym rejestrze „Nowy PESEL” ustala się sam (pierwsza wizyta osoby w OWiT). Checkbox zostaje tylko jako zapas bez rejestru.
+        const newPeselField = (label, cur) => (regOk()
+                ? '<p id="newPeselInfo" class="text-sm rounded-lg bg-gray-50 border border-gray-200 px-3 py-2"></p>'
+                : chk('newPesel', label, cur.newPesel))
+            + '<p id="newPeselNote" class="hidden text-xs text-amber-700 -mt-2">Ta osoba jest już w rejestrze. Jeśli to <b>inna osoba o tym samym imieniu i nazwisku</b>, wpisz poniżej dopisek, np. rok urodzenia.</p>'
             + `<div id="tagWrap" class="${cur.oznTag ? '' : 'hidden'}">${inp('oznTag', 'Dopisek rozróżniający imienników (opcjonalnie)', cur.oznTag, 'text', 'maxlength="40" placeholder="np. ur. 1985"')}</div>`;
-        // Podpowiedzi: wszystkie osoby z wpisów pracownika (wszystkie lata)
+        // Podpowiedzi: osoby z rejestru (cały zespół) albo, bez rejestru, z własnych wpisów
         function nameSuggestions() {
             const seen = new Map();
-            entriesFor(me.email).forEach(e => [e.ozn, e.oozn].forEach(v => { const k = nameKey(v); if (k && !seen.has(k)) seen.set(k, v.trim()); }));
+            const add = (v) => { const k = nameKey(v); if (k && !seen.has(k)) seen.set(k, v.trim()); };
+            if (regOk()) Object.values(PERSONS).forEach(p => add(p.name)); else entriesFor(me.email).forEach(e => { add(e.ozn); add(e.oozn); });
             return [...seen.values()].sort((a, b) => a.localeCompare(b, 'pl'));
         }
-        // „Nowy PESEL” tylko dla osoby, której jeszcze nie ma w bazie: najpierw własne wpisy, potem wspólny indeks całego zespołu
         let _npSeq = 0;
         async function checkNewPesel(f, id) {
-            const box = f.elements.newPesel; if (!box || !f.elements.ozn) return;
-            const seq = ++_npSeq, tag = f.elements.oznTag ? f.elements.oznTag.value.trim() : '', key = personKey(f.elements.ozn.value, tag), date = f.elements.date ? f.elements.date.value : '';
-            let known = !!key && entriesFor(me.email).some(e => e.id !== id && personKey(e.ozn, e.oznTag) === key && (!date || (e.date || '') <= date));
-            if (!known && key) {
-                const p = PEOPLE[await hashKey(key)];
-                if (seq !== _npSeq) return;
-                known = !!p && p.entryId !== id && !(p.by === ek(me.email) && p.entryId !== 'import' && !entriesFor(me.email).some(e => e.id === p.entryId));
+            if (!f.elements.ozn) return;
+            const seq = ++_npSeq, tag = f.elements.oznTag ? f.elements.oznTag.value.trim() : '';
+            const name = f.elements.ozn.value.trim() || f.elements.oozn.value.trim(), key = personKey(name, tag);
+            const date = f.elements.date ? f.elements.date.value : '', old = id ? entriesFor(me.email).find(e => e.id === id) : null;
+            let known = false, info = '';
+            if (regOk()) {
+                if (!key) info = 'Nowy PESEL ustali się automatycznie po wpisaniu osoby.';
+                else {
+                    const pid = KEYS[await hashKey(key)];
+                    if (seq !== _npSeq) return;
+                    const own = !!(old && old.personId && old.personId === pid) || !!(old && !old.personId && personKey(old.ozn || old.oozn, old.oznTag) === key);
+                    known = !!pid && !own;
+                    info = own ? `Nowy PESEL: ${old.newPesel ? 'tak' : 'nie'} (bez zmian).` : pid ? 'Nowy PESEL: nie. Osoba jest już w rejestrze OWiT.' : 'Nowy PESEL: tak. To pierwsza wizyta tej osoby w OWiT.';
+                }
+                const el = $('newPeselInfo'); if (el) el.textContent = info;
+            } else {
+                const box = f.elements.newPesel; if (!box) return;
+                known = !!key && entriesFor(me.email).some(e => e.id !== id && personKey(e.ozn || e.oozn, e.oznTag) === key && (!date || (e.date || '') <= date));
+                if (known) box.checked = false;
+                box.disabled = known;
             }
-            if (known) box.checked = false;
-            box.disabled = known;
             const note = $('newPeselNote'), wrap = $('tagWrap');
             if (note) note.classList.toggle('hidden', !known);
             if (wrap) wrap.classList.toggle('hidden', !(known || tag));
@@ -572,6 +611,7 @@
         function openEntryModal(scope, id) {
             const isNet = scope === 'network';
             const cur = id ? (isNet ? networkFor(me.email) : entriesFor(me.email)).find(e => e.id === id) || {} : {};
+            if (id && !isNet && cur.id) { const nn = entNames(cur), pp = personOf(cur); cur.ozn = nn.ozn; cur.oozn = nn.oozn; if (pp) cur.oznTag = pp.tag || ''; }
             const titles = { osit: 'Beneficjent – Ośrodek Wsparcia i Testów', ogol: 'Beneficjent – Wypożyczalnia ogólnopolska', network: 'Sieć współpracy – wydarzenie' };
             let fields = '';
             if (isNet) {
@@ -632,35 +672,59 @@
             data.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             const ref = id ? database.ref(base + '/' + id) : database.ref(base).push();
             const old = id && scope !== 'network' ? entriesFor(me.email).find(e => e.id === id) : null;
-            const write = () => ref.set(data).then(() => {
-                if (scope !== 'network') {
-                    if (old && personKey(old.ozn, old.oznTag) !== personKey(data.ozn, data.oznTag)) unindexPerson(id, old);
-                    indexPerson(ref.key, data);
+            const write = () => ref.set(data).then(closeModal).catch(e => { err.textContent = 'Błąd zapisu: ' + e.message; });
+            if (scope === 'network' || !regOk()) { write(); return; }
+            // Z rejestrem: osoba jest znajdowana lub tworzona atomowo, a „Nowy PESEL” dostaje tylko ten, kto ją utworzył
+            (async () => {
+                const name = data.ozn || data.oozn; let r;
+                try { r = await resolvePerson(name, data.oznTag, ref.key); }
+                catch (e) { err.textContent = 'Błąd rejestru osób: ' + e.message; return; }
+                const same = old && (old.personId === r.personId || (!old.personId && personKey(old.ozn || old.oozn, old.oznTag) === personKey(name, data.oznTag)));
+                data.personId = r.personId; data.personRole = data.ozn ? 'ozn' : 'oozn';
+                data.newPesel = r.created || !!(same && old.newPesel);
+                try { await ref.set(data); closeModal(); }
+                catch (e) {
+                    err.textContent = 'Błąd zapisu: ' + e.message;
+                    if (r.created) { database.ref('indicators/personKeys/' + r.h).remove().catch(() => {}); database.ref('indicators/persons/' + r.personId).remove().catch(() => {}); }
                 }
-                closeModal();
-            }).catch(e => { err.textContent = 'Błąd zapisu: ' + e.message; });
-            // „Nowy PESEL” najpierw zajmuje rekord osoby w indeksie. To atomowe po stronie Firebase (transakcja + reguły),
-            // więc dwóch pracowników nie zaliczy tej samej osoby jednocześnie. Wpis zapisujemy dopiero po sukcesie.
-            if (scope !== 'network' && data.newPesel && data.ozn) {
-                claimNewPesel(ref.key, data).then(r => {
-                    if (r === 'taken') { err.textContent = 'Ta osoba została właśnie zgłoszona jako nowy PESEL przez kolegę. Odznacz „Nowy PESEL” albo dodaj dopisek, jeśli to inna osoba o tym samym imieniu i nazwisku.'; const b = ev.target.elements.newPesel; if (b) b.checked = false; return; }
-                    return write();
-                });
-            } else write();
-        }
-        async function claimNewPesel(entryId, e) {
-            const own = ek(me.email), mine = new Set(entriesFor(me.email).map(x => x.id));
-            try {
-                const res = await peopleRef(await hashKey(personKey(e.ozn, e.oznTag))).transaction(cur =>
-                    (!cur || (cur.by === own && cur.entryId !== 'import' && (cur.entryId === entryId || !mine.has(cur.entryId)))) ? { by: own, entryId } : undefined);
-                const v = res.snapshot.val();
-                return v && v.by === own && v.entryId === entryId ? 'ok' : 'taken';
-            } catch (err) { console.warn('Indeks osób niedostępny, zapis bez blokady:', err.message); return 'ok'; }
+            })();
         }
         function deleteItem(kind, id) {
             if (!confirm('Na pewno usunąć ten wpis?')) return;
             const old = kind === 'entries' ? entriesFor(me.email).find(e => e.id === id) : null;
-            database.ref('indicators/' + kind + '/' + ek(me.email) + '/' + id).remove().then(() => unindexPerson(id, old)).catch(e => alert('Błąd: ' + e.message));
+            database.ref('indicators/' + kind + '/' + ek(me.email) + '/' + id).remove().then(() => {
+                const pr = old && personOf(old);
+                if (!pr || pr.firstEntryId !== id) return;
+                const others = Object.values(DB.entries).some(o => Object.entries(o || {}).some(([i, e]) => i !== id && e.personId === old.personId));
+                if (!others && confirm('To był pierwszy wpis tej osoby i nie ma innych widocznych wpisów. Usunąć też osobę z rejestru? (Wtedy kolejny wpis znów policzy się jako nowy PESEL.)'))
+                    hashKey(personKey(pr.name, pr.tag)).then(h => { database.ref('indicators/personKeys/' + h).remove().catch(() => {}); database.ref('indicators/persons/' + old.personId).remove().catch(() => {}); });
+            }).catch(e => alert('Błąd: ' + e.message));
+        }
+
+        // ===== DANE OSOBY (poprawa nazwiska bez utraty historii) =====
+        function openPersonModal(idx) {
+            const g = _benGroups[idx]; if (!g || !g.personId) return;
+            openModal(`<form onsubmit="savePerson(event,'${g.personId}')">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-green-50/50"><h2 class="text-lg font-bold text-green-800">Dane osoby</h2>
+                    <button type="button" class="p-1 text-gray-400 hover:text-gray-600" aria-label="Zamknij" onclick="closeModal()"><i data-lucide="x"></i></button></div>
+                <div class="p-6 space-y-4">${inp('pname', 'Imię i nazwisko', g.name, 'text', 'required maxlength="120"')}${inp('ptag', 'Dopisek rozróżniający imienników', g.oznTag, 'text', 'maxlength="40" placeholder="np. ur. 1985"')}
+                    <p class="text-xs text-gray-500">Poprawka obowiązuje wszystkie wpisy tej osoby, także u kolegów. Historia zostaje.</p><p id="formErr" class="text-sm text-red-600" role="alert"></p></div>
+                <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-2"><button type="button" class="btn btn-ghost" onclick="closeModal()">Anuluj</button><button type="submit" class="btn btn-primary">Zapisz</button></div></form>`);
+        }
+        async function savePerson(ev, pid) {
+            ev.preventDefault();
+            const f = ev.target, name = f.elements.pname.value.trim(), tag = f.elements.ptag.value.trim(), pr = PERSONS[pid], err = $('formErr');
+            if (!name) { err.textContent = 'Podaj imię i nazwisko.'; return; }
+            try {
+                const oldH = await hashKey(personKey(pr.name, pr.tag)), newH = await hashKey(personKey(name, tag));
+                if (newH !== oldH) {
+                    const res = await database.ref('indicators/personKeys/' + newH).transaction(cur => cur ? undefined : pid);
+                    if (res.snapshot.val() !== pid) { err.textContent = 'Taka osoba już istnieje w rejestrze. Dodaj dopisek, jeśli to ktoś inny.'; return; }
+                    database.ref('indicators/personKeys/' + oldH).remove().catch(() => {});
+                }
+                await database.ref('indicators/persons/' + pid).update({ name, tag });
+                closeModal();
+            } catch (e) { err.textContent = 'Błąd zapisu: ' + e.message; }
         }
 
         // ===== WIDOK ADMINA =====
@@ -720,11 +784,12 @@
                 ${share.map(x => `<div class="flex items-center gap-3 mb-2"><span class="w-40 text-sm font-semibold truncate">${esc(nameOf(x.em))}</span><div class="bar flex-1" aria-hidden="true"><i style="width:${x.total / smax * 100}%;background:#2b7333"></i></div><b class="w-10 text-right">${x.total}</b></div>`).join('')}</div>`;
         }
         // ===== IMPORT STARYCH OSÓB =====
-        // Osoby obsłużone przed wdrożeniem aplikacji trafiają do indeksu (tylko skróty), żeby „Nowy PESEL” ich nie pozwalał.
+        // Osoby obsłużone przed wdrożeniem aplikacji trafiają do rejestru, żeby ich pierwszy wpis nie liczył się jako „Nowy PESEL”.
         let importPreview = null, importBusy = false;
         async function readArchive(file) {
             if (!file) return;
             if (!window.XLSX) { alert('Biblioteka Excel nie załadowała się. Odśwież stronę.'); return; }
+            if (!regOk()) { alert('Rejestr osób jest niedostępny. Sprawdź reguły Firebase.'); return; }
             try {
                 const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
                 const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, blankrows: false, defval: '' });
@@ -738,7 +803,7 @@
                     seen.set(k, name);
                 }
                 const items = [];
-                for (const [k, name] of seen) { const h = await hashKey(k); if (PEOPLE[h]) skipped++; else items.push({ h, name }); }
+                for (const [k, name] of seen) { const h = await hashKey(k); if (KEYS[h]) skipped++; else items.push({ h, name }); }
                 importPreview = { items, skipped };
             } catch (e) { alert('Nie udało się odczytać pliku: ' + e.message); }
             render();
@@ -748,22 +813,27 @@
             importBusy = true; render();
             const own = ek(me.email), items = importPreview.items;
             try {
-                for (let i = 0; i < items.length; i += 400) {
-                    const upd = {}; items.slice(i, i + 400).forEach(it => upd[it.h] = { by: own, entryId: 'import' });
-                    await database.ref('indicators/people').update(upd);
+                for (let i = 0; i < items.length; i += 200) {
+                    const upd = {};
+                    items.slice(i, i + 200).forEach(it => {
+                        const id = database.ref('indicators/persons').push().key;
+                        upd['persons/' + id] = { name: it.name, tag: '', createdBy: own, createdAt: firebase.database.ServerValue.TIMESTAMP, imported: true };
+                        upd['personKeys/' + it.h] = id;
+                    });
+                    await database.ref('indicators').update(upd);
                 }
                 alert('Zaimportowano ' + items.length + ' osób.'); importPreview = null;
             } catch (e) { alert('Błąd importu (część osób mogła się zapisać, ponów import): ' + e.message); }
             importBusy = false; render();
         }
         function importView() {
-            const p = importPreview, total = Object.keys(PEOPLE).length;
+            const p = importPreview, total = Object.keys(PERSONS).length;
             return `<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 max-w-3xl">
                 <h2 class="font-bold text-gray-800 mb-1">Import osób obsłużonych wcześniej</h2>
-                <p class="text-sm text-gray-600 mb-3">Wgraj plik Excel (.xlsx, .xls) lub .csv. Pierwsza kolumna to imię i nazwisko (albo imię w A, nazwisko w B). Te osoby nie będą mogły dostać „Nowy PESEL”. W bazie zapisują się tylko skróty, nie nazwiska. Duplikaty są pomijane.</p>
-                <p class="text-xs text-gray-500 mb-3">Aktualnie w indeksie: <b>${total}</b> osób.</p>
+                <p class="text-sm text-gray-600 mb-3">Wgraj plik Excel (.xlsx, .xls) lub .csv. Pierwsza kolumna to imię i nazwisko (albo imię w A, nazwisko w B). Te osoby trafią do rejestru, więc ich pierwszy wpis nie policzy się jako „Nowy PESEL”. Duplikaty są pomijane.</p>
+                <p class="text-xs text-gray-500 mb-3">${regOk() ? `Aktualnie w rejestrze: <b>${total}</b> osób.` : '<span class="text-red-600">Rejestr osób jest niedostępny. Sprawdź reguły Firebase i listę indicators/staff.</span>'}</p>
                 <input id="archFile" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="readArchive(this.files[0]);this.value=''">
-                <button class="btn btn-ghost" onclick="$('archFile').click()" ${importBusy ? 'disabled' : ''}><i data-lucide="upload" class="w-4 h-4"></i> Wybierz plik</button>
+                <button class="btn btn-ghost" onclick="$('archFile').click()" ${importBusy || !regOk() ? 'disabled' : ''}><i data-lucide="upload" class="w-4 h-4"></i> Wybierz plik</button>
                 ${p ? `<div class="mt-4 border border-gray-200 rounded-xl p-3 bg-gray-50"><p class="text-sm">Do dodania: <b>${p.items.length}</b>${p.skipped ? ` · pominięto duplikaty: <b>${p.skipped}</b>` : ''}</p>
                     ${p.items.length ? `<p class="text-xs text-gray-500 mt-2 max-h-40 overflow-auto">${p.items.slice(0, 60).map(i => esc(i.name)).join(', ')}${p.items.length > 60 ? ` … +${p.items.length - 60}` : ''}</p>` : ''}
                     <div class="flex gap-2 mt-3"><button class="btn btn-primary" onclick="confirmImport()" ${importBusy || !p.items.length ? 'disabled' : ''}>${importBusy ? 'Importuję…' : `Zatwierdź import (${p.items.length})`}</button>
@@ -792,7 +862,7 @@
             employees().forEach(em => {
                 entriesFor(em).filter(e => (e.date || '').startsWith(year)).sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(e => {
                     const d = entryDelta(e);
-                    lines.push([nameOf(em), e.scope === 'ogol' ? 'Ogólnopolska' : 'Ośrodek', e.date, e.ozn, e.oozn, d.newPesel ? 'tak' : 'nie', d.porada, d.instruktaz, d.szkolenie, d.testowanie, d.kontakt, d.technologia, d.rentManual + d.rentOgol, e.przedmiot || e.przedmiotWniosku || '', e.note || '']);
+                    lines.push([nameOf(em), e.scope === 'ogol' ? 'Ogólnopolska' : 'Ośrodek', e.date, entNames(e).ozn, entNames(e).oozn, d.newPesel ? 'tak' : 'nie', d.porada, d.instruktaz, d.szkolenie, d.testowanie, d.kontakt, d.technologia, d.rentManual + d.rentOgol, e.przedmiot || e.przedmiotWniosku || '', e.note || '']);
                 });
                 rentalsFor(em).filter(r => (r.rentedAt || '').startsWith(year)).forEach(r =>
                     lines.push([nameOf(em), 'Katalog', r.rentedAt, '', r.beneficiary, '', '', '', '', '', '', '', 1, r.itemName + ' ' + r.deviceCode, r.active ? 'wypożyczone' : 'zwrócone ' + r.returnedAt]));
