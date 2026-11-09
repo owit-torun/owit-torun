@@ -556,23 +556,26 @@
         function entriesTable(email, scope, readOnly) {
             const list = entriesFor(email).filter(e => (e.scope || 'osit') === scope && (e.date || '').startsWith(year)).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
             const isO = scope === 'osit';
+            const _gs = beneficiaryGroups(email), _as = assignRentals(email, _gs).assigned, rentBy = new Map();
+            _gs.forEach(g => { const t = (_as.get(g.key) || []).length + g.sum.rentManual + g.sum.rentOgol, c = (_as.get(g.key) || []).length; g.entries.forEach(e => rentBy.set(e.id, { t, c, m: g.sum.rentManual + g.sum.rentOgol })); });
+            const rtd = (e) => { const r = rentBy.get(e.id); return `<td title="${r ? `z katalogu ${r.c} + ręcznie ${r.m}` : ''}">${r && r.t ? `<b>${r.t}</b> <span class="text-gray-400 text-xs">(${r.c}+${r.m})</span>` : '<span class="text-gray-300">–</span>'}</td>`; };
             const title = isO ? 'Beneficjenci – Ośrodek Wsparcia i Testów' : 'Beneficjenci – Wypożyczalnia ogólnopolska';
             const head = isO
-                ? '<th>Data</th><th>OzN</th><th>OOzN</th><th>Nowy PESEL</th><th>Porada</th><th>Instruktaż</th><th>Szkolenie</th><th>Testowanie</th><th>Wypożyczenie (ręcznie)</th><th>Przedmiot / inna czynność</th>'
-                : '<th>Data</th><th>OzN</th><th>OOzN</th><th>Nowy PESEL</th><th>Porada</th><th>Instruktaż</th><th>Kontakt</th><th>Zaproponowana technologia</th><th>Przedmiot wniosku</th><th>Wypożyczenie</th>';
+                ? '<th>Data</th><th>OzN</th><th>OOzN</th><th>Nowy PESEL</th><th>Porada</th><th>Instruktaż</th><th>Szkolenie</th><th>Testowanie</th><th>Wypożyczenie (ręcznie)</th><th>Wypożyczenia łącznie<br>(katalog+ręcznie)</th><th>Przedmiot / inna czynność</th>'
+                : '<th>Data</th><th>OzN</th><th>OOzN</th><th>Nowy PESEL</th><th>Porada</th><th>Instruktaż</th><th>Kontakt</th><th>Zaproponowana technologia</th><th>Przedmiot wniosku</th><th>Wypożyczenie</th><th>Wypożyczenia łącznie<br>(katalog+ręcznie)</th>';
             const rows = list.map(e => isO
                 ? `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(entNames(e).ozn)}</td><td>${esc(entNames(e).oozn)}</td><td>${yes(e.newPesel)}</td>
                     <td>${cnt(e.poradaOzn, e.poradaOozn)}</td><td>${cnt(e.instruktazOzn, e.instruktazOozn)}</td><td>${cnt(e.szkolenieOzn, e.szkolenieOozn)}</td><td>${cnt(e.testowanieOzn, e.testowanieOozn)}</td>
-                    <td>${num(e.wypozyczenie)}</td><td class="text-xs text-gray-600 max-w-[16rem]">${esc(e.przedmiot)}${e.inna ? `<br><i>${esc(e.inna)}</i>` : ''}${e.note ? `<br><span class="text-gray-400">${esc(e.note)}</span>` : ''}</td>${rowActions(e.id, scope, readOnly)}</tr>`
+                    <td>${num(e.wypozyczenie)}</td>${rtd(e)}<td class="text-xs text-gray-600 max-w-[16rem]">${esc(e.przedmiot)}${e.inna ? `<br><i>${esc(e.inna)}</i>` : ''}${e.note ? `<br><span class="text-gray-400">${esc(e.note)}</span>` : ''}</td>${rowActions(e.id, scope, readOnly)}</tr>`
                 : `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(entNames(e).ozn)}</td><td>${esc(entNames(e).oozn)}</td><td>${yes(e.newPesel)}</td>
                     <td>${num(e.porada)}</td><td>${num(e.instruktaz)}</td><td>${num(e.kontakt)}</td><td>${num(e.technologia)}</td>
-                    <td class="text-xs text-gray-600">${esc(e.przedmiotWniosku)}${e.note ? `<br><span class="text-gray-400">${esc(e.note)}</span>` : ''}</td><td>${yes(e.wypozyczenieTak)}</td>${rowActions(e.id, scope, readOnly)}</tr>`).join('');
+                    <td class="text-xs text-gray-600">${esc(e.przedmiotWniosku)}${e.note ? `<br><span class="text-gray-400">${esc(e.note)}</span>` : ''}</td><td>${yes(e.wypozyczenieTak)}</td>${rtd(e)}${rowActions(e.id, scope, readOnly)}</tr>`).join('');
             const tot = { newPesel: 0, porada: 0, instruktaz: 0, szkolenie: 0, testowanie: 0, kontakt: 0, technologia: 0, rentManual: 0, rentOgol: 0 };
             list.forEach(e => { const d = entryDelta(e); for (const k in tot) tot[k] += d[k] || 0; });
             const st = computeStats(email), tn = (v) => `<td class="font-bold bg-gray-50">${v}</td>`;
             const foot = isO
-                ? `<tfoot><tr><td class="font-bold bg-gray-50" colspan="3">Razem</td>${tn(tot.newPesel)}${tn(tot.porada)}${tn(tot.instruktaz)}${tn(tot.szkolenie)}${tn(tot.testowanie)}${tn(tot.rentManual)}<td class="bg-gray-50"></td></tr></tfoot>`
-                : `<tfoot><tr><td class="font-bold bg-gray-50" colspan="3">Razem</td>${tn(tot.newPesel)}${tn(tot.porada)}${tn(tot.instruktaz)}${tn(tot.kontakt)}${tn(tot.technologia)}<td class="bg-gray-50"></td>${tn(tot.rentOgol)}</tr></tfoot>`;
+                ? `<tfoot><tr><td class="font-bold bg-gray-50" colspan="3">Razem</td>${tn(tot.newPesel)}${tn(tot.porada)}${tn(tot.instruktaz)}${tn(tot.szkolenie)}${tn(tot.testowanie)}${tn(tot.rentManual)}<td class="bg-gray-50"></td><td class="bg-gray-50"></td></tr></tfoot>`
+                : `<tfoot><tr><td class="font-bold bg-gray-50" colspan="3">Razem</td>${tn(tot.newPesel)}${tn(tot.porada)}${tn(tot.instruktaz)}${tn(tot.kontakt)}${tn(tot.technologia)}<td class="bg-gray-50"></td>${tn(tot.rentOgol)}<td class="bg-gray-50"></td></tr></tfoot>`;
             const rentSum = `<p class="text-sm rounded-lg bg-green-50 border border-green-100 text-green-900 px-3 py-2 mb-3"><b>Wypożyczenia łącznie w ${year}: ${st.wypozyczenie}</b> <span class="text-green-800">(z katalogu ${st.rentAuto} + ręcznie ${st.rentManual} + ogólnopolskie ${st.rentOgol})</span></p>`;
             return `<div class="flex flex-wrap items-center justify-between gap-2 mb-3"><h2 class="font-bold text-gray-800">${title} <span class="text-gray-400 font-normal text-sm">(${list.length})</span></h2>${addBtn('Dodaj beneficjenta', scope, readOnly)}</div>
                 ${rentSum}${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr>${head}${readOnly ? '' : '<th class="act no-print"></th>'}</tr></thead><tbody>${rows}</tbody>${foot}</table></div>`
