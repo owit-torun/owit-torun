@@ -825,7 +825,21 @@
                     <div class="flex gap-2 no-print"><button class="btn btn-ghost" onclick="exportCsv()"><i data-lucide="download" class="w-4 h-4"></i> Eksport CSV</button>
                     <button class="btn btn-ghost" onclick="window.print()"><i data-lucide="printer" class="w-4 h-4"></i> Drukuj</button></div></div>
                 ${historyError ? '<p class="text-sm bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-3 mb-3">Nie udało się wczytać historii zwrotów – wypożyczenia liczone tylko z aktywnych.</p>' : ''}
-                <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Pracownik</th>${INDICATORS.map(i => `<th>${i.label}</th>`).join('')}<th>Pozostałe</th></tr></thead><tbody>${rows}${total}</tbody></table></div></div>`;
+                <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Pracownik</th>${INDICATORS.map(i => `<th>${i.label}</th>`).join('')}<th>Pozostałe</th></tr></thead><tbody>${rows}${total}</tbody></table></div></div>${targetsEditor(emps)}`;
+        }
+        // Edycja wymaganych wskaźników wszystkich pracowników naraz (admin)
+        function targetsEditor(emps) {
+            const trs = emps.map(em => { const t = targetsFor(em);
+                return `<tr><td class="font-semibold whitespace-nowrap">${esc(nameOf(em))}</td>${INDICATORS.map(i => `<td><input class="fld text-center !w-20" aria-label="${esc(nameOf(em))}: ${i.label}" name="${ek(em)}__${i.key}" type="number" min="0" step="1" value="${t[i.key]}"></td>`).join('')}</tr>`; }).join('');
+            return `<details class="mt-4 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 no-print"><summary class="cursor-pointer font-semibold text-sm text-gray-700">Docelowe wskaźniki ${year} – edycja dla każdego pracownika</summary>
+                <form class="mt-3" onsubmit="saveAllTargets(event)"><div class="overflow-x-auto"><table class="text-sm"><thead><tr><th>Pracownik</th>${INDICATORS.map(i => `<th>${i.label}</th>`).join('')}</tr></thead><tbody>${trs}</tbody></table></div>
+                <div class="flex items-center gap-3 mt-3"><button class="btn btn-primary" type="submit">Zapisz docelowe wskaźniki</button><span id="tgtMsg" class="text-sm text-green-700" role="status"></span></div></form></details>`;
+        }
+        function saveAllTargets(ev) {
+            ev.preventDefault();
+            const f = ev.target, upd = {};
+            employees().forEach(em => INDICATORS.forEach(i => { upd[ek(em) + '/' + year + '/' + i.key] = n(f.elements[ek(em) + '__' + i.key].value); }));
+            database.ref('indicators/targets').update(upd).then(() => { const m = $('tgtMsg'); if (m) m.textContent = 'Zapisano.'; }).catch(e => alert('Błąd zapisu: ' + e.message));
         }
         function teamStats() {
             const m = monthlyStats(employees());
