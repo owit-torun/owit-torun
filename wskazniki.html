@@ -36,6 +36,8 @@
         .tab[aria-selected="true"] { color: #2b7333; border-color: #2b7333; background: #edf9ee; }
         th { text-align: left; font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; color: #6b7280; font-weight: 700; padding: .5rem .6rem; background: #f9fafb; white-space: nowrap; }
         td { padding: .5rem .6rem; border-top: 1px solid #f3f4f6; vertical-align: top; }
+        th.act, td.act { position: sticky; right: 0; background: #fff; box-shadow: -6px 0 6px -6px rgba(0,0,0,.15); }
+        th.act { background: #f9fafb; }
         .bar { height: .6rem; background: #e5e7eb; border-radius: 999px; position: relative; overflow: visible; }
         .bar > i { display: block; height: 100%; border-radius: 999px; }
         .bar > b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #374151; opacity: .55; }
@@ -75,7 +77,7 @@
 
         // ===== KONFIGURACJA =====
         // Konta z dostępem do wskaźników. Kolejni pracownicy: dopisz e-mail do ALLOWED.
-        const ALLOWED = ['admin@owit.pl', 'adrian@owit.pl', 'marcin@owit.pl'];
+        const ALLOWED = ['admin@owit.pl', 'adrian@owit.pl', 'marcin@owit.pl', 'dorota@owit.pl'];
         const ADMINS = ['admin@owit.pl'];
         const NAMES = { 'adrian@owit.pl': 'Adrian Kędzior', 'marcin@owit.pl': 'Marcin Kos' };
         // Wymagane wskaźniki (jak w arkuszu Excel dla Adriana i Marcina). Admin może zmienić per pracownik/rok.
@@ -516,13 +518,15 @@
                             ${hist.length > 5 ? `<button class="text-xs text-green-800 hover:underline no-print" onclick="toggleHist(${gi})">${all ? 'Pokaż mniej' : `Pokaż pełną historię (${hist.length})`}</button>` : ''}</div>
                             ${shown.length ? `<ul class="space-y-1">${shown.map(h => `<li class="text-xs text-gray-600 flex flex-wrap items-center gap-x-2"><span class="text-gray-400 w-20 shrink-0">${fmt(h.date)}</span>${h.html}</li>`).join('')}</ul>` : '<p class="text-xs text-gray-400">Brak historii.</p>'}</div></div>`;
                 }
+                const tile = (v, l, extra = '') => `<div class="rounded-lg border ${v ? 'border-green-200 bg-green-50' : 'border-gray-100 bg-gray-50'} px-2 py-1.5 text-center"><div class="text-lg font-bold leading-tight ${v ? 'text-green-800' : 'text-gray-300'}">${v}</div><div class="text-[0.65rem] uppercase tracking-wide font-semibold text-gray-500">${l}</div>${extra}</div>`;
+                const tiles = [['porada', 'Porady'], ['instruktaz', 'Instruktaże'], ['szkolenie', 'Szkolenia'], ['testowanie', 'Testowania'], ['kontakt', 'Kontakty'], ['technologia', 'Technologie']].map(([k, l]) => tile(s[k], l)).join('')
+                    + tile(rentTotal, 'Wypożyczenia', `<div class="text-[0.65rem] ${active.length ? 'text-amber-700 font-semibold' : 'text-gray-400'}">${active.length ? active.length + ' aktywne' : 'brak aktywnych'}</div>`);
                 return `<div class="border border-gray-200 rounded-xl bg-white overflow-hidden" data-ben="${esc(norm(g.name + ' ' + g.oozn))}">
-                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-                        <button class="flex items-center gap-2 font-bold text-gray-900 text-left min-w-[11rem]" aria-expanded="${open}" onclick="toggleBen(${gi})"><i data-lucide="${open ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4 text-gray-400 shrink-0"></i><span>${nameHtml}</span></button>
-                        <span class="flex gap-1">${badges}</span>
-                        <span class="text-xs text-gray-600 flex-1 min-w-[12rem]">${benSummary(s)}</span>
-                        <span class="text-xs text-gray-500 flex-1 min-w-[12rem]">${rentLine}</span>
-                        <span class="flex gap-2 no-print">${readOnly ? '' : `<button class="btn btn-primary !py-1.5" onclick="openQuickModal(${gi},'porada')">+ Czynność</button>`}<button class="btn btn-ghost !py-1.5" onclick="toggleBen(${gi})">Szczegóły</button></span></div>${detail}</div>`;
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 pt-3">
+                        <button class="flex items-center gap-2 font-bold text-gray-900 text-left" aria-expanded="${open}" onclick="toggleBen(${gi})"><i data-lucide="${open ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4 text-gray-400 shrink-0"></i><span>${nameHtml}</span></button>
+                        <span class="flex flex-wrap gap-1 flex-1">${badges}</span>
+                        <span class="flex gap-2 no-print">${readOnly ? '' : `<button class="btn btn-primary !py-1.5" onclick="openQuickModal(${gi},'porada')">+ Czynność</button>`}<button class="btn btn-ghost !py-1.5" onclick="toggleBen(${gi})">Szczegóły</button></span></div>
+                    <div class="grid grid-cols-4 sm:grid-cols-7 gap-2 px-4 pt-2 pb-3">${tiles}</div>${detail}</div>`;
             }).join('');
             const opts = gs.map(g => `<option value="${esc(g.entries[0].id)}">${esc(g.name)}</option>`).join('');
             const unShown = unOpen ? unassigned : unassigned.slice(0, 3);
@@ -542,7 +546,7 @@
         }
         function rowActions(id, scope, readOnly) {
             if (readOnly) return '';
-            return `<td class="whitespace-nowrap no-print"><button class="p-1.5 text-gray-400 hover:text-green-700" aria-label="Edytuj" onclick="openEntryModal('${scope}','${id}')"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+            return `<td class="act whitespace-nowrap no-print"><button class="p-1.5 text-green-700 hover:text-green-900" aria-label="Edytuj" title="Edytuj" onclick="openEntryModal('${scope}','${id}')"><i data-lucide="pencil" class="w-4 h-4"></i></button>
                 <button class="p-1.5 text-gray-400 hover:text-red-600" aria-label="Usuń" onclick="deleteItem('${scope === 'network' ? 'network' : 'entries'}','${id}')"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>`;
         }
         const cnt = (a, b) => (n(a) + n(b)) ? `<b>${n(a) + n(b)}</b> <span class="text-gray-400 text-xs">(${n(a)}+${n(b)})</span>` : '<span class="text-gray-300">–</span>';
@@ -563,8 +567,15 @@
                 : `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(entNames(e).ozn)}</td><td>${esc(entNames(e).oozn)}</td><td>${yes(e.newPesel)}</td>
                     <td>${num(e.porada)}</td><td>${num(e.instruktaz)}</td><td>${num(e.kontakt)}</td><td>${num(e.technologia)}</td>
                     <td class="text-xs text-gray-600">${esc(e.przedmiotWniosku)}${e.note ? `<br><span class="text-gray-400">${esc(e.note)}</span>` : ''}</td><td>${yes(e.wypozyczenieTak)}</td>${rowActions(e.id, scope, readOnly)}</tr>`).join('');
+            const tot = { newPesel: 0, porada: 0, instruktaz: 0, szkolenie: 0, testowanie: 0, kontakt: 0, technologia: 0, rentManual: 0, rentOgol: 0 };
+            list.forEach(e => { const d = entryDelta(e); for (const k in tot) tot[k] += d[k] || 0; });
+            const st = computeStats(email), tn = (v) => `<td class="font-bold bg-gray-50">${v}</td>`;
+            const foot = isO
+                ? `<tfoot><tr><td class="font-bold bg-gray-50" colspan="3">Razem</td>${tn(tot.newPesel)}${tn(tot.porada)}${tn(tot.instruktaz)}${tn(tot.szkolenie)}${tn(tot.testowanie)}${tn(tot.rentManual)}<td class="bg-gray-50"></td></tr></tfoot>`
+                : `<tfoot><tr><td class="font-bold bg-gray-50" colspan="3">Razem</td>${tn(tot.newPesel)}${tn(tot.porada)}${tn(tot.instruktaz)}${tn(tot.kontakt)}${tn(tot.technologia)}<td class="bg-gray-50"></td>${tn(tot.rentOgol)}</tr></tfoot>`;
+            const rentSum = `<p class="text-sm rounded-lg bg-green-50 border border-green-100 text-green-900 px-3 py-2 mb-3"><b>Wypożyczenia łącznie w ${year}: ${st.wypozyczenie}</b> <span class="text-green-800">(z katalogu ${st.rentAuto} + ręcznie ${st.rentManual} + ogólnopolskie ${st.rentOgol})</span></p>`;
             return `<div class="flex flex-wrap items-center justify-between gap-2 mb-3"><h2 class="font-bold text-gray-800">${title} <span class="text-gray-400 font-normal text-sm">(${list.length})</span></h2>${addBtn('Dodaj beneficjenta', scope, readOnly)}</div>
-                ${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr>${head}${readOnly ? '' : '<th class="no-print"></th>'}</tr></thead><tbody>${rows}</tbody></table></div>`
+                ${rentSum}${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr>${head}${readOnly ? '' : '<th class="act no-print"></th>'}</tr></thead><tbody>${rows}</tbody>${foot}</table></div>`
                     : `<p class="text-gray-400 text-sm py-8 text-center">Brak wpisów w ${year}.</p>`}`;
         }
         function rentalsTable(email) {
@@ -584,13 +595,13 @@
             const list = networkFor(email).filter(e => (e.date || '').startsWith(year)).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
             const rows = list.map(e => `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(e.place)}</td><td>${esc(e.desc)}</td>${rowActions(e.id, 'network', readOnly)}</tr>`).join('');
             return `<div class="flex flex-wrap items-center justify-between gap-2 mb-3"><h2 class="font-bold text-gray-800">Sieć współpracy międzyinstytucjonalnej <span class="text-gray-400 font-normal text-sm">(${list.length})</span></h2>${addBtn('Dodaj wydarzenie', 'network', readOnly)}</div>
-                ${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Data</th><th>Miejsce</th><th>Krótki opis wydarzenia</th>${readOnly ? '' : '<th class="no-print"></th>'}</tr></thead><tbody>${rows}</tbody></table></div>`
+                ${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Data</th><th>Miejsce</th><th>Krótki opis wydarzenia</th>${readOnly ? '' : '<th class="act no-print"></th>'}</tr></thead><tbody>${rows}</tbody></table></div>`
                     : `<p class="text-gray-400 text-sm py-8 text-center">Brak wydarzeń w ${year}.</p>`}`;
         }
 
         // ===== FORMULARZE =====
         function openModal(inner) {
-            $('modalRoot').innerHTML = `<div class="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 backdrop-blur-sm" role="dialog" aria-modal="true" onclick="if(event.target===this)closeModal()">
+            $('modalRoot').innerHTML = `<div class="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
                 <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto border border-gray-100">${inner}</div></div>`;
             icons();
             const f = $('modalRoot').querySelector('input,select,textarea'); if (f) f.focus();
@@ -604,6 +615,7 @@
         // Przy działającym rejestrze „Nowy PESEL” ustala się sam (pierwsza wizyta osoby w OWiT). Checkbox zostaje tylko jako zapas bez rejestru.
         const newPeselField = (label, cur) => (regOk()
                 ? '<p id="newPeselInfo" class="text-sm rounded-lg bg-gray-50 border border-gray-200 px-3 py-2"></p>'
+                    + chk('notNew', 'To nie jest nowy PESEL (osoba była już wcześniej w OWiT)', cur.newPeselOverride)
                 : chk('newPesel', label, cur.newPesel))
             + '<p id="newPeselNote" class="hidden text-xs text-amber-700 -mt-2">Ta osoba jest już w rejestrze. Jeśli to <b>inna osoba o tym samym imieniu i nazwisku</b>, wpisz poniżej dopisek, np. rok urodzenia.</p>'
             + `<div id="tagWrap" class="${cur.oznTag ? '' : 'hidden'}">${inp('oznTag', 'Dopisek rozróżniający imienników (opcjonalnie)', cur.oznTag, 'text', 'maxlength="40" placeholder="np. ur. 1985"')}</div>`;
@@ -630,6 +642,7 @@
                     known = !!pid && !own;
                     info = own ? `Nowy PESEL: ${old.newPesel ? 'tak' : 'nie'} (bez zmian).` : pid ? 'Nowy PESEL: nie. Osoba jest już w rejestrze OWiT.' : 'Nowy PESEL: tak. To pierwsza wizyta tej osoby w OWiT.';
                 }
+                if (f.elements.notNew && f.elements.notNew.checked) info = 'Nowy PESEL: nie (odhaczone ręcznie).';
                 const el = $('newPeselInfo'); if (el) el.textContent = info;
             } else {
                 const box = f.elements.newPesel; if (!box) return;
@@ -714,7 +727,8 @@
                 catch (e) { err.textContent = 'Błąd rejestru osób: ' + e.message; return; }
                 const same = old && (old.personId === r.personId || (!old.personId && personKey(old.ozn || old.oozn, old.oznTag) === personKey(name, data.oznTag)));
                 data.personId = r.personId; data.personRole = data.ozn ? 'ozn' : 'oozn';
-                data.newPesel = r.created || !!(same && old.newPesel);
+                data.newPeselOverride = c('notNew');
+                data.newPesel = !data.newPeselOverride && (r.created || !!(same && old.newPesel));
                 try { await ref.set(data); closeModal(); }
                 catch (e) {
                     err.textContent = 'Błąd zapisu: ' + e.message;
