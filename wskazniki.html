@@ -94,7 +94,7 @@
         // ===== STAN =====
         let me = null, isAdmin = false;
         let year = String(new Date().getFullYear());
-        let DB = { entries: {}, network: {}, targets: {}, links: {} };
+        let DB = { entries: {}, network: {}, targets: {}, links: {}, rentalExcl: {} };
         let inventoryData = {}, historyData = null, historyError = false;
         let tab = 'ben', adminTab = 'team', selectedEmp = null;
         let listeners = [];
@@ -111,6 +111,8 @@
         const todayStr = () => new Date().toISOString().split('T')[0];
         const fmt = (d) => d ? d.split('-').reverse().join('.') : '–';
         const nameOf = (email) => NAMES[email] || email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        // Konto, na którym pracują formularze: pracownik widzi własne dane, admin edytuje dane wybranego pracownika
+        const tgt = () => (isAdmin && selectedEmp) ? selectedEmp : me.email;
         const employees = () => ALLOWED.filter(e => !ADMINS.includes(e));
         const icons = () => { if (window.lucide) lucide.createIcons({ attrs: { 'aria-hidden': 'true' } }); };
 
@@ -176,8 +178,8 @@
             });
             return { assigned, unassigned };
         }
-        function rentalsFor(email) {
-            const em = email.toLowerCase(), out = [];
+        function rentalsFor(email, incl) {
+            const em = email.toLowerCase(), out = [], ex = DB.rentalExcl[ek(em)] || {};
             for (const [dbKey, item] of Object.entries(inventoryData || {})) {
                 Object.values((item && item.rentals) || {}).filter(Boolean).forEach(r => {
                     if ((r.addedBy || '').toLowerCase() === em)
@@ -188,7 +190,12 @@
                 if (h && (h.addedBy || '').toLowerCase() === em)
                     out.push({ key: rk(h), itemName: h.itemName || h.dbKey || '', deviceCode: h.deviceCode || '', beneficiary: h.beneficiaryLastName || '', rentedAt: h.rentedAt || '', returnedAt: h.returnedAt || '', active: false });
             });
-            return out.sort((a, b) => (b.rentedAt || '').localeCompare(a.rentedAt || ''));
+            out.forEach(r => { r.excluded = !!ex[r.key]; });
+            return out.filter(r => incl || !r.excluded).sort((a, b) => (b.rentedAt || '').localeCompare(a.rentedAt || ''));
+        }
+        function toggleExcl(key, on) {
+            const ref = database.ref('indicators/rentalExcl/' + ek(tgt()) + '/' + key);
+            (on ? ref.set(true) : ref.remove()).catch(e => alert('Błąd: ' + e.message));
         }
         // Wkład pojedynczego wpisu we wskaźniki (jak formuły w arkuszu Excel)
         function entryDelta(e) {
@@ -256,11 +263,13 @@
                 listen('indicators/network', v => DB.network = v);
                 listen('indicators/targets', v => DB.targets = v);
                 listen('indicators/links', v => DB.links = v);
+                listen('indicators/rentalExcl', v => DB.rentalExcl = v);
             } else {
                 listen('indicators/entries/' + own, v => DB.entries = { [own]: v });
                 listen('indicators/network/' + own, v => DB.network = { [own]: v });
                 listen('indicators/targets/' + own, v => DB.targets = { [own]: v });
                 listen('indicators/links/' + own, v => DB.links = { [own]: v });
+                listen('indicators/rentalExcl/' + own, v => DB.rentalExcl = { [own]: v });
             }
             listenRegistry();
             listen('inventory', v => inventoryData = v);
@@ -320,7 +329,7 @@
         // ===== AUTH =====
         auth.onAuthStateChanged((user) => {
             stopListeners();
-            DB = { entries: {}, network: {}, targets: {}, links: {} }; historyData = null; PERSONS = {}; KEYS = {}; _regP = _regK = _regErr = false; _migFailed = false; _migDone.clear();
+            DB = { entries: {}, network: {}, targets: {}, links: {}, rentalExcl: {} }; historyData = null; PERSONS = {}; KEYS = {}; _regP = _regK = _regErr = false; _migFailed = false; _migDone.clear();
             me = user && user.email ? { email: user.email.toLowerCase(), uid: user.uid } : null;
             isAdmin = !!me && ADMINS.includes(me.email);
             if (me && ALLOWED.includes(me.email)) {
@@ -405,7 +414,7 @@
             if (tab === 'ben') body = benView(email, readOnly);
             else if (tab === 'osit') body = entriesTable(email, 'osit', readOnly);
             else if (tab === 'ogol') body = entriesTable(email, 'ogol', readOnly);
-            else if (tab === 'rentals') body = rentalsTable(email);
+            else if (tab === 'rentals') body = rentalsTable(email, readOnly);
             else body = networkTable(email, readOnly);
             return indicatorCards(email) + nav + `<div class="bg-white rounded-b-2xl rounded-tr-2xl border border-t-0 border-gray-100 shadow-sm p-4">${body}</div>`;
         }
@@ -463,14 +472,14 @@
                 if (k === 'wypozyczenie') { data.wypozyczenie = cnt; data.przedmiot = f.elements.przedmiot.value.trim(); }
                 else data[k + (f.elements.target.value || 'Ozn')] = cnt;
             } else data[k] = cnt;
-            database.ref('indicators/entries/' + ek(me.email)).push().set(data).then(closeModal).catch(e => { $('formErr').textContent = 'Błąd zapisu: ' + e.message; });
+            database.ref('indicators/entries/' + ek(tgt())).push().set(data).then(closeModal).catch(e => { $('formErr').textContent = 'Błąd zapisu: ' + e.message; });
         }
         function filterBen(v) {
             const q = norm(v);
             document.querySelectorAll('[data-ben]').forEach(el => el.classList.toggle('hidden', !!q && !el.dataset.ben.includes(q)));
         }
         function setLink(rkey, entryId) {
-            const ref = database.ref('indicators/links/' + ek(me.email) + '/' + rkey);
+            const ref = database.ref('indicators/links/' + ek(tgt()) + '/' + rkey);
             (entryId ? ref.set(entryId) : ref.remove()).catch(e => alert('Błąd: ' + e.message));
         }
         // Stan listy beneficjentów: rozwinięte wiersze, pełna historia, lista wypożyczeń bez beneficjenta
@@ -581,17 +590,19 @@
                 ${rentSum}${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr>${head}${readOnly ? '' : '<th class="act no-print"></th>'}</tr></thead><tbody>${rows}</tbody>${foot}</table></div>`
                     : `<p class="text-gray-400 text-sm py-8 text-center">Brak wpisów w ${year}.</p>`}`;
         }
-        function rentalsTable(email) {
-            const all = rentalsFor(email);
+        function rentalsTable(email, readOnly) {
+            const all = rentalsFor(email, true);
             const list = all.filter(r => (r.rentedAt || '').startsWith(year));
+            const counted = list.filter(r => !r.excluded).length;
             const noDate = all.filter(r => !r.rentedAt).length;
             const rows = list.map(r => `<tr><td class="whitespace-nowrap">${fmt(r.rentedAt)}</td><td>${esc(r.itemName)}</td><td>${esc(r.deviceCode)}</td><td>${esc(r.beneficiary)}</td>
-                <td>${r.active ? '<span class="text-amber-700 font-semibold">wypożyczone</span>' : `zwrócone ${fmt(r.returnedAt)}`}</td></tr>`).join('');
-            return `<div class="mb-3"><h2 class="font-bold text-gray-800">Wypożyczenia policzone automatycznie z katalogu <span class="text-gray-400 font-normal text-sm">(${list.length})</span></h2>
-                <p class="text-xs text-gray-500 mt-1">Każde wypożyczenie zarejestrowane w katalogu na to konto liczy się do wskaźnika „Wypożyczenie”. Nic nie trzeba wpisywać.</p></div>
+                <td>${r.active ? '<span class="text-amber-700 font-semibold">wypożyczone</span>' : `zwrócone ${fmt(r.returnedAt)}`}${r.excluded ? ' <span class="text-xs rounded-full bg-red-50 text-red-700 px-2 py-0.5">nie liczy się</span>' : ''}</td>
+                ${readOnly ? '' : `<td class="no-print whitespace-nowrap"><button class="text-xs ${r.excluded ? 'text-green-700' : 'text-red-600'} hover:underline" onclick="toggleExcl('${r.key}',${!r.excluded})">${r.excluded ? 'Przywróć do wskaźnika' : 'Nie licz do wskaźnika'}</button></td>`}</tr>`).join('');
+            return `<div class="mb-3"><h2 class="font-bold text-gray-800">Wypożyczenia policzone automatycznie z katalogu <span class="text-gray-400 font-normal text-sm">(${counted}${counted !== list.length ? ' z ' + list.length : ''})</span></h2>
+                <p class="text-xs text-gray-500 mt-1">Każde wypożyczenie zarejestrowane w katalogu na to konto liczy się do wskaźnika „Wypożyczenie”. Nic nie trzeba wpisywać. Wypożyczenie wpisane przez pomyłkę i „zwrócone” w katalogu też trafia tu jako wypożyczenie. Administrator może je wyłączyć ze wskaźnika.</p></div>
                 ${historyError ? '<p class="text-sm bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-3 mb-3">Nie udało się wczytać historii zwrotów (brak uprawnień w bazie) – liczone są tylko aktualnie wypożyczone urządzenia.</p>' : ''}
                 ${noDate ? `<p class="text-xs text-gray-500 mb-3">${noDate} starszych wypożyczeń bez daty nie jest liczonych do żadnego roku.</p>` : ''}
-                ${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Data wypożyczenia</th><th>Sprzęt</th><th>Kod</th><th>Beneficjent</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`
+                ${list.length ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Data wypożyczenia</th><th>Sprzęt</th><th>Kod</th><th>Beneficjent</th><th>Status</th>${readOnly ? '' : '<th class="no-print"></th>'}</tr></thead><tbody>${rows}</tbody></table></div>`
                     : `<p class="text-gray-400 text-sm py-8 text-center">Brak wypożyczeń w ${year}.</p>`}`;
         }
         function networkTable(email, readOnly) {
@@ -626,7 +637,7 @@
         function nameSuggestions() {
             const seen = new Map();
             const add = (v) => { const k = nameKey(v); if (k && !seen.has(k)) seen.set(k, v.trim()); };
-            if (regOk()) Object.values(PERSONS).forEach(p => add(p.name)); else entriesFor(me.email).forEach(e => { add(e.ozn); add(e.oozn); });
+            if (regOk()) Object.values(PERSONS).forEach(p => add(p.name)); else entriesFor(tgt()).forEach(e => { add(e.ozn); add(e.oozn); });
             return [...seen.values()].sort((a, b) => a.localeCompare(b, 'pl'));
         }
         let _npSeq = 0;
@@ -634,7 +645,7 @@
             if (!f.elements.ozn) return;
             const seq = ++_npSeq, tag = f.elements.oznTag ? f.elements.oznTag.value.trim() : '';
             const name = f.elements.ozn.value.trim() || f.elements.oozn.value.trim(), key = personKey(name, tag);
-            const date = f.elements.date ? f.elements.date.value : '', old = id ? entriesFor(me.email).find(e => e.id === id) : null;
+            const date = f.elements.date ? f.elements.date.value : '', old = id ? entriesFor(tgt()).find(e => e.id === id) : null;
             let known = false, info = '';
             if (regOk()) {
                 if (!key) info = 'Nowy PESEL ustali się automatycznie po wpisaniu osoby.';
@@ -649,7 +660,7 @@
                 const el = $('newPeselInfo'); if (el) el.textContent = info;
             } else {
                 const box = f.elements.newPesel; if (!box) return;
-                known = !!key && entriesFor(me.email).some(e => e.id !== id && personKey(e.ozn || e.oozn, e.oznTag) === key && (!date || (e.date || '') <= date));
+                known = !!key && entriesFor(tgt()).some(e => e.id !== id && personKey(e.ozn || e.oozn, e.oznTag) === key && (!date || (e.date || '') <= date));
                 if (known) box.checked = false;
                 box.disabled = known;
             }
@@ -659,7 +670,7 @@
         }
         function openEntryModal(scope, id) {
             const isNet = scope === 'network';
-            const cur = id ? (isNet ? networkFor(me.email) : entriesFor(me.email)).find(e => e.id === id) || {} : {};
+            const cur = id ? (isNet ? networkFor(tgt()) : entriesFor(tgt())).find(e => e.id === id) || {} : {};
             if (id && !isNet && cur.id) { const nn = entNames(cur), pp = personOf(cur); cur.ozn = nn.ozn; cur.oozn = nn.oozn; if (pp) cur.oznTag = pp.tag || ''; }
             const titles = { osit: 'Beneficjent – Ośrodek Wsparcia i Testów', ogol: 'Beneficjent – Wypożyczalnia ogólnopolska', network: 'Sieć współpracy – wydarzenie' };
             let fields = '';
@@ -703,7 +714,7 @@
             const date = g('date'), err = $('formErr');
             if (!date) { err.textContent = 'Podaj datę.'; return; }
             let data, path;
-            const base = 'indicators/' + (scope === 'network' ? 'network' : 'entries') + '/' + ek(me.email);
+            const base = 'indicators/' + (scope === 'network' ? 'network' : 'entries') + '/' + ek(tgt());
             if (scope === 'network') {
                 if (!g('place') && !g('desc')) { err.textContent = 'Uzupełnij miejsce lub opis.'; return; }
                 data = { date, place: g('place'), desc: g('desc') };
@@ -720,7 +731,7 @@
             }
             data.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             const ref = id ? database.ref(base + '/' + id) : database.ref(base).push();
-            const old = id && scope !== 'network' ? entriesFor(me.email).find(e => e.id === id) : null;
+            const old = id && scope !== 'network' ? entriesFor(tgt()).find(e => e.id === id) : null;
             const write = () => ref.set(data).then(closeModal).catch(e => { err.textContent = 'Błąd zapisu: ' + e.message; });
             if (scope === 'network' || !regOk()) { write(); return; }
             // Z rejestrem: osoba jest znajdowana lub tworzona atomowo, a „Nowy PESEL” dostaje tylko ten, kto ją utworzył
@@ -741,8 +752,8 @@
         }
         function deleteItem(kind, id) {
             if (!confirm('Na pewno usunąć ten wpis?')) return;
-            const old = kind === 'entries' ? entriesFor(me.email).find(e => e.id === id) : null;
-            database.ref('indicators/' + kind + '/' + ek(me.email) + '/' + id).remove().then(() => {
+            const old = kind === 'entries' ? entriesFor(tgt()).find(e => e.id === id) : null;
+            database.ref('indicators/' + kind + '/' + ek(tgt()) + '/' + id).remove().then(() => {
                 const pr = old && personOf(old);
                 if (!pr || pr.firstEntryId !== id) return;
                 const others = Object.values(DB.entries).some(o => Object.entries(o || {}).some(([i, e]) => i !== id && e.personId === old.personId));
@@ -898,8 +909,8 @@
                 <form class="grid grid-cols-2 md:grid-cols-6 gap-3 mt-3 items-end" onsubmit="saveTargets(event)">
                 ${INDICATORS.map(i => `<div><label class="lbl" for="t_${i.key}">${i.label}</label><input class="fld" id="t_${i.key}" name="${i.key}" type="number" min="0" value="${t[i.key]}"></div>`).join('')}
                 <button class="btn btn-primary justify-center" type="submit">Zapisz</button></form></details>`;
-            return `<div class="flex flex-wrap items-center gap-3 mb-5 no-print"><span class="text-sm text-gray-500">Pracownik:</span>${sel}<span class="text-xs text-gray-400">podgląd tylko do odczytu</span></div>
-                ${employeeView(selectedEmp, true)}${tform}`;
+            return `<div class="flex flex-wrap items-center gap-3 mb-5 no-print"><span class="text-sm text-gray-500">Pracownik:</span>${sel}<span class="text-xs text-gray-400">administrator może edytować i usuwać wpisy pracownika</span></div>
+                ${employeeView(selectedEmp, false)}${tform}`;
         }
         function saveTargets(ev) {
             ev.preventDefault();

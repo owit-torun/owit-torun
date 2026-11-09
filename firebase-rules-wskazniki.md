@@ -9,6 +9,7 @@ Bez nich dostęp zależy od dotychczasowych reguł bazy.
 "indicators": {
   "entries": {
     ".read": "auth != null && auth.token.email == 'admin@owit.pl'",
+    ".write": "auth != null && auth.token.email == 'admin@owit.pl'",
     "$key": {
       ".read": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')",
       ".write": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')"
@@ -16,6 +17,7 @@ Bez nich dostęp zależy od dotychczasowych reguł bazy.
   },
   "network": {
     ".read": "auth != null && auth.token.email == 'admin@owit.pl'",
+    ".write": "auth != null && auth.token.email == 'admin@owit.pl'",
     "$key": {
       ".read": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')",
       ".write": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')"
@@ -23,10 +25,16 @@ Bez nich dostęp zależy od dotychczasowych reguł bazy.
   },
   "links": {
     ".read": "auth != null && auth.token.email == 'admin@owit.pl'",
+    ".write": "auth != null && auth.token.email == 'admin@owit.pl'",
     "$key": {
       ".read": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')",
       ".write": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')"
     }
+  },
+  "rentalExcl": {
+    ".read": "auth != null && auth.token.email == 'admin@owit.pl'",
+    ".write": "auth != null && auth.token.email == 'admin@owit.pl'",
+    "$key": { ".read": "auth != null && $key == auth.token.email.replace('@','_').replace('.','_')" }
   },
   "staff": {
     "$k": { ".read": "auth != null && $k == auth.token.email.replace('@','_').replace('.','_').replace('.','_')" }
@@ -51,6 +59,14 @@ Bez nich dostęp zależy od dotychczasowych reguł bazy.
   }
 }
 ```
+
+## Edycja przez administratora
+
+Admin (`admin@owit.pl`) edytuje i usuwa wpisy każdego pracownika (węzły `entries`, `network`, `links`) oraz wyłącza
+wypożyczenia z katalogu ze wskaźnika (`rentalExcl/{konto}/{wypożyczenie}: true`). Wymaga to powyższych reguł `.write`
+na poziomie tych węzłów. Wyłączenie nie zmienia historii w katalogu, tylko przestaje liczyć wypożyczenie do wskaźnika
+(można je przywrócić). Wypożyczenie wpisane przez pomyłkę i „zwrócone” w katalogu trafia do historii, więc liczy się,
+dopóki admin go nie wyłączy.
 
 ## Rejestr osób (`staff`, `persons`, `personKeys`)
 
