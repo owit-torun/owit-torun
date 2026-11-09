@@ -347,11 +347,12 @@
 
         // ===== RENDER GŁÓWNY =====
         function render() {
-            const root = $('root');
+            const root = $('root'), a = document.activeElement, keep = a && a.id === 'benSearch' ? a.selectionStart : null;
             if (!me) { root.innerHTML = loginView(); }
             else if (!ALLOWED.includes(me.email)) { root.innerHTML = deniedView(); }
             else { root.innerHTML = appView(); }
             icons();
+            if (keep !== null) { const el = $('benSearch'); if (el) { el.focus(); el.setSelectionRange(keep, keep); } }
         }
         function loginView() {
             return `<div class="max-w-sm mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mt-6">
@@ -450,7 +451,7 @@
                         <optgroup label="Ośrodek Wsparcia i Testów">${optO}</optgroup><optgroup label="Wypożyczalnia ogólnopolska">${optG}</optgroup></select></div>
                         ${inp('date', 'Data', todayStr(), 'date', 'required')}</div>
                     <div class="grid grid-cols-2 gap-3"><div><label class="lbl" for="q_count">Liczba</label><input class="fld" id="q_count" name="count" type="number" min="1" value="1"></div>
-                        <div id="q_who" ${g.oozn && hasO ? '' : 'class="hidden"'}><label class="lbl" for="q_target">Dla</label><select class="fld" id="q_target" name="target"><option value="Ozn">OzN${g.ozn ? ' – ' + esc(g.ozn) : ''}</option>${g.oozn ? `<option value="Oozn">OOzN – ${esc(g.oozn)}</option>` : ''}</select></div></div>
+                        </div>
                     <div id="q_item" class="hidden">${inp('przedmiot', 'Przedmiot wypożyczenia', '')}</div>
                     <div><label class="lbl" for="q_note">Notatka (opcjonalnie)</label><input class="fld" id="q_note" name="note"></div>
                     <p id="formErr" class="text-sm text-red-600" role="alert"></p></div>
@@ -460,8 +461,6 @@
         function quickToggle(f) {
             const [sc, k] = f.elements.type.value.split(':');
             $('q_item').classList.toggle('hidden', k !== 'wypozyczenie');
-            const who = $('q_who'), hasOozn = f.elements.target && f.elements.target.options.length > 1;
-            who.classList.toggle('hidden', !(sc === 'osit' && k !== 'wypozyczenie' && hasOozn));
         }
         function saveQuick(ev, idx) {
             ev.preventDefault();
@@ -470,11 +469,13 @@
             const data = { scope, date: f.elements.date.value, ozn: g.ozn, oozn: g.oozn, oznTag: g.oznTag || '', ...(g.personId ? { personId: g.personId, personRole: g.role } : {}), newPesel: false, note: f.elements.note.value.trim(), updatedAt: firebase.database.ServerValue.TIMESTAMP };
             if (scope === 'osit') {
                 if (k === 'wypozyczenie') { data.wypozyczenie = cnt; data.przedmiot = f.elements.przedmiot.value.trim(); }
-                else data[k + (f.elements.target.value || 'Ozn')] = cnt;
+                else data[k + (g.oozn ? 'Oozn' : 'Ozn')] = cnt;
             } else data[k] = cnt;
             database.ref('indicators/entries/' + ek(tgt())).push().set(data).then(closeModal).catch(e => { $('formErr').textContent = 'Błąd zapisu: ' + e.message; });
         }
+        let benQuery = '';
         function filterBen(v) {
+            benQuery = v;
             const q = norm(v);
             document.querySelectorAll('[data-ben]').forEach(el => el.classList.toggle('hidden', !!q && !el.dataset.ben.includes(q)));
         }
@@ -530,7 +531,7 @@
                 const tile = (v, l, extra = '') => `<div class="rounded-lg border ${v ? 'border-green-200 bg-green-50' : 'border-gray-100 bg-gray-50'} px-2 py-1.5 text-center"><div class="text-lg font-bold leading-tight ${v ? 'text-green-800' : 'text-gray-300'}">${v}</div><div class="text-[0.65rem] uppercase tracking-wide font-semibold text-gray-500">${l}</div>${extra}</div>`;
                 const tiles = [['porada', 'Porady'], ['instruktaz', 'Instruktaże'], ['szkolenie', 'Szkolenia'], ['testowanie', 'Testowania'], ['kontakt', 'Kontakty'], ['technologia', 'Technologie']].map(([k, l]) => tile(s[k], l)).join('')
                     + tile(rentTotal, 'Wypożyczenia', `<div class="text-[0.65rem] ${active.length ? 'text-amber-700 font-semibold' : 'text-gray-400'}">${active.length ? active.length + ' aktywne' : 'brak aktywnych'}</div>`);
-                return `<div class="border border-gray-200 rounded-xl bg-white overflow-hidden" data-ben="${esc(norm(g.name + ' ' + g.oozn))}">
+                return `<div class="border border-gray-200 rounded-xl bg-white overflow-hidden${benQuery && !norm(g.name + ' ' + g.oozn).includes(norm(benQuery)) ? ' hidden' : ''}" data-ben="${esc(norm(g.name + ' ' + g.oozn))}">
                     <div class="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 pt-3">
                         <button class="flex items-center gap-2 font-bold text-gray-900 text-left" aria-expanded="${open}" onclick="toggleBen(${gi})"><i data-lucide="${open ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4 text-gray-400 shrink-0"></i><span>${nameHtml}</span></button>
                         <span class="flex flex-wrap gap-1 flex-1">${badges}</span>
@@ -547,7 +548,7 @@
                     ${readOnly || !gs.length ? '' : `<select class="fld !w-auto !py-1 text-xs no-print" aria-label="Przypisz do beneficjenta" onchange="if(this.value)setLink('${r.key}',this.value)"><option value="">Przypisz do…</option>${opts}</select>`}</li>`).join('')}</ul></div>` : '';
             const stat = `<span class="text-xs text-gray-500">${gs.length} beneficjentów · ${gs.length ? (([...assigned.values()].reduce((a, l) => a + l.length, 0) + gs.reduce((a, g) => a + g.sum.rentManual + g.sum.rentOgol, 0)) / gs.length).toFixed(1) : 0} wypożyczeń na osobę</span>`;
             return `<div class="flex flex-wrap items-center justify-between gap-2 mb-4"><div class="flex flex-wrap items-center gap-3"><h2 class="font-bold text-gray-800">Beneficjenci ${year}</h2>${stat}</div>
-                <div class="flex flex-wrap gap-2 no-print"><input type="search" class="fld !w-48" placeholder="Szukaj beneficjenta…" aria-label="Szukaj beneficjenta" oninput="filterBen(this.value)">${addBtn('Dodaj (Ośrodek)', 'osit', readOnly)}${addBtn('Dodaj (ogólnopolska)', 'ogol', readOnly)}</div></div>
+                <div class="flex flex-wrap gap-2 no-print"><input id="benSearch" type="search" value="${esc(benQuery)}" class="fld !w-48" placeholder="Szukaj beneficjenta…" aria-label="Szukaj beneficjenta" oninput="filterBen(this.value)">${addBtn('Dodaj (Ośrodek)', 'osit', readOnly)}${addBtn('Dodaj (ogólnopolska)', 'ogol', readOnly)}</div></div>
                 ${un}${gs.length ? `<div class="space-y-2">${rows}</div>` : `<p class="text-gray-400 text-sm py-8 text-center">Brak beneficjentów w ${year}. Dodaj pierwszego przyciskiem powyżej.</p>`}`;
         }
         function addBtn(label, scope, readOnly) {
@@ -574,7 +575,7 @@
                 : '<th>Data</th><th>OzN</th><th>OOzN</th><th>Nowy PESEL</th><th>Porada</th><th>Instruktaż</th><th>Kontakt</th><th>Zaproponowana technologia</th><th>Przedmiot wniosku</th><th>Wypożyczenie</th><th>Wypożyczenia łącznie<br>(katalog+ręcznie)</th>';
             const rows = list.map(e => isO
                 ? `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(entNames(e).ozn)}</td><td>${esc(entNames(e).oozn)}</td><td>${yes(e.newPesel)}</td>
-                    <td>${cnt(e.poradaOzn, e.poradaOozn)}</td><td>${cnt(e.instruktazOzn, e.instruktazOozn)}</td><td>${cnt(e.szkolenieOzn, e.szkolenieOozn)}</td><td>${cnt(e.testowanieOzn, e.testowanieOozn)}</td>
+                    <td>${num(n(e.poradaOzn) + n(e.poradaOozn))}</td><td>${num(n(e.instruktazOzn) + n(e.instruktazOozn))}</td><td>${num(n(e.szkolenieOzn) + n(e.szkolenieOozn))}</td><td>${num(n(e.testowanieOzn) + n(e.testowanieOozn))}</td>
                     <td>${num(e.wypozyczenie)}</td>${rtd(e)}<td class="text-xs text-gray-600 max-w-[16rem]">${esc(e.przedmiot)}${e.inna ? `<br><i>${esc(e.inna)}</i>` : ''}${e.note ? `<br><span class="text-gray-400">${esc(e.note)}</span>` : ''}</td>${rowActions(e.id, scope, readOnly)}</tr>`
                 : `<tr><td class="whitespace-nowrap">${fmt(e.date)}</td><td>${esc(entNames(e).ozn)}</td><td>${esc(entNames(e).oozn)}</td><td>${yes(e.newPesel)}</td>
                     <td>${num(e.porada)}</td><td>${num(e.instruktaz)}</td><td>${num(e.kontakt)}</td><td>${num(e.technologia)}</td>
@@ -678,15 +679,15 @@
                 fields = `${inp('date', 'Data', cur.date || todayStr(), 'date', 'required')}${inp('place', 'Miejsce', cur.place)}
                     <div><label class="lbl" for="f_desc">Krótki opis wydarzenia</label><textarea class="fld" id="f_desc" name="desc" rows="3">${esc(cur.desc)}</textarea></div>`;
             } else if (scope === 'osit') {
-                const row = (label, k) => `<tr><td class="font-semibold whitespace-nowrap pr-3">${label}</td><td>${numInp(k + 'Ozn', cur[k + 'Ozn'])}</td><td>${numInp(k + 'Oozn', cur[k + 'Oozn'])}</td></tr>`;
+                const row = (label, k) => `<tr><td class="font-semibold whitespace-nowrap pr-3">${label}</td><td>${numInp(k, n(cur[k + 'Ozn']) + n(cur[k + 'Oozn']))}</td></tr>`;
                 fields = `${inp('date', 'Data', cur.date || todayStr(), 'date', 'required')}
                     <div class="grid sm:grid-cols-2 gap-3">${inp('ozn', 'Imię i nazwisko OzN', cur.ozn, 'text', 'list="dl_names" autocomplete="off"')}${inp('oozn', 'Imię i nazwisko OOzN', cur.oozn, 'text', 'list="dl_names" autocomplete="off"')}</div>
                     ${newPeselField('Nowy PESEL (pierwszy raz w OWiT)', cur)}
-                    <table class="w-full text-sm"><thead><tr><th></th><th class="text-center">dla OzN</th><th class="text-center">dla OOzN</th></tr></thead><tbody>
+                    <table class="w-full text-sm"><thead><tr><th></th><th class="text-center">liczba</th></tr></thead><tbody>
                         ${row('Porada', 'porada')}${row('Instruktaż', 'instruktaz')}${row('Szkolenie', 'szkolenie')}${row('Testowanie', 'testowanie')}</tbody></table>
                     <div class="grid sm:grid-cols-3 gap-3 items-end"><div><label class="lbl">Wypożyczenie spoza katalogu (szt.)</label>${numInp('wypozyczenie', cur.wypozyczenie)}</div>
                         <div class="sm:col-span-2">${inp('przedmiot', 'Przedmiot wypożyczenia', cur.przedmiot)}</div></div>
-                    <p class="text-xs text-gray-500 -mt-2">Wypożyczenia z katalogu liczą się same – tu wpisuj tylko te, których nie ma w katalogu.</p>
+                    <p class="text-xs text-gray-500 -mt-2">Czynności liczą się jako OOzN, gdy wpisano imię i nazwisko OOzN, w przeciwnym razie jako OzN. Wypożyczenia z katalogu liczą się same – tu wpisuj tylko te, których nie ma w katalogu.</p>
                     ${inp('inna', 'Inna czynność', cur.inna)}`;
             } else {
                 fields = `${inp('date', 'Data', cur.date || todayStr(), 'date', 'required')}
@@ -722,7 +723,9 @@
                 if (!g('ozn') && !g('oozn')) { err.textContent = 'Podaj imię i nazwisko OzN lub OOzN.'; return; }
                 data = { scope, date, ozn: g('ozn'), oozn: g('oozn'), oznTag: g('oznTag'), newPesel: c('newPesel'), note: g('note') };
                 if (scope === 'osit') {
-                    ['poradaOzn', 'poradaOozn', 'instruktazOzn', 'instruktazOozn', 'szkolenieOzn', 'szkolenieOozn', 'testowanieOzn', 'testowanieOozn', 'wypozyczenie'].forEach(k => data[k] = n(g(k)));
+                    const asO = !!g('oozn');
+                    ['porada', 'instruktaz', 'szkolenie', 'testowanie'].forEach(k => { const v = n(g(k)); data[k + 'Ozn'] = asO ? 0 : v; data[k + 'Oozn'] = asO ? v : 0; });
+                    data.wypozyczenie = n(g('wypozyczenie'));
                     data.przedmiot = g('przedmiot'); data.inna = g('inna');
                 } else {
                     ['porada', 'instruktaz', 'kontakt', 'technologia'].forEach(k => data[k] = n(g(k)));
