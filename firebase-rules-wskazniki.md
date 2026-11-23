@@ -94,3 +94,22 @@ tylko aktualnie wypożyczone urządzenia. Rozwiązanie: w `history` dodaj `".ind
 i zezwól na odczyt zalogowanym (`auth != null`) albo ogranicz do własnych wpisów.
 
 Lista kont z dostępem: stała `ALLOWED` w `wskazniki.html` (i ta sama w `katalog.html`, przycisk „Wskaźniki”).
+
+## Uwagi do sprzętu (`equipmentNotes`)
+
+Przycisk „Uwagi” w `katalog.html` (oraz „📝 Uwaga” przy urządzeniu w oknie Ładowanie) zapisuje w węźle `equipmentNotes`
+uwagi typu „brak ładowarki”. Admin widzi je zbiorczo w Raporty → zakładka „Uwagi” (pogrupowane po kodzie urządzenia).
+Dodaj w konsoli Firebase (Realtime Database → Reguły), obok `charging` i `chargingLog`:
+
+```json
+"equipmentNotes": {
+  ".read": "auth != null",
+  "$id": {
+    ".write": "auth != null && (!data.exists() || newData.exists() || auth.token.email == 'admin@owit.pl')",
+    ".validate": "newData.hasChildren(['code','text','at','status']) && newData.child('text').isString() && newData.child('text').val().length <= 500"
+  }
+}
+```
+
+Każdy zalogowany pracownik dodaje uwagę i oznacza ją „Załatwione” (zapisuje się kto i kiedy), a usuwa ją tylko admin.
+Struktura wpisu: `{ code, itemName, text, at, by, byName, status: 'open' | 'resolved', resolvedAt, resolvedBy, resolvedByName }`.

@@ -1123,6 +1123,14 @@
                                 <span id="chargingBadge"
                                     class="hidden min-w-[1.25rem] h-5 bg-amber-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"></span>
                             </button>
+                            <button id="notesBtn" onclick="openNotesModal()"
+                                class="hidden items-center gap-2 bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-300 hover:border-rose-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
+                                aria-label="Uwagi do sprzętu">
+                                <i data-lucide="message-square-warning" class="w-4 h-4"></i>
+                                <span class="hidden md:inline">Uwagi</span>
+                                <span id="notesBadge"
+                                    class="hidden min-w-[1.25rem] h-5 bg-rose-700 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"></span>
+                            </button>
                             <button id="docsGeneratorBtn" onclick="openDocsGeneratorModal()"
                                 class="hidden items-center gap-2 bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-300 hover:border-blue-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
                                 aria-label="Generator dokumentów wypożyczenia">
@@ -1302,6 +1310,10 @@
                     class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap">
                     Ładowanie
                 </button>
+                <button id="reportTabNotes" onclick="switchReportTab('notes')"
+                    class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap">
+                    Uwagi <span id="notesReportCount" class="ml-1 hidden min-w-[1.25rem] h-5 bg-rose-600 text-white text-[10px] font-bold rounded-full inline-flex items-center justify-center px-1"></span>
+                </button>
             </div>
             <div id="adminReportContent" class="p-5 overflow-y-auto flex-grow bg-white text-sm"></div>
         </div>
@@ -1407,6 +1419,47 @@
                     class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
             </div>
             <div id="chargingBody" class="p-5 overflow-y-auto flex-grow bg-white" aria-live="polite"></div>
+        </div>
+    </div>
+
+    <!-- MODAL UWAGI DO SPRZĘTU -->
+    <div id="notesModal"
+        class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4 print:hidden backdrop-blur-sm"
+        role="dialog" aria-modal="true" aria-labelledby="notesModalTitle">
+        <div
+            class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-rose-50/70 shrink-0">
+                <h3 id="notesModalTitle" class="text-xl font-bold flex items-center gap-2 text-rose-800">
+                    <i data-lucide="message-square-warning" class="text-rose-700"></i> Uwagi do sprzętu
+                </h3>
+                <button type="button" onclick="closeNotesModal()" aria-label="Zamknij okno uwag"
+                    class="text-gray-400 hover:text-gray-600 cursor-pointer p-1 rounded transition-colors">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="notesForm" onsubmit="submitEquipmentNote(event)" class="px-5 pt-4 pb-3 border-b border-gray-100 shrink-0 space-y-2">
+                <p class="text-xs text-gray-500">Zauważyłeś brak ładowarki, uszkodzenie albo coś innego? Wpisz kod
+                    urządzenia i uwagę. Trafi na listę dla administratora.</p>
+                <label for="notesCode" class="sr-only">Kod urządzenia</label>
+                <input id="notesCode" list="notesCodeList" autocomplete="off" required maxlength="40"
+                    placeholder="Kod urządzenia, np. TAB-08"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-rose-400">
+                <datalist id="notesCodeList"></datalist>
+                <div class="flex flex-wrap gap-1.5" id="notesChips" aria-label="Szybkie uwagi"></div>
+                <label for="notesText" class="sr-only">Treść uwagi</label>
+                <textarea id="notesText" required maxlength="500" rows="2" placeholder="Treść uwagi, np. brak ładowarki"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400"></textarea>
+                <div class="flex justify-end">
+                    <button type="submit" id="notesSubmit"
+                        class="px-4 py-2 rounded-lg bg-rose-700 hover:bg-rose-800 text-white text-sm font-semibold cursor-pointer disabled:opacity-50">Dodaj uwagę</button>
+                </div>
+            </form>
+            <div class="px-5 pt-3 shrink-0">
+                <label for="notesSearch" class="sr-only">Szukaj w uwagach</label>
+                <input id="notesSearch" type="search" oninput="renderNotesModalList()" placeholder="Szukaj kodu, nazwy lub treści…" autocomplete="off"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-rose-300">
+            </div>
+            <div id="notesBody" class="p-5 overflow-y-auto flex-grow bg-white" aria-live="polite"></div>
         </div>
     </div>
 
@@ -2095,6 +2148,9 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 updateMyRentalsBadge();
                 startChargingListener();
                 updateChargingBadge();
+                document.getElementById('notesBtn').classList.remove('hidden');
+                document.getElementById('notesBtn').classList.add('flex');
+                startNotesListener();
                 // Renderuj tylko gdy dane już załadowane (unikamy pustego renderowania przed danymi)
                 if (_inventoryReady && _customReady && document.getElementById('catalog-container')) {
                     renderCatalog();
@@ -2119,6 +2175,9 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 document.getElementById('chargingBtn').classList.add('hidden');
                 document.getElementById('chargingBtn').classList.remove('flex');
                 stopChargingListener();
+                document.getElementById('notesBtn').classList.add('hidden');
+                document.getElementById('notesBtn').classList.remove('flex');
+                stopNotesListener();
                 if (_inventoryReady && _customReady && document.getElementById('catalog-container')) {
                     renderCatalog();
                 }
@@ -2448,6 +2507,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             const cabinet = ci.cabinet;
             const cabinetBadge = cabinet ? `<span class="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 text-gray-700 whitespace-nowrap" title="Numer szafy">${/^\d/.test(String(cabinet)) ? 'Szafa ' : ''}${equipEsc(cabinet)}</span>` : '';
             const urgentBadge = s.urgent ? '<span class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border bg-red-100 text-red-700 border-red-300 whitespace-nowrap">rezerwacja wkrótce</span>' : '';
+            const nOpen = openNotesFor(s.code).length;
+            const noteBadge = nOpen ? `<span class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border bg-rose-100 text-rose-700 border-rose-300 whitespace-nowrap" title="${equipEsc(openNotesFor(s.code).map(n => n.text).join(' | ')).replace(/"/g, '&quot;')}">uwagi: ${nOpen}</span>` : '';
             let sub;
             if (s.kind === 'ok') {
                 const d = new Date(s.last).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
@@ -2464,7 +2525,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 <p class="text-sm leading-tight"><span class="font-mono font-bold text-gray-900">${equipEsc(s.code)}</span> <span class="text-gray-600">${equipEsc(s.group)}</span></p>
                 <p class="text-xs text-gray-500 mt-0.5">${sub}</p>
                 <div class="flex items-center gap-2 mt-2">
-                    <div class="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">${cabinetBadge}${urgentBadge}</div>
+                    <div class="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">${cabinetBadge}${urgentBadge}${noteBadge}</div>
+                    <button type="button" onclick="openNotesModal('${equipEsc(s.code)}')" class="shrink-0 min-h-[36px] px-2 rounded-lg border border-rose-300 bg-white hover:bg-rose-50 text-rose-700 text-xs font-semibold cursor-pointer" aria-label="Dodaj uwagę do ${equipEsc(s.code)}">📝 Uwaga</button>
                     ${btn}
                 </div>
             </li>`;
@@ -2576,6 +2638,207 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             if (_chargingModalTrigger) { _chargingModalTrigger.focus(); _chargingModalTrigger = null; }
         }
 
+        // UWAGI DO SPRZĘTU (np. brak ładowarki): każdy zalogowany pracownik dodaje, admin widzi zbiorczo
+        // Stan w Firebase: equipmentNotes/{id} = { code, itemName, text, at, by, byName, status: 'open' | 'resolved', resolvedAt, resolvedBy, resolvedByName }
+        let equipmentNotesData = {};
+        let _notesRef = null;
+        let _notesModalTrigger = null;
+        const _notesOpenSections = { resolved: false };
+        const NOTE_QUICK = ['Brak ładowarki', 'Brak kabla', 'Uszkodzony ekran', 'Nie włącza się', 'Brak etui / pokrowca', 'Brak elementu zestawu'];
+
+        function startNotesListener() {
+            if (_notesRef) return;
+            const ref = _notesRef = database.ref('equipmentNotes');
+            ref.on('value', (snap) => {
+                equipmentNotesData = snap.val() || {};
+                updateNotesBadge();
+                const modal = document.getElementById('notesModal');
+                if (modal && !modal.classList.contains('hidden')) renderNotesModalList();
+                if (_reportTab === 'notes' && document.getElementById('notesReportBox')) renderNotesReport();
+                const cm = document.getElementById('chargingModal');
+                if (cm && !cm.classList.contains('hidden')) renderCharging();
+            }, (err) => {
+                console.warn('Uwagi: brak dostępu do equipmentNotes', err);
+                if (_notesRef === ref) _notesRef = null;
+            });
+        }
+        function stopNotesListener() {
+            if (_notesRef) { _notesRef.off(); _notesRef = null; }
+            equipmentNotesData = {};
+            updateNotesBadge();
+        }
+
+        function _allNotes() {
+            return Object.entries(equipmentNotesData).map(([id, n]) => ({ id, ...n }));
+        }
+        function openNotesFor(code) {
+            return _allNotes().filter(n => n.status !== 'resolved' && n.code === code);
+        }
+        function updateNotesBadge() {
+            const count = _allNotes().filter(n => n.status !== 'resolved').length;
+            const badge = document.getElementById('notesBadge');
+            if (badge) { badge.textContent = count; badge.classList.toggle('hidden', !count); }
+            const rb = document.getElementById('notesReportCount');
+            if (rb) { rb.textContent = count; rb.classList.toggle('hidden', !count); }
+        }
+
+        function _codeGroup(code) {
+            const data = window.EQUIPMENT_CODES;
+            if (!data) return '';
+            const g = data.groups.find(([, codes]) => codes.includes(code));
+            return g ? g[0] : '';
+        }
+
+        function _noteHtml(n, showResolve) {
+            const fmt = d => d ? new Date(d).toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+            const done = n.status === 'resolved';
+            const resolveBtn = !done && showResolve
+                ? `<button type="button" onclick="resolveNote('${equipEsc(n.id)}')" class="shrink-0 min-h-[32px] px-2.5 rounded-lg border border-green-400 bg-white hover:bg-green-50 text-green-800 text-xs font-semibold cursor-pointer" aria-label="Oznacz uwagę jako załatwioną">✓ Załatwione</button>` : '';
+            const reopenBtn = done && showResolve
+                ? `<button type="button" onclick="reopenNote('${equipEsc(n.id)}')" class="shrink-0 min-h-[32px] px-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-gray-600 text-xs font-semibold cursor-pointer">Przywróć</button>` : '';
+            const delBtn = isAdminMode
+                ? `<button type="button" onclick="deleteNote('${equipEsc(n.id)}')" class="shrink-0 min-h-[32px] px-2 rounded-lg border border-gray-300 bg-white hover:bg-red-50 text-red-600 text-xs cursor-pointer" aria-label="Usuń uwagę">Usuń</button>` : '';
+            return `<li class="p-3 rounded-lg border ${done ? 'border-gray-200 bg-gray-50' : 'border-rose-200 bg-rose-50/40'}">
+                <p class="text-sm ${done ? 'text-gray-500 line-through' : 'text-gray-800'} whitespace-pre-wrap break-words">${equipEsc(n.text || '')}</p>
+                <p class="text-[11px] text-gray-400 mt-1">${equipEsc(n.byName || n.by || '—')} · ${fmt(n.at)}${done ? ` · załatwił(-a): ${equipEsc(n.resolvedByName || n.resolvedBy || '—')} ${fmt(n.resolvedAt)}` : ''}</p>
+                ${(resolveBtn || reopenBtn || delBtn) ? `<div class="flex justify-end gap-2 mt-2">${reopenBtn}${resolveBtn}${delBtn}</div>` : ''}
+            </li>`;
+        }
+
+        // Lista uwag zgrupowana po urządzeniu: najpierw otwarte (najwięcej uwag na górze), załatwione zwinięte
+        function _notesGroupedHtml(q, showResolve) {
+            const norm = s => equipNorm(s).replace(/ /g, '');
+            let all = _allNotes();
+            if (q) all = all.filter(n => norm((n.code || '') + ' ' + (n.itemName || '') + ' ' + (n.text || '')).includes(q));
+            const byCode = (list) => {
+                const m = {};
+                list.forEach(n => { (m[n.code || '—'] = m[n.code || '—'] || []).push(n); });
+                Object.values(m).forEach(a => a.sort((x, y) => (y.at || '').localeCompare(x.at || '')));
+                return m;
+            };
+            const group = (m) => Object.entries(m)
+                .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
+                .map(([code, items]) => `<div class="mb-4">
+                    <p class="text-sm leading-tight mb-1.5"><span class="font-mono font-bold text-gray-900">${equipEsc(code)}</span> <span class="text-gray-600">${equipEsc(items[0].itemName || '')}</span> <span class="text-xs text-gray-400">(${items.length})</span></p>
+                    <ul class="space-y-2">${items.map(n => _noteHtml(n, showResolve)).join('')}</ul></div>`).join('');
+            const open = all.filter(n => n.status !== 'resolved');
+            const resolved = all.filter(n => n.status === 'resolved').sort((a, b) => (b.resolvedAt || '').localeCompare(a.resolvedAt || '')).slice(0, 100);
+            let html = open.length
+                ? `<h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Otwarte (${open.length})</h4>${group(byCode(open))}`
+                : (q ? '' : '<p class="text-center text-green-700 font-semibold py-4 text-sm">Brak otwartych uwag. 🎉</p>');
+            if (resolved.length) {
+                html += `<details class="mb-2" ${_notesOpenSections.resolved || q ? 'open' : ''} ontoggle="_notesOpenSections.resolved = this.open">
+                    <summary class="text-xs font-bold text-gray-500 uppercase tracking-wide cursor-pointer py-2">Załatwione (${resolved.length})</summary>
+                    <ul class="space-y-2">${resolved.map(n => `<li class="list-none"><p class="font-mono text-xs font-bold text-gray-700 mb-1">${equipEsc(n.code || '—')} <span class="font-normal text-gray-500">${equipEsc(n.itemName || '')}</span></p><ul>${_noteHtml(n, showResolve)}</ul></li>`).join('')}</ul></details>`;
+            }
+            return html || '<p class="text-center text-gray-500 py-8 text-sm">Brak wyników.</p>';
+        }
+
+        function renderNotesModalList() {
+            const body = document.getElementById('notesBody');
+            if (!body) return;
+            const q = equipNorm(document.getElementById('notesSearch').value).replace(/ /g, '');
+            body.innerHTML = _notesGroupedHtml(q, true);
+            lucide.createIcons();
+        }
+
+        function renderNotesReport() {
+            const box = document.getElementById('notesReportBox');
+            if (!box) return;
+            if (!_notesRef) startNotesListener();
+            box.innerHTML = `<p class="text-xs text-gray-500 mb-4">Uwagi zgłoszone przez pracowników, pogrupowane po urządzeniu. Po usunięciu usterki kliknij „Załatwione”.</p>` + _notesGroupedHtml('', true);
+        }
+
+        function openNotesModal(code) {
+            _notesModalTrigger = document.activeElement;
+            const dl = document.getElementById('notesCodeList');
+            if (!dl.childElementCount && window.EQUIPMENT_CODES) {
+                dl.innerHTML = window.EQUIPMENT_CODES.groups.flatMap(([label, codes]) => codes.map(c => `<option value="${equipEsc(c)}">${equipEsc(label)}</option>`)).join('');
+            }
+            const chips = document.getElementById('notesChips');
+            if (!chips.childElementCount) {
+                chips.innerHTML = NOTE_QUICK.map(t => `<button type="button" class="px-2 py-1 rounded-full border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs cursor-pointer" data-note="${equipEsc(t)}">${equipEsc(t)}</button>`).join('');
+                chips.addEventListener('click', e => {
+                    const b = e.target.closest('button[data-note]'); if (!b) return;
+                    const ta = document.getElementById('notesText');
+                    ta.value = ta.value.trim() ? ta.value.trim().replace(/[.,;]$/, '') + ', ' + b.dataset.note.toLowerCase() : b.dataset.note;
+                    ta.focus();
+                });
+            }
+            document.getElementById('notesCode').value = code || '';
+            document.getElementById('notesText').value = '';
+            document.getElementById('notesSearch').value = '';
+            if (!_notesRef) startNotesListener();
+            renderNotesModalList();
+            const modal = document.getElementById('notesModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.addEventListener('keydown', _notesModalKeys);
+            setTimeout(() => document.getElementById(code ? 'notesText' : 'notesCode').focus(), 100);
+        }
+
+        function _notesModalKeys(e) {
+            if (e.key === 'Escape') { closeNotesModal(); return; }
+            if (e.key !== 'Tab') return;
+            const modal = document.getElementById('notesModal');
+            const focusable = Array.from(modal.querySelectorAll('button, input, textarea, summary, [tabindex]:not([tabindex="-1"])')).filter(el => !el.disabled && el.offsetParent !== null);
+            if (!focusable.length) return;
+            const first = focusable[0], last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+
+        function closeNotesModal() {
+            const modal = document.getElementById('notesModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.removeEventListener('keydown', _notesModalKeys);
+            if (_notesModalTrigger) { _notesModalTrigger.focus(); _notesModalTrigger = null; }
+        }
+
+        function submitEquipmentNote(e) {
+            e.preventDefault();
+            const code = document.getElementById('notesCode').value.trim().toUpperCase();
+            const text = document.getElementById('notesText').value.trim();
+            if (!code || !text) return;
+            const group = _codeGroup(code);
+            const known = !!group;
+            const doSave = () => {
+                const btn = document.getElementById('notesSubmit');
+                btn.disabled = true;
+                database.ref('equipmentNotes').push().set({
+                    code, itemName: group, text,
+                    at: new Date().toISOString(), by: currentUserEmail || '', byName: currentUserName || '',
+                    status: 'open'
+                }).then(() => {
+                    document.getElementById('notesText').value = '';
+                    document.getElementById('notesCode').value = '';
+                    document.getElementById('notesCode').focus();
+                }).catch(err => alert('Błąd zapisu uwagi: ' + err.message))
+                  .finally(() => { btn.disabled = false; });
+            };
+            if (known) doSave();
+            else showConfirm('Kod „' + code + '” nie jest na liście znanych kodów. Zapisać uwagę mimo to?', doSave);
+        }
+
+        function resolveNote(id) {
+            database.ref('equipmentNotes/' + id).update({
+                status: 'resolved', resolvedAt: new Date().toISOString(),
+                resolvedBy: currentUserEmail || '', resolvedByName: currentUserName || ''
+            }).catch(err => alert('Błąd zapisu: ' + err.message));
+        }
+        function reopenNote(id) {
+            database.ref('equipmentNotes/' + id).update({
+                status: 'open', resolvedAt: null, resolvedBy: null, resolvedByName: null
+            }).catch(err => alert('Błąd zapisu: ' + err.message));
+        }
+        function deleteNote(id) {
+            if (!isAdminMode) return;
+            showConfirm('Usunąć tę uwagę na stałe?', () => {
+                database.ref('equipmentNotes/' + id).remove().catch(err => alert('Błąd usuwania: ' + err.message));
+            });
+        }
+
         // RAPORT ADMINA
         let _adminReportTrigger = null;
         let historyData = null;
@@ -2646,6 +2909,7 @@ document.getElementById('adminReportBtn').classList.add('hidden');
             overdue.className   = tab === 'overdue'   ? active : inactive;
             history.className   = tab === 'history'   ? active : inactive;
             charging.className  = (tab === 'charging' ? active : inactive) + ' whitespace-nowrap';
+            document.getElementById('reportTabNotes').className = (tab === 'notes' ? active : inactive) + ' whitespace-nowrap';
             if      (tab === 'dashboard') document.getElementById('adminReportContent').innerHTML = _buildDashboard();
             else if (tab === 'workers')   document.getElementById('adminReportContent').innerHTML = _buildAdminReport();
             else if (tab === 'overdue')   document.getElementById('adminReportContent').innerHTML = _buildOverdueReport();
@@ -2653,6 +2917,10 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 document.getElementById('adminReportContent').innerHTML =
                     '<div class="flex items-center justify-center py-16 text-gray-400 gap-3"><i data-lucide="loader-2" class="w-6 h-6 animate-spin"></i><span class="text-sm">Ładowanie danych…</span></div>';
                 loadChargingLog().then(() => { if (_reportTab === 'charging') { _showChargingReport(); lucide.createIcons(); } });
+            }
+            else if (tab === 'notes') {
+                document.getElementById('adminReportContent').innerHTML = '<div id="notesReportBox"></div>';
+                renderNotesReport();
             }
             else                          document.getElementById('adminReportContent').innerHTML = _buildHistoryTab();
             lucide.createIcons();
