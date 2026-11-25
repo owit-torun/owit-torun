@@ -1115,6 +1115,12 @@
                                 <i data-lucide="target" class="w-4 h-4"></i>
                                 <span class="hidden md:inline">Wskaźniki</span>
                             </a>
+                            <a id="assistantBtn" href="asystent/"
+                                class="hidden items-center gap-2 bg-green-50 text-green-800 hover:bg-green-100 border border-green-300 hover:border-green-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
+                                aria-label="Asystent porad i instruktaży">
+                                <i data-lucide="message-square-text" class="w-4 h-4"></i>
+                                <span class="hidden md:inline">Asystent porad</span>
+                            </a>
                             <button id="chargingBtn" onclick="openChargingModal()"
                                 class="hidden items-center gap-2 bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-300 hover:border-amber-400 px-4 py-2 rounded-xl font-semibold transition-colors text-sm cursor-pointer"
                                 aria-label="Ładowanie sprzętu">
@@ -2139,6 +2145,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 const _indOk = ['admin@owit.pl', 'adrian@owit.pl', 'marcin@owit.pl', 'dorota@owit.pl'].includes(user.email.toLowerCase());
                 document.getElementById('indicatorsBtn').classList.toggle('hidden', !_indOk);
                 document.getElementById('indicatorsBtn').classList.toggle('flex', _indOk);
+                document.getElementById('assistantBtn').classList.remove('hidden');
+                document.getElementById('assistantBtn').classList.add('flex');
                 document.getElementById('myRentalsBtn').classList.remove('hidden');
                 document.getElementById('myRentalsBtn').classList.add('flex');
                 document.getElementById('docsGeneratorBtn').classList.remove('hidden');
@@ -2168,6 +2176,8 @@ document.getElementById('adminReportBtn').classList.add('hidden');
                 document.getElementById('adminReportBtn').classList.remove('flex');
                 document.getElementById('indicatorsBtn').classList.add('hidden');
                 document.getElementById('indicatorsBtn').classList.remove('flex');
+                document.getElementById('assistantBtn').classList.add('hidden');
+                document.getElementById('assistantBtn').classList.remove('flex');
                 document.getElementById('myRentalsBtn').classList.add('hidden');
                 document.getElementById('myRentalsBtn').classList.remove('flex');
                 document.getElementById('docsGeneratorBtn').classList.add('hidden');
